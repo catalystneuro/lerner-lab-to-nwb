@@ -1,24 +1,26 @@
 # -*- coding: utf-8 -*-
+from pathlib import Path
 from setuptools import setup, find_packages
-import os
 
-here = os.path.abspath(os.path.dirname(__file__))
-with open(os.path.join(here, "requirements.txt")) as f:
-    install_requires = f.read().strip().split("\n")
+requirements_file_path = Path(__file__).parent / "requirements.txt"
+with open(requirements_file_path) as file:
+    install_requires = file.readlines()
 
 with open("README.md", "r") as f:
     long_description = f.read()
 
 setup(
-    name="my_lab_to_nwb",
+    name="lerner-lab-to-nwb",
     version="0.0.1",
-    description="NWB conversion scripts, functions, and classes for an arbitrary conversion project.",
+    description="NWB conversion scripts, functions, and classes for Lerner conversion",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    author="Cody Baker and Ben Dichter.",
-    email="ben.dichter@catalystneuro.com",
-    packages=find_packages(),
+    author="CatalystNeuro",
+    author_email="ben.dichter@catalystneuro.com",
+    url="https://github.com/catalystneuro/lerner-lab-to-nwb",
+    packages=find_packages(where="src"),
+    package_dir={"": "src"},
     include_package_data=True,
-    python_requires=">=3.7",
+    python_requires=">=3.8",
     install_requires=install_requires,
 )
