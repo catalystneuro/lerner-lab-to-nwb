@@ -26,12 +26,28 @@ def session_to_nwb(
     output_dir_path.mkdir(parents=True, exist_ok=True)
 
     nwbfile_path = output_dir_path / f"{experiment_type}_{experimental_group}_{session_id}.nwb"
+    subject_id = session_id.split("_")[0]
 
     source_data = {}
     conversion_options = {}
 
     # Add Behavior
-    source_data.update(dict(Behavior={}))
+    behavior_file_path = (
+        data_dir_path
+        / f"{experiment_type} Experiments"
+        / "Behavior"
+        / f"{experimental_group}"
+        / f"{subject_id}"
+        / f"{subject_id}"
+    )
+    source_data.update(
+        dict(
+            Behavior={
+                "file_path": str(behavior_file_path),
+                "session_id": session_id,
+            }
+        )
+    )
     conversion_options.update(dict(Behavior={}))
 
     converter = Seiler2024NWBConverter(source_data=source_data)
@@ -46,7 +62,7 @@ def session_to_nwb(
     editable_metadata_path = Path(__file__).parent / "seiler_2024_metadata.yaml"
     editable_metadata = load_dict_from_file(editable_metadata_path)
     metadata = dict_deep_update(metadata, editable_metadata)
-    metadata["Subject"]["subject_id"] = session_id.split("_")[0]
+    metadata["Subject"]["subject_id"] = subject_id
 
     # Run conversion
     converter.run_conversion(metadata=metadata, nwbfile_path=nwbfile_path, conversion_options=conversion_options)

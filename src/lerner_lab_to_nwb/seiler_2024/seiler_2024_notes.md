@@ -1,6 +1,9 @@
 # Notes concerning the seiler_2024 conversion split by interface
 
  ## Behavior
+ For all medpc files,
+ - MSN refers to the name of the code file used to produce this session
+
  In FP Experiments/Behavior,
 - G represents portEntryTs (Port Entry Times)
 - E represents DurationOfPE (Duration of Port Entry)
