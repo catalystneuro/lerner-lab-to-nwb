@@ -18,3 +18,4 @@ In FP Experiments/Behavior/PR/028.392,
 Plan for interface:
 - treat MEDPC files as fundamental, switch to secondary interface if only .csv files are available
 - two different options: from_medpc and from_csv
+- session_id = {animal_id}_{MM-DD-YY}
