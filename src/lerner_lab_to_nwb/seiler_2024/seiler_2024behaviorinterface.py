@@ -66,6 +66,8 @@ class Seiler2024BehaviorInterface(BaseDataInterface):
         pprint(session_dict)
 
 
+# TODO: Add tests to compare to .csvs
+# TODO: Refactor to separate file and clean up code (ex. inversion)
 def read_medpc_file(file_path: str, start_date: str, medpc_name_to_dict_name: dict, medpc_name_to_type: dict) -> dict:
     """Read a raw MedPC text file into a dictionary."""
     # Read the file
