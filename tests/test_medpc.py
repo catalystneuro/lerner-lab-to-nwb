@@ -54,6 +54,11 @@ def test_read_medpc_file():
     csv_path = file_path.parent / "95.259_04-17-19.csv"
     session_df = pd.read_csv(csv_path)
     port_entry_times = session_df["portEntryTs"].dropna().values
+    duration_of_port_entry = session_df["DurationOfPE"].dropna().values
+    left_nose_poke_times = session_df["LeftNoseTs"].dropna().values
+    right_nose_poke_times = session_df["RightNoseTs"].dropna().values
+    right_reward_times = session_df["RightRewardTs"].dropna().values
+    left_reward_times = session_df["LeftRewardTs"].dropna().values
 
     assert session_dict["start_date"] == date(2019, 4, 17), "start_date is not correct"
     assert session_dict["end_date"] == date(2019, 4, 17), "end_date is not correct"
@@ -63,3 +68,14 @@ def test_read_medpc_file():
     assert session_dict["end_time"] == time(13, 38, 14), "end_time is not correct"
     assert session_dict["MSN"] == "RR20_Left", "MSN is not correct"
     assert np.array_equal(session_dict["port_entry_times"], port_entry_times), "port_entry_times is not correct"
+    assert np.array_equal(
+        session_dict["duration_of_port_entry"], duration_of_port_entry
+    ), "duration_of_port_entry is not correct"
+    assert np.array_equal(
+        session_dict["left_nose_poke_times"], left_nose_poke_times
+    ), "left_nose_poke_times is not correct"
+    assert np.array_equal(
+        session_dict["right_nose_poke_times"], right_nose_poke_times
+    ), "right_nose_poke_times is not correct"
+    assert np.array_equal(session_dict["right_reward_times"], right_reward_times), "right_reward_times is not correct"
+    assert np.array_equal(session_dict["left_reward_times"], left_reward_times), "left_reward_times is not correct"
