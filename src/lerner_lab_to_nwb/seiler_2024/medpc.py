@@ -31,7 +31,7 @@ def read_medpc_file(file_path: str, start_date: str, medpc_name_to_dict_name: di
         split_line = line.split(":", maxsplit=1)
         medpc_name, data = split_line
         data = data.strip()
-        if medpc_name.startswith("     "):  # multiline variable
+        if line.find(":") == 6:  # multiline variable
             if medpc_name == "     0":
                 multiline_variable_name = session_lines[i - 1].split(":")[0]
                 if multiline_variable_name not in medpc_name_to_dict_name:
