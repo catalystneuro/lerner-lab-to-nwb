@@ -3,3 +3,4 @@ nwbwidgets
 nwbinspector
 dandi
 pre-commit
+pytest
