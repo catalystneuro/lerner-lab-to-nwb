@@ -2,8 +2,6 @@ from datetime import datetime, date, time, timezone
 import numpy as np
 
 
-# TODO: Add tests to compare to .csvs
-# TODO: Refactor to separate file and clean up code (ex. inversion)
 def read_medpc_file(file_path: str, start_date: str, medpc_name_to_dict_name: dict, medpc_name_to_type: dict) -> dict:
     """Read a raw MedPC text file into a dictionary."""
     # Read the file
@@ -32,19 +30,18 @@ def read_medpc_file(file_path: str, start_date: str, medpc_name_to_dict_name: di
         medpc_name, data = split_line
         data = data.strip()
         if line.find(":") == 6:  # multiline variable
-            if medpc_name == "     0":
+            if medpc_name == "     0":  # first line of multiline variable
                 multiline_variable_name = session_lines[i - 1].split(":")[0]
-                if multiline_variable_name not in medpc_name_to_dict_name:
-                    continue
-                session_dict[medpc_name_to_dict_name[multiline_variable_name]] = []
+                if multiline_variable_name in medpc_name_to_dict_name:
+                    session_dict[medpc_name_to_dict_name[multiline_variable_name]] = []
             if multiline_variable_name not in medpc_name_to_dict_name:
                 continue
             data = data.split(" ")
+            data = [datum.strip() for datum in data if datum.strip() != ""]
             for datum in data:
-                datum = datum.strip()
-                if datum == "":
-                    continue
                 session_dict[medpc_name_to_dict_name[multiline_variable_name]].append(datum)
+
+        # single line variable
         elif medpc_name in medpc_name_to_dict_name:
             dict_name = medpc_name_to_dict_name[medpc_name]
             session_dict[dict_name] = data
