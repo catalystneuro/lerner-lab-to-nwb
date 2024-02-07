@@ -58,4 +58,7 @@ def read_medpc_file(file_path: str, start_date: str, medpc_name_to_dict_name: di
                     session_dict[medpc_name] = np.array([], dtype=float)
                 else:
                     session_dict[medpc_name] = np.array(session_dict[medpc_name], dtype=float)
+                    session_dict[medpc_name] = np.trim_zeros(
+                        session_dict[medpc_name], trim="b"
+                    )  # MEDPC adds extra zeros to the end of the array
     return session_dict

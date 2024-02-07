@@ -53,12 +53,12 @@ def test_read_medpc_file():
     )
     csv_path = file_path.parent / "95.259_04-17-19.csv"
     session_df = pd.read_csv(csv_path)
-    port_entry_times = session_df["portEntryTs"].dropna().values
-    duration_of_port_entry = session_df["DurationOfPE"].dropna().values
-    left_nose_poke_times = session_df["LeftNoseTs"].dropna().values
-    right_nose_poke_times = session_df["RightNoseTs"].dropna().values
-    right_reward_times = session_df["RightRewardTs"].dropna().values
-    left_reward_times = session_df["LeftRewardTs"].dropna().values
+    port_entry_times = np.trim_zeros(session_df["portEntryTs"].dropna().values, trim="b")
+    duration_of_port_entry = np.trim_zeros(session_df["DurationOfPE"].dropna().values, trim="b")
+    left_nose_poke_times = np.trim_zeros(session_df["LeftNoseTs"].dropna().values, trim="b")
+    right_nose_poke_times = np.trim_zeros(session_df["RightNoseTs"].dropna().values, trim="b")
+    right_reward_times = np.trim_zeros(session_df["RightRewardTs"].dropna().values, trim="b")
+    left_reward_times = np.trim_zeros(session_df["LeftRewardTs"].dropna().values, trim="b")
 
     assert session_dict["start_date"] == date(2019, 4, 17), "start_date is not correct"
     assert session_dict["end_date"] == date(2019, 4, 17), "end_date is not correct"
