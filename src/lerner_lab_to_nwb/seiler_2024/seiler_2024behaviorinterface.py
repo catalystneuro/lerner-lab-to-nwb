@@ -3,8 +3,12 @@ from pynwb.file import NWBFile
 from datetime import datetime, date, time, timezone
 from neuroconv.basedatainterface import BaseDataInterface
 from neuroconv.utils import DeepDict
+from neuroconv.tools import nwb_helpers
 import numpy as np
 from pprint import pprint
+from ndx_events import Events
+from pynwb.behavior import BehavioralEpochs, IntervalSeries
+
 from .medpc import read_medpc_file
 
 
@@ -64,4 +68,55 @@ class Seiler2024BehaviorInterface(BaseDataInterface):
             medpc_name_to_dict_name=medpc_name_to_dict_name,
             medpc_name_to_type=dict_name_to_type,
         )
-        pprint(session_dict)
+
+        # Add behavior data to nwbfile
+        behavior_module = nwb_helpers.get_module(
+            nwbfile=nwbfile, name="behavior", description="Operant behavioral data from MedPC"
+        )
+
+        # Port Entry
+        port_times = []
+        for port_entry_time, duration in zip(session_dict["port_entry_times"], session_dict["duration_of_port_entry"]):
+            port_times.append(port_entry_time)
+            port_times.append(port_entry_time + duration)
+        reward_port_intervals = IntervalSeries(
+            name="reward_port_intervals",
+            description="Interval of time spent in reward port (1 is entry, -1 is exit)",
+            timestamps=port_times,
+            data=np.array([1, -1] * (len(port_times) // 2), dtype=int),
+        )
+        behavioral_epochs = BehavioralEpochs(name="behavioral_epochs")
+        behavioral_epochs.add_interval_series(reward_port_intervals)
+        behavior_module.add(behavioral_epochs)
+
+        # Left/Right Nose pokes
+        left_nose_poke_times = Events(
+            name="left_nose_poke_times",
+            description="Left nose poke times",
+            timestamps=session_dict["left_nose_poke_times"],
+        )
+        right_nose_poke_times = Events(
+            name="right_nose_poke_times",
+            description="Right nose poke times",
+            timestamps=session_dict["right_nose_poke_times"],
+        )
+        behavior_module.add(left_nose_poke_times)
+        behavior_module.add(right_nose_poke_times)
+
+        # Interleaved Left/Right Rewards
+        assert not (
+            len(session_dict["left_reward_times"]) > 0 and len(session_dict["right_reward_times"]) > 0
+        ), "Both left and right reward times are present (not interleaved)"
+        if len(session_dict["left_reward_times"]) > 0:
+            reward_times = Events(
+                name="reward_times",
+                description="Reward times (left)",
+                timestamps=session_dict["left_reward_times"],
+            )
+        else:
+            reward_times = Events(
+                name="reward_times",
+                description="Reward times (right)",
+                timestamps=session_dict["right_reward_times"],
+            )
+        behavior_module.add(reward_times)

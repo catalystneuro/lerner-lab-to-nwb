@@ -78,6 +78,7 @@ matplotlib-inline==0.1.6
 more-itertools==10.2.0
 multidict==6.0.4
 natsort==8.4.0
+ndx-events==0.2.0
 ndx-grayscalevolume==0.0.2
 ndx-icephys-meta==0.1.0
 ndx-spectrum==0.2.2

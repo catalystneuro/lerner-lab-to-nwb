@@ -3,7 +3,7 @@ from pathlib import Path
 from typing import Union, Literal
 import datetime
 from zoneinfo import ZoneInfo
-
+import shutil
 from neuroconv.utils import load_dict_from_file, dict_deep_update
 
 from lerner_lab_to_nwb.seiler_2024 import Seiler2024NWBConverter
@@ -76,6 +76,11 @@ if __name__ == "__main__":
     experimental_group = "RR20"
     session_id = "95.259_04-09-19"
     stub_test = False
+
+    if output_dir_path.exists():
+        shutil.rmtree(
+            output_dir_path, ignore_errors=True
+        )  # ignore errors due to MacOS race condition (https://github.com/python/cpython/issues/81441)
 
     session_to_nwb(
         data_dir_path=data_dir_path,
