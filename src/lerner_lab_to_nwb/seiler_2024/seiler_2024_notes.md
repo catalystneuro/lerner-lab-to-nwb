@@ -11,6 +11,8 @@
 - C represents RightNoseTs (Right Nose Poke Times)
 - D represents RightRewardTs (Reward Delivered after Active Nose Poke)
 - B represents LeftRewardTs (Interleaved per animal -- probably)
+- N represents duration of left nosepokes (not present in .csv)
+- J represents duration of right nosepokes (not present in .csv)
 
 In FP Experiments/Behavior/PS,
 - some of the animals have csvs, but are missing the raw MEDPC Files (ex. 75.214), but some animals do have them (ex. 110.271)

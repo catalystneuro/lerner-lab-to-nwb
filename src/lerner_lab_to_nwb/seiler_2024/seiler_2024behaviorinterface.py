@@ -44,6 +44,8 @@ class Seiler2024BehaviorInterface(BaseDataInterface):
             "C": "right_nose_poke_times",
             "D": "right_reward_times",
             "B": "left_reward_times",
+            "N": "duration_of_left_nose_poke",
+            "J": "duration_of_right_nose_poke",
         }
         dict_name_to_type = {
             "start_date": date,
@@ -61,6 +63,8 @@ class Seiler2024BehaviorInterface(BaseDataInterface):
             "right_nose_poke_times": np.ndarray,
             "right_reward_times": np.ndarray,
             "left_reward_times": np.ndarray,
+            "duration_of_left_nose_poke": np.ndarray,
+            "duration_of_right_nose_poke": np.ndarray,
         }
         session_dict = read_medpc_file(
             file_path=self.source_data["file_path"],
@@ -74,34 +78,39 @@ class Seiler2024BehaviorInterface(BaseDataInterface):
             nwbfile=nwbfile, name="behavior", description="Operant behavioral data from MedPC"
         )
 
-        # Port Entry
-        port_times = []
-        for port_entry_time, duration in zip(session_dict["port_entry_times"], session_dict["duration_of_port_entry"]):
-            port_times.append(port_entry_time)
-            port_times.append(port_entry_time + duration)
+        # Behavioral Epochs: Reward Port, Left Nose Poke, Right Nose Poke
+        behavioral_epochs = BehavioralEpochs(name="behavioral_epochs")
+        port_times, data = convert_entries_and_durations_to_intervals(
+            entry_times=session_dict["port_entry_times"], durations=session_dict["duration_of_port_entry"]
+        )
         reward_port_intervals = IntervalSeries(
             name="reward_port_intervals",
             description="Interval of time spent in reward port (1 is entry, -1 is exit)",
             timestamps=port_times,
-            data=np.array([1, -1] * (len(port_times) // 2), dtype=int),
+            data=data,
         )
-        behavioral_epochs = BehavioralEpochs(name="behavioral_epochs")
+        left_nose_poke_times, data = convert_entries_and_durations_to_intervals(
+            entry_times=session_dict["left_nose_poke_times"], durations=session_dict["duration_of_left_nose_poke"]
+        )
+        left_nose_poke_intervals = IntervalSeries(
+            name="left_nose_poke_intervals",
+            description="Interval of time spent in left nose poke (1 is entry, -1 is exit)",
+            timestamps=left_nose_poke_times,
+            data=data,
+        )
+        right_nose_poke_times, data = convert_entries_and_durations_to_intervals(
+            entry_times=session_dict["right_nose_poke_times"], durations=session_dict["duration_of_right_nose_poke"]
+        )
+        right_nose_poke_intervals = IntervalSeries(
+            name="right_nose_poke_intervals",
+            description="Interval of time spent in right nose poke (1 is entry, -1 is exit)",
+            timestamps=right_nose_poke_times,
+            data=data,
+        )
         behavioral_epochs.add_interval_series(reward_port_intervals)
+        behavioral_epochs.add_interval_series(left_nose_poke_intervals)
+        behavioral_epochs.add_interval_series(right_nose_poke_intervals)
         behavior_module.add(behavioral_epochs)
-
-        # Left/Right Nose pokes
-        left_nose_poke_times = Events(
-            name="left_nose_poke_times",
-            description="Left nose poke times",
-            timestamps=session_dict["left_nose_poke_times"],
-        )
-        right_nose_poke_times = Events(
-            name="right_nose_poke_times",
-            description="Right nose poke times",
-            timestamps=session_dict["right_nose_poke_times"],
-        )
-        behavior_module.add(left_nose_poke_times)
-        behavior_module.add(right_nose_poke_times)
 
         # Interleaved Left/Right Rewards
         assert not (
@@ -120,3 +129,13 @@ class Seiler2024BehaviorInterface(BaseDataInterface):
                 timestamps=session_dict["right_reward_times"],
             )
         behavior_module.add(reward_times)
+
+
+def convert_entries_and_durations_to_intervals(entry_times: np.ndarray, durations: np.ndarray):
+    times, data = [], []
+    for port_entry_time, duration in zip(entry_times, durations):
+        times.append(port_entry_time)
+        data.append(1)
+        times.append(port_entry_time + duration)
+        data.append(-1)
+    return times, data
