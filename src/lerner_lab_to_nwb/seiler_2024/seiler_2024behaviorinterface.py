@@ -1,6 +1,7 @@
 """Primary class for converting experiment-specific behavior."""
 from pynwb.file import NWBFile
-from datetime import datetime, date, time, timezone
+from datetime import datetime, date, time
+from pytz import timezone
 from neuroconv.basedatainterface import BaseDataInterface
 from neuroconv.utils import DeepDict
 from neuroconv.tools import nwb_helpers
@@ -17,17 +18,12 @@ class Seiler2024BehaviorInterface(BaseDataInterface):
 
     keywords = ["behavior"]
 
-    def __init__(self, file_path: str, session_id: str):
-        super().__init__(file_path=file_path, session_id=session_id)
+    def __init__(self, file_path: str, start_date: str):
+        start_date = start_date.replace("_", "/")
+        super().__init__(file_path=file_path, start_date=start_date)
 
     def get_metadata(self) -> DeepDict:
-        # Automatically retrieve as much metadata as possible from the source files available
         metadata = super().get_metadata()
-
-        return metadata
-
-    def add_to_nwbfile(self, nwbfile: NWBFile, metadata: dict):
-        start_date = self.source_data["session_id"].split("_")[1].replace("-", "/")
         medpc_name_to_dict_name = {
             "Start Date": "start_date",
             "End Date": "end_date",
@@ -38,13 +34,6 @@ class Seiler2024BehaviorInterface(BaseDataInterface):
             "Start Time": "start_time",
             "End Time": "end_time",
             "MSN": "MSN",
-            "G": "port_entry_times",
-            "E": "duration_of_port_entry",
-            "A": "left_nose_poke_times",
-            "C": "right_nose_poke_times",
-            "D": "right_reward_times",
-            "B": "left_reward_times",
-            "H": "footshock_times",
         }
         dict_name_to_type = {
             "start_date": date,
@@ -56,6 +45,44 @@ class Seiler2024BehaviorInterface(BaseDataInterface):
             "start_time": time,
             "end_time": time,
             "MSN": str,
+        }
+        session_dict = read_medpc_file(
+            file_path=self.source_data["file_path"],
+            start_date=self.source_data["start_date"],
+            medpc_name_to_dict_name=medpc_name_to_dict_name,
+            medpc_name_to_type=dict_name_to_type,
+        )
+        session_start_time = datetime.combine(
+            session_dict["start_date"], session_dict["start_time"], tzinfo=timezone("US/Central")
+        )
+        session_id = (
+            self.source_data["start_date"].replace("/", "_") + "_" + session_dict["MSN"]
+        )  # TODO: refine session_id
+
+        metadata["NWBFile"]["session_description"] = session_dict["MSN"]
+        metadata["NWBFile"]["session_start_time"] = session_start_time
+        metadata["NWBFile"]["identifier"] = session_id
+        metadata["NWBFile"]["session_id"] = session_id
+
+        metadata["Subject"] = {}
+        metadata["Subject"]["subject_id"] = session_dict["subject"]
+        metadata["Subject"]["sex"] = "U"  # TODO: Grab sex info from sheets
+
+        return metadata
+
+    def add_to_nwbfile(self, nwbfile: NWBFile, metadata: dict):
+        medpc_name_to_dict_name = {
+            "MSN": "MSN",
+            "G": "port_entry_times",
+            "E": "duration_of_port_entry",
+            "A": "left_nose_poke_times",
+            "C": "right_nose_poke_times",
+            "D": "right_reward_times",
+            "B": "left_reward_times",
+            "H": "footshock_times",
+        }
+        dict_name_to_type = {
+            "MSN": str,
             "port_entry_times": np.ndarray,
             "duration_of_port_entry": np.ndarray,
             "left_nose_poke_times": np.ndarray,
@@ -66,7 +93,7 @@ class Seiler2024BehaviorInterface(BaseDataInterface):
         }
         session_dict = read_medpc_file(
             file_path=self.source_data["file_path"],
-            start_date=start_date,
+            start_date=self.source_data["start_date"],
             medpc_name_to_dict_name=medpc_name_to_dict_name,
             medpc_name_to_type=dict_name_to_type,
         )

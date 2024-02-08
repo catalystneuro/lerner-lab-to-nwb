@@ -12,7 +12,8 @@ from lerner_lab_to_nwb.seiler_2024 import Seiler2024NWBConverter
 def session_to_nwb(
     data_dir_path: Union[str, Path],
     output_dir_path: Union[str, Path],
-    session_id: str,
+    start_date: str,
+    subject_id: str,
     experiment_type: Literal["FP", "Opto"],
     experimental_group: Literal["DPR", "PR", "PS", "RR20"],
     stub_test: bool = False,
@@ -25,9 +26,7 @@ def session_to_nwb(
         output_dir_path = output_dir_path / "nwb_stub"
     output_dir_path.mkdir(parents=True, exist_ok=True)
 
-    nwbfile_path = output_dir_path / f"{experiment_type}_{experimental_group}_{session_id}.nwb"
-    subject_id = session_id.split("_")[0]
-
+    nwbfile_path = output_dir_path / f"{experiment_type}_{experimental_group}_{start_date}.nwb"
     source_data = {}
     conversion_options = {}
 
@@ -44,7 +43,7 @@ def session_to_nwb(
         dict(
             Behavior={
                 "file_path": str(behavior_file_path),
-                "session_id": session_id,
+                "start_date": start_date,
             }
         )
     )
@@ -74,6 +73,7 @@ if __name__ == "__main__":
     output_dir_path = Path("/Volumes/T7/CatalystNeuro/NWB/Lerner/conversion_nwb")
     experiment_type = "FP"
     experimental_group = "RR20"
+    subject_id = "95.259"
     stub_test = False
 
     if output_dir_path.exists():
@@ -85,7 +85,8 @@ if __name__ == "__main__":
     session_to_nwb(
         data_dir_path=data_dir_path,
         output_dir_path=output_dir_path,
-        session_id="95.259_04-09-19",
+        subject_id=subject_id,
+        start_date="04_09_19",
         experiment_type=experiment_type,
         experimental_group=experimental_group,
         stub_test=stub_test,
@@ -95,7 +96,8 @@ if __name__ == "__main__":
     session_to_nwb(
         data_dir_path=data_dir_path,
         output_dir_path=output_dir_path,
-        session_id="95.259_04-18-19",
+        subject_id=subject_id,
+        start_date="04_18_19",
         experiment_type=experiment_type,
         experimental_group=experimental_group,
         stub_test=stub_test,
