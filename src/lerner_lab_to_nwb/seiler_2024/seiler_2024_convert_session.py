@@ -74,7 +74,6 @@ if __name__ == "__main__":
     output_dir_path = Path("/Volumes/T7/CatalystNeuro/NWB/Lerner/conversion_nwb")
     experiment_type = "FP"
     experimental_group = "RR20"
-    session_id = "95.259_04-09-19"
     stub_test = False
 
     if output_dir_path.exists():
@@ -82,10 +81,21 @@ if __name__ == "__main__":
             output_dir_path, ignore_errors=True
         )  # ignore errors due to MacOS race condition (https://github.com/python/cpython/issues/81441)
 
+    # No-shock example session
     session_to_nwb(
         data_dir_path=data_dir_path,
         output_dir_path=output_dir_path,
-        session_id=session_id,
+        session_id="95.259_04-09-19",
+        experiment_type=experiment_type,
+        experimental_group=experimental_group,
+        stub_test=stub_test,
+    )
+
+    # Shock session
+    session_to_nwb(
+        data_dir_path=data_dir_path,
+        output_dir_path=output_dir_path,
+        session_id="95.259_04-18-19",
         experiment_type=experiment_type,
         experimental_group=experimental_group,
         stub_test=stub_test,

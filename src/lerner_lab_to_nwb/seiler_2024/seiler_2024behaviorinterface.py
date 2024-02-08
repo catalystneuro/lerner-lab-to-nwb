@@ -44,6 +44,7 @@ class Seiler2024BehaviorInterface(BaseDataInterface):
             "C": "right_nose_poke_times",
             "D": "right_reward_times",
             "B": "left_reward_times",
+            "H": "footshock_times",
         }
         dict_name_to_type = {
             "start_date": date,
@@ -61,6 +62,7 @@ class Seiler2024BehaviorInterface(BaseDataInterface):
             "right_nose_poke_times": np.ndarray,
             "right_reward_times": np.ndarray,
             "left_reward_times": np.ndarray,
+            "footshock_times": np.ndarray,
         }
         session_dict = read_medpc_file(
             file_path=self.source_data["file_path"],
@@ -122,3 +124,12 @@ class Seiler2024BehaviorInterface(BaseDataInterface):
                 timestamps=session_dict["right_reward_times"],
             )
         behavior_module.add(reward_times)
+
+        # Footshock
+        if "Footshock" in session_dict["MSN"]:
+            footshock_times = Events(
+                name="footshock_times",
+                description="Footshock times",
+                timestamps=session_dict["footshock_times"],
+            )
+            behavior_module.add(footshock_times)
