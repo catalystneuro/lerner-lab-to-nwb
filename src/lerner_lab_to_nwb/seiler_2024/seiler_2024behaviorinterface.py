@@ -90,7 +90,20 @@ class Seiler2024BehaviorInterface(BaseDataInterface):
         metadata["Subject"]["subject_id"] = session_dict["subject"]
         metadata["Subject"]["sex"] = "U"  # TODO: Grab sex info from sheets
 
+        metadata["Behavior"] = {}
+        metadata["Behavior"]["box"] = session_dict["box"]
+
         return metadata
+
+    def get_metadata_schema(self) -> dict:
+        metadata_schema = super().get_metadata_schema()
+        metadata_schema["properties"]["Behavior"] = {
+            "type": "object",
+            "properties": {
+                "box": {"type": "string"},
+            },
+        }
+        return metadata_schema
 
     def add_to_nwbfile(self, nwbfile: NWBFile, metadata: dict):
         medpc_name_to_dict_name = {
@@ -122,7 +135,9 @@ class Seiler2024BehaviorInterface(BaseDataInterface):
 
         # Add behavior data to nwbfile
         behavior_module = nwb_helpers.get_module(
-            nwbfile=nwbfile, name="behavior", description="Operant behavioral data from MedPC"
+            nwbfile=nwbfile,
+            name="behavior",
+            description=f"Operant behavioral data from MedPC. Box = {metadata['Behavior']['box']}",
         )
 
         # Port Entry
