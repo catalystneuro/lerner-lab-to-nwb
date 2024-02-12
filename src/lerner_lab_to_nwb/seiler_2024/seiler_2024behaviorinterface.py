@@ -46,6 +46,29 @@ class Seiler2024BehaviorInterface(BaseDataInterface):
             "end_time": time,
             "MSN": str,
         }
+        msn_to_training_stage = {
+            "RR20Left": "RR20",
+            "RI60_RIGHT_SCRAM": "RI60",
+            "RI60_LEFT_SCRAM": "RI60",
+            "RI30 Right SCRAMBLED": "RI30",
+            "RI30 Left Scrambled": "RI30",
+            "FR1_RIGHT_STIM": "FR1",
+            "FR1_RIGHT_SCRAMBLED": "FR1",
+            "FR1_LEFT_STIM": "FR1",
+            "FR1_LEFT_SCRAM": "FR1",
+            "FR1_BOTH_WStim": "FR1",
+            "FR1_BOTH_SCRAMBLED": "FR1",
+            "Footshock Degradation right": "ShockProbe",
+            "Footshock Degradation Left": "ShockProbe",
+            "FOOD_RI 60 RIGHT TTL": "RI60",
+            "FOOD_RI 60 LEFT TTL": "RI60",
+            "FOOD_RI 30 RIGHT TTL": "RI60",
+            "FOOD_RI 30 LEFT": "RI60",
+            "FOOD_FR1 TTL Right": "FR1",
+            "FOOD_FR1 TTL Left": "FR1",
+            "FOOD_FR1 HT TTL (Both)": "FR1",
+            "20sOmissions_TTL": "OmissionProbe",
+        }
         session_dict = read_medpc_file(
             file_path=self.source_data["file_path"],
             start_date=self.source_data["start_date"],
@@ -55,9 +78,8 @@ class Seiler2024BehaviorInterface(BaseDataInterface):
         session_start_time = datetime.combine(
             session_dict["start_date"], session_dict["start_time"], tzinfo=timezone("US/Central")
         )
-        session_id = (
-            self.source_data["start_date"].replace("/", "_") + "_" + session_dict["MSN"]
-        )  # TODO: refine session_id
+        training_stage = msn_to_training_stage[session_dict["MSN"]]
+        session_id = self.source_data["start_date"].replace("/", "-") + "-" + training_stage
 
         metadata["NWBFile"]["session_description"] = session_dict["MSN"]
         metadata["NWBFile"]["session_start_time"] = session_start_time
