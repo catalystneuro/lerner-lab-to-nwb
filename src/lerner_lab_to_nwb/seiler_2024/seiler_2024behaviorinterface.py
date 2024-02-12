@@ -74,7 +74,7 @@ class Seiler2024BehaviorInterface(BaseDataInterface):
 
         metadata["NWBFile"]["session_description"] = session_dict["MSN"]
         metadata["NWBFile"]["session_start_time"] = session_start_time
-        metadata["NWBFile"]["identifier"] = session_id
+        metadata["NWBFile"]["identifier"] = session_dict["subject"] + "-" + session_id
         metadata["NWBFile"]["session_id"] = session_id
 
         metadata["Subject"] = {}
