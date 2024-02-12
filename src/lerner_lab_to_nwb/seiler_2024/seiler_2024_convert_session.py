@@ -1,8 +1,6 @@
 """Primary script to run to convert example sessions using the NWBConverter."""
 from pathlib import Path
 from typing import Union, Literal
-import datetime
-from zoneinfo import ZoneInfo
 import shutil
 from neuroconv.utils import load_dict_from_file, dict_deep_update
 

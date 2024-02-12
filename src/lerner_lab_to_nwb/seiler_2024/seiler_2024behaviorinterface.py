@@ -6,7 +6,6 @@ from neuroconv.basedatainterface import BaseDataInterface
 from neuroconv.utils import DeepDict
 from neuroconv.tools import nwb_helpers
 import numpy as np
-from pprint import pprint
 from ndx_events import Events
 from pynwb.behavior import BehavioralEpochs, IntervalSeries
 
