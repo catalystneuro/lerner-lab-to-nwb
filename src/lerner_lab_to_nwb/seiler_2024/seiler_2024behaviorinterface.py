@@ -99,7 +99,6 @@ class Seiler2024BehaviorInterface(BaseDataInterface):
 
     def add_to_nwbfile(self, nwbfile: NWBFile, metadata: dict):
         medpc_name_to_dict_name = {
-            "MSN": "MSN",
             "G": "port_entry_times",
             "E": "duration_of_port_entry",
             "A": "left_nose_poke_times",
@@ -182,7 +181,7 @@ class Seiler2024BehaviorInterface(BaseDataInterface):
         behavior_module.add(reward_times)
 
         # Footshock
-        if "Footshock" in session_dict["MSN"]:
+        if "ShockProbe" in metadata["NWBFile"]["session_id"]:
             footshock_times = Events(
                 name="footshock_times",
                 description="Footshock times",
