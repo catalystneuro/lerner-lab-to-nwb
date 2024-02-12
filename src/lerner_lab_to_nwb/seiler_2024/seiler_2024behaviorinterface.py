@@ -26,24 +26,16 @@ class Seiler2024BehaviorInterface(BaseDataInterface):
         metadata = super().get_metadata()
         medpc_name_to_dict_name = {
             "Start Date": "start_date",
-            "End Date": "end_date",
             "Subject": "subject",
-            "Experiment": "experiment",
-            "Group": "group",
             "Box": "box",
             "Start Time": "start_time",
-            "End Time": "end_time",
             "MSN": "MSN",
         }
         dict_name_to_type = {
             "start_date": date,
-            "end_date": date,
             "subject": str,
-            "experiment": str,
-            "group": str,
             "box": str,
             "start_time": time,
-            "end_time": time,
             "MSN": str,
         }
         msn_to_training_stage = {
