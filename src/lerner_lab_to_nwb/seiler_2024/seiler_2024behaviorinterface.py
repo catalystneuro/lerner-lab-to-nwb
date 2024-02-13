@@ -104,7 +104,6 @@ class Seiler2024BehaviorInterface(BaseDataInterface):
             "C": "right_nose_poke_times",
             "D": "right_reward_times",
             "B": "left_reward_times",
-            "H": "footshock_times",
         }
         dict_name_to_type = {
             "MSN": str,
@@ -114,8 +113,10 @@ class Seiler2024BehaviorInterface(BaseDataInterface):
             "right_nose_poke_times": np.ndarray,
             "right_reward_times": np.ndarray,
             "left_reward_times": np.ndarray,
-            "footshock_times": np.ndarray,
         }
+        if "ShockProbe" in metadata["NWBFile"]["session_id"]:
+            medpc_name_to_dict_name["H"] = "footshock_times"
+            dict_name_to_type["footshock_times"] = np.ndarray
         session_dict = read_medpc_file(
             file_path=self.source_data["file_path"],
             start_date=self.source_data["start_date"],
@@ -131,21 +132,34 @@ class Seiler2024BehaviorInterface(BaseDataInterface):
         )
 
         # Port Entry
-        port_times, data = [], []
-        for port_entry_time, duration in zip(session_dict["port_entry_times"], session_dict["duration_of_port_entry"]):
-            port_times.append(port_entry_time)
-            data.append(1)
-            port_times.append(port_entry_time + duration)
-            data.append(-1)
-        reward_port_intervals = IntervalSeries(
-            name="reward_port_intervals",
-            description="Interval of time spent in reward port (1 is entry, -1 is exit)",
-            timestamps=port_times,
-            data=data,
-        )
-        behavioral_epochs = BehavioralEpochs(name="behavioral_epochs")
-        behavioral_epochs.add_interval_series(reward_port_intervals)
-        behavior_module.add(behavioral_epochs)
+        if (
+            len(session_dict["duration_of_port_entry"]) == 0
+        ):  # some sessions are missing port entry durations ex. FP Experiments/Behavior/PR/028.392/07-09-20
+            print(f"No port entry durations found for {metadata['NWBFile']['session_id']}")
+            reward_port_entry_times = Events(
+                name="reward_port_entry_times",
+                description="Reward port entry times",
+                timestamps=session_dict["port_entry_times"],
+            )
+            behavior_module.add(reward_port_entry_times)
+        else:
+            port_times, data = [], []
+            for port_entry_time, duration in zip(
+                session_dict["port_entry_times"], session_dict["duration_of_port_entry"]
+            ):
+                port_times.append(port_entry_time)
+                data.append(1)
+                port_times.append(port_entry_time + duration)
+                data.append(-1)
+            reward_port_intervals = IntervalSeries(
+                name="reward_port_intervals",
+                description="Interval of time spent in reward port (1 is entry, -1 is exit)",
+                timestamps=port_times,
+                data=data,
+            )
+            behavioral_epochs = BehavioralEpochs(name="behavioral_epochs")
+            behavioral_epochs.add_interval_series(reward_port_intervals)
+            behavior_module.add(behavioral_epochs)
 
         # Left/Right Nose pokes
         left_nose_poke_times = Events(

@@ -94,3 +94,16 @@ if __name__ == "__main__":
         experimental_group=experimental_group,
         stub_test=stub_test,
     )
+
+    # session with all NaNs for port duration
+    experimental_group = "PR"
+    subject_id = "028.392"
+    session_to_nwb(
+        data_dir_path=data_dir_path,
+        output_dir_path=output_dir_path,
+        subject_id=subject_id,
+        start_date="07_09_20",
+        experiment_type=experiment_type,
+        experimental_group=experimental_group,
+        stub_test=stub_test,
+    )
