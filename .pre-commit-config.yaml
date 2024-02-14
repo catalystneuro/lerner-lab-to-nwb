@@ -1,12 +1,22 @@
 repos:
 -   repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.4.0
+    rev: v4.5.0
     hooks:
     -   id: check-yaml
     -   id: end-of-file-fixer
     -   id: trailing-whitespace
 -   repo: https://github.com/psf/black
-    rev: 22.12.0
+    rev: 23.11.0
     hooks:
     -   id: black
         exclude: ^docs/
+-   repo: local
+    hooks:
+    -   id: freeze-dependencies
+        name: Freeze Dependencies
+        entry: python -m freeze_dependencies
+        language: system
+        pass_filenames: false
+ci:
+  skip:
+    - freeze-dependencies

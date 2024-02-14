@@ -1,3 +1,4 @@
+# run `conda env create --file make_env.yml` to create the environment
 name: lerner_lab_to_nwb_env
 channels:
 - conda-forge

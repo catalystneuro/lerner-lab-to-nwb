@@ -1,3 +1,7 @@
 neuroconv
 nwbwidgets
 nwbinspector
+dandi
+pre-commit
+pytest
+ndx-events
