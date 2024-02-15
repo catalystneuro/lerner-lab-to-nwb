@@ -2,6 +2,18 @@ from datetime import datetime, date, time, timezone
 import numpy as np
 
 
+def get_start_dates(file_path: str) -> list:
+    """Get the start dates of all sessions in a MedPC file."""
+    with open(file_path, "r") as f:
+        lines = f.readlines()
+    start_dates = []
+    for line in lines:
+        if line.startswith("Start Date: "):
+            start_date = line.split("Start Date: ")[1].strip()
+            start_dates.append(start_date)
+    return start_dates
+
+
 def read_medpc_file(file_path: str, start_date: str, medpc_name_to_dict_name: dict, medpc_name_to_type: dict) -> dict:
     """Read a raw MedPC text file into a dictionary."""
     # Read the file
