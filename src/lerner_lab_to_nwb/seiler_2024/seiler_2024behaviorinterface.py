@@ -59,13 +59,12 @@ class Seiler2024BehaviorInterface(BaseDataInterface):
             "FOOD_FR1 TTL Left": "FR1",
             "FOOD_FR1 HT TTL (Both)": "FR1",
             "20sOmissions_TTL": "OmissionProbe",
-            "FOOD_Magazine Training 1 hr": "Magazine",  # TODO: Ask Lerner Lab for this msn file
         }
         session_dict = read_medpc_file(
             file_path=self.source_data["file_path"],
             start_date=self.source_data["start_date"],
             medpc_name_to_dict_name=medpc_name_to_dict_name,
-            medpc_name_to_type=dict_name_to_type,
+            dict_name_to_type=dict_name_to_type,
         )
         session_start_time = datetime.combine(
             session_dict["start_date"], session_dict["start_time"], tzinfo=timezone("US/Central")
@@ -122,7 +121,7 @@ class Seiler2024BehaviorInterface(BaseDataInterface):
             file_path=self.source_data["file_path"],
             start_date=self.source_data["start_date"],
             medpc_name_to_dict_name=medpc_name_to_dict_name,
-            medpc_name_to_type=dict_name_to_type,
+            dict_name_to_type=dict_name_to_type,
         )
 
         # Add behavior data to nwbfile
