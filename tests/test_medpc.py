@@ -1,6 +1,6 @@
 import pytest
 from lerner_lab_to_nwb.seiler_2024.medpc import read_medpc_file
-from datetime import date, time
+from datetime import date, time, datetime
 import numpy as np
 from pathlib import Path
 import pandas as pd
@@ -10,7 +10,7 @@ data_dir_path = Path("/Volumes/T7/CatalystNeuro/NWB/Lerner/raw_data")
 
 def test_read_medpc_file():
     file_path = data_dir_path / "FP Experiments" / "Behavior" / "RR20" / "95.259" / "95.259"
-    start_date = "04/17/19"
+    start_datetime = datetime(2019, 4, 17, 12, 41, 30)
     medpc_name_to_dict_name = {
         "Start Date": "start_date",
         "End Date": "end_date",
@@ -47,7 +47,7 @@ def test_read_medpc_file():
     }
     session_dict = read_medpc_file(
         file_path=file_path,
-        start_date=start_date,
+        start_datetime=start_datetime,
         medpc_name_to_dict_name=medpc_name_to_dict_name,
         dict_name_to_type=dict_name_to_type,
     )

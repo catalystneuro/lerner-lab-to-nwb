@@ -26,22 +26,32 @@ def get_MSNs(file_path: str) -> list:
     return msns
 
 
-def read_medpc_file(file_path: str, start_date: str, medpc_name_to_dict_name: dict, dict_name_to_type: dict) -> dict:
+def read_medpc_file(
+    file_path: str, start_datetime: datetime, medpc_name_to_dict_name: dict, dict_name_to_type: dict
+) -> dict:
     """Read a raw MedPC text file into a dictionary."""
     # Read the file
     with open(file_path, "r") as f:
         lines = f.readlines()
 
     # Find the start and end lines for the given session
+    start_date = start_datetime.strftime("%m/%d/%y")
+    start_time = start_datetime.strftime("%H:%M:%S")
+    start_date_is_match, start_time_is_match = False, False
     start_line, end_line = None, None
     for i, line in enumerate(lines):
         if line == f"Start Date: {start_date}\n":
+            start_date_is_match = True
             start_line = i
-        elif start_line is not None and line == "\n":
+        elif line == f"Start Time: {start_time}\n" and start_date_is_match:
+            start_time_is_match = True
+        elif line == "\n" and start_time_is_match:
             end_line = i
             break
-    if start_line is None:
-        raise ValueError(f"Could not find start date {start_date} in file {file_path}")
+        elif line == "\n":
+            start_date_is_match, start_time_is_match = False, False
+    if not (start_date_is_match and start_time_is_match):
+        raise ValueError(f"Could not find start date {start_date} and time {start_time} in file {file_path}")
     if end_line is None:
         raise ValueError(f"Could not find end of session ('\\n') in file {file_path}")
     session_lines = lines[start_line:end_line]
