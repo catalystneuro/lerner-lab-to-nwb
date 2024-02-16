@@ -14,7 +14,19 @@ def get_start_dates(file_path: str) -> list:
     return start_dates
 
 
-def read_medpc_file(file_path: str, start_date: str, medpc_name_to_dict_name: dict, medpc_name_to_type: dict) -> dict:
+def get_MSNs(file_path: str) -> list:
+    """Get the MSNs of all sessions in a MedPC file."""
+    with open(file_path, "r") as f:
+        lines = f.readlines()
+    msns = []
+    for line in lines:
+        if line.startswith("MSN: "):
+            msn = line.split("MSN: ")[1].strip()
+            msns.append(msn)
+    return msns
+
+
+def read_medpc_file(file_path: str, start_date: str, medpc_name_to_dict_name: dict, dict_name_to_type: dict) -> dict:
     """Read a raw MedPC text file into a dictionary."""
     # Read the file
     with open(file_path, "r") as f:
@@ -59,18 +71,22 @@ def read_medpc_file(file_path: str, start_date: str, medpc_name_to_dict_name: di
             session_dict[dict_name] = data
 
     # Convert the data types
-    for medpc_name, data_type in medpc_name_to_type.items():
-        if medpc_name in session_dict:
+    for dict_name, data_type in dict_name_to_type.items():
+        if dict_name in session_dict:
             if data_type == date:
-                session_dict[medpc_name] = datetime.strptime(session_dict[medpc_name], "%m/%d/%y").date()
+                session_dict[dict_name] = datetime.strptime(session_dict[dict_name], "%m/%d/%y").date()
             elif data_type == time:
-                session_dict[medpc_name] = datetime.strptime(session_dict[medpc_name], "%H:%M:%S").time()
+                session_dict[dict_name] = datetime.strptime(session_dict[dict_name], "%H:%M:%S").time()
             elif data_type == np.ndarray:
-                if session_dict[medpc_name] == "":
-                    session_dict[medpc_name] = np.array([], dtype=float)
+                if session_dict[dict_name] == "":
+                    session_dict[dict_name] = np.array([], dtype=float)
+                elif type(session_dict[dict_name]) == str:  # not a multiline variable
+                    raise ValueError(
+                        f"Expected {dict_name} to be a multiline variable, but found a single line variable."
+                    )
                 else:
-                    session_dict[medpc_name] = np.array(session_dict[medpc_name], dtype=float)
-                    session_dict[medpc_name] = np.trim_zeros(
-                        session_dict[medpc_name], trim="b"
+                    session_dict[dict_name] = np.array(session_dict[dict_name], dtype=float)
+                    session_dict[dict_name] = np.trim_zeros(
+                        session_dict[dict_name], trim="b"
                     )  # MEDPC adds extra zeros to the end of the array
     return session_dict
