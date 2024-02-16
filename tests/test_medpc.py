@@ -49,7 +49,7 @@ def test_read_medpc_file():
         file_path=file_path,
         start_date=start_date,
         medpc_name_to_dict_name=medpc_name_to_dict_name,
-        medpc_name_to_type=dict_name_to_type,
+        dict_name_to_type=dict_name_to_type,
     )
     csv_path = file_path.parent / "95.259_04-17-19.csv"
     session_df = pd.read_csv(csv_path)
