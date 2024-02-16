@@ -18,3 +18,6 @@ In FP Experiments/Behavior/PS,
 
 In FP Experiments/Behavior/PR/028.392,
 - some of the sessions (ex. 7/09/20) have ALL NaN values for Duration of Port Entry
+
+In FP Experiments/Behavior/DPR/272.396,
+- some of the days (ex. 7/06/20) have two sessions per day

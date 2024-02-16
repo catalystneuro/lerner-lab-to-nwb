@@ -17,9 +17,8 @@ class Seiler2024BehaviorInterface(BaseDataInterface):
 
     keywords = ["behavior"]
 
-    def __init__(self, file_path: str, start_date: str):
-        start_date = start_date.replace("_", "/")
-        super().__init__(file_path=file_path, start_date=start_date)
+    def __init__(self, file_path: str, start_datetime: str):
+        super().__init__(file_path=file_path, start_datetime=datetime.fromisoformat(start_datetime))
 
     def get_metadata(self) -> DeepDict:
         metadata = super().get_metadata()
@@ -62,7 +61,7 @@ class Seiler2024BehaviorInterface(BaseDataInterface):
         }
         session_dict = read_medpc_file(
             file_path=self.source_data["file_path"],
-            start_date=self.source_data["start_date"],
+            start_datetime=self.source_data["start_datetime"],
             medpc_name_to_dict_name=medpc_name_to_dict_name,
             dict_name_to_type=dict_name_to_type,
         )
@@ -70,7 +69,7 @@ class Seiler2024BehaviorInterface(BaseDataInterface):
             session_dict["start_date"], session_dict["start_time"], tzinfo=timezone("US/Central")
         )
         training_stage = msn_to_training_stage[session_dict["MSN"]]
-        session_id = self.source_data["start_date"].replace("/", "-") + "-" + training_stage
+        session_id = session_start_time.isoformat() + "-" + training_stage
 
         metadata["NWBFile"]["session_description"] = session_dict["MSN"]
         metadata["NWBFile"]["session_start_time"] = session_start_time
@@ -119,7 +118,7 @@ class Seiler2024BehaviorInterface(BaseDataInterface):
             dict_name_to_type["footshock_times"] = np.ndarray
         session_dict = read_medpc_file(
             file_path=self.source_data["file_path"],
-            start_date=self.source_data["start_date"],
+            start_datetime=self.source_data["start_datetime"],
             medpc_name_to_dict_name=medpc_name_to_dict_name,
             dict_name_to_type=dict_name_to_type,
         )

@@ -3,6 +3,7 @@ from pathlib import Path
 from typing import Union, Literal
 import shutil
 from neuroconv.utils import load_dict_from_file, dict_deep_update
+from datetime import datetime
 
 from lerner_lab_to_nwb.seiler_2024 import Seiler2024NWBConverter
 
@@ -10,7 +11,7 @@ from lerner_lab_to_nwb.seiler_2024 import Seiler2024NWBConverter
 def session_to_nwb(
     data_dir_path: Union[str, Path],
     output_dir_path: Union[str, Path],
-    start_date: str,
+    start_datetime: datetime,
     subject_id: str,
     experiment_type: Literal["FP", "Opto"],
     experimental_group: Literal["DPR", "PR", "PS", "RR20"],
@@ -24,7 +25,7 @@ def session_to_nwb(
         output_dir_path = output_dir_path / "nwb_stub"
     output_dir_path.mkdir(parents=True, exist_ok=True)
 
-    nwbfile_path = output_dir_path / f"{experiment_type}_{experimental_group}_{start_date}.nwb"
+    nwbfile_path = output_dir_path / f"{experiment_type}_{experimental_group}_{start_datetime.isoformat()}.nwb"
     source_data = {}
     conversion_options = {}
 
@@ -41,7 +42,7 @@ def session_to_nwb(
         dict(
             Behavior={
                 "file_path": str(behavior_file_path),
-                "start_date": start_date,
+                "start_datetime": start_datetime.isoformat(),
             }
         )
     )
@@ -78,7 +79,7 @@ if __name__ == "__main__":
         data_dir_path=data_dir_path,
         output_dir_path=output_dir_path,
         subject_id=subject_id,
-        start_date="04_09_19",
+        start_datetime=datetime(2019, 4, 9, 10, 34, 30),
         experiment_type=experiment_type,
         experimental_group=experimental_group,
         stub_test=stub_test,
@@ -89,7 +90,7 @@ if __name__ == "__main__":
         data_dir_path=data_dir_path,
         output_dir_path=output_dir_path,
         subject_id=subject_id,
-        start_date="04_18_19",
+        start_datetime=datetime(2019, 4, 18, 10, 41, 42),
         experiment_type=experiment_type,
         experimental_group=experimental_group,
         stub_test=stub_test,
@@ -102,7 +103,7 @@ if __name__ == "__main__":
         data_dir_path=data_dir_path,
         output_dir_path=output_dir_path,
         subject_id=subject_id,
-        start_date="07_09_20",
+        start_datetime=datetime(2020, 7, 9, 13, 1, 26),
         experiment_type=experiment_type,
         experimental_group=experimental_group,
         stub_test=stub_test,
