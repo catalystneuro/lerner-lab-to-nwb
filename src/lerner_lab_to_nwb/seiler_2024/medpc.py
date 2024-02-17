@@ -50,7 +50,7 @@ def read_medpc_file(
     start_date = start_datetime.strftime("%m/%d/%y")
     start_time = start_datetime.strftime("%H:%M:%S")
     start_date_is_match, start_time_is_match = False, False
-    start_line, end_line = None, None
+    start_line, end_line = 0, len(lines)
     for i, line in enumerate(lines):
         if line == f"Start Date: {start_date}\n":
             start_date_is_match = True
@@ -64,8 +64,6 @@ def read_medpc_file(
             start_date_is_match, start_time_is_match = False, False
     if not (start_date_is_match and start_time_is_match):
         raise ValueError(f"Could not find start date {start_date} and time {start_time} in file {file_path}")
-    if end_line is None:
-        raise ValueError(f"Could not find end of session ('\\n') in file {file_path}")
     session_lines = lines[start_line:end_line]
 
     # Parse the session lines into a dictionary

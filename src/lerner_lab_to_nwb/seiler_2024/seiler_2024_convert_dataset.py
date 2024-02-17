@@ -38,6 +38,7 @@ def dataset_to_nwb(
                 }:  # TODO: Find the missing msn files
                     continue  # magazine training does not yield useful data
                 start_datetime = datetime.strptime(f"{start_date} {start_time}", "%m/%d/%y %H:%M:%S")
+                # print(f"Converting {subject_id} {start_datetime.isoformat()}")
                 session_to_nwb(
                     data_dir_path=data_dir_path,
                     output_dir_path=output_dir_path,
