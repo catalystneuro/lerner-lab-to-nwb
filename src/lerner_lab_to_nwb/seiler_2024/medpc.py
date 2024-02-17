@@ -71,7 +71,11 @@ def read_medpc_file(
     # Parse the session lines into a dictionary
     session_dict = {}
     for i, line in enumerate(session_lines):
-        line = line.strip("\\n")
+        line = line.strip("\n")
+        if line == "\\rec":  # some files have a "rec" line at the end of the session
+            continue
+        if not ":" in line:
+            print(repr(line))
         split_line = line.split(":", maxsplit=1)
         medpc_name, data = split_line
         data = data.strip()

@@ -16,6 +16,7 @@ def session_to_nwb(
     experiment_type: Literal["FP", "Opto"],
     experimental_group: Literal["DPR", "PR", "PS", "RR20"],
     stub_test: bool = False,
+    verbose: bool = True,
 ):
     """Convert a session to NWB."""
 
@@ -50,7 +51,7 @@ def session_to_nwb(
     )
     conversion_options.update(dict(Behavior={}))
 
-    converter = Seiler2024NWBConverter(source_data=source_data)
+    converter = Seiler2024NWBConverter(source_data=source_data, verbose=verbose)
     metadata = converter.get_metadata()
 
     # Update default metadata with the editable in the corresponding yaml file
