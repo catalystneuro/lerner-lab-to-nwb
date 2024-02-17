@@ -2,7 +2,7 @@ from datetime import datetime, date, time, timezone
 import numpy as np
 
 
-def get_start_dates(file_path: str) -> list:
+def get_start_dates(file_path: str) -> list:  # TODO: Refactor get methods into a class
     """Get the start dates of all sessions in a MedPC file."""
     with open(file_path, "r") as f:
         lines = f.readlines()
@@ -12,6 +12,18 @@ def get_start_dates(file_path: str) -> list:
             start_date = line.split("Start Date: ")[1].strip()
             start_dates.append(start_date)
     return start_dates
+
+
+def get_start_times(file_path: str) -> list:
+    """Get the start times of all sessions in a MedPC file."""
+    with open(file_path, "r") as f:
+        lines = f.readlines()
+    start_times = []
+    for line in lines:
+        if line.startswith("Start Time: "):
+            start_time = line.split("Start Time: ")[1].strip()
+            start_times.append(start_time)
+    return start_times
 
 
 def get_MSNs(file_path: str) -> list:

@@ -25,7 +25,9 @@ def session_to_nwb(
         output_dir_path = output_dir_path / "nwb_stub"
     output_dir_path.mkdir(parents=True, exist_ok=True)
 
-    nwbfile_path = output_dir_path / f"{experiment_type}_{experimental_group}_{start_datetime.isoformat()}.nwb"
+    nwbfile_path = (
+        output_dir_path / f"{experiment_type}_{experimental_group}_{subject_id}_{start_datetime.isoformat()}.nwb"
+    )
     source_data = {}
     conversion_options = {}
 
