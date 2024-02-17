@@ -46,6 +46,7 @@ def session_to_nwb(
             Behavior={
                 "file_path": str(behavior_file_path),
                 "start_datetime": start_datetime.isoformat(),
+                "verbose": verbose,
             }
         )
     )

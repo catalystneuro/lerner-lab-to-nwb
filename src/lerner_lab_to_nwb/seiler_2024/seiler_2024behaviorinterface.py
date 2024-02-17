@@ -17,8 +17,12 @@ class Seiler2024BehaviorInterface(BaseDataInterface):
 
     keywords = ["behavior"]
 
-    def __init__(self, file_path: str, start_datetime: str):
-        super().__init__(file_path=file_path, start_datetime=datetime.fromisoformat(start_datetime))
+    def __init__(self, file_path: str, start_datetime: str, verbose: bool = True):
+        super().__init__(
+            file_path=file_path,
+            start_datetime=datetime.fromisoformat(start_datetime),
+            verbose=verbose,
+        )
 
     def get_metadata(self) -> DeepDict:
         metadata = super().get_metadata()
@@ -134,7 +138,8 @@ class Seiler2024BehaviorInterface(BaseDataInterface):
         if (
             len(session_dict["duration_of_port_entry"]) == 0
         ):  # some sessions are missing port entry durations ex. FP Experiments/Behavior/PR/028.392/07-09-20
-            print(f"No port entry durations found for {metadata['NWBFile']['session_id']}")
+            if self.verbose:
+                print(f"No port entry durations found for {metadata['NWBFile']['session_id']}")
             reward_port_entry_times = Events(
                 name="reward_port_entry_times",
                 description="Reward port entry times",

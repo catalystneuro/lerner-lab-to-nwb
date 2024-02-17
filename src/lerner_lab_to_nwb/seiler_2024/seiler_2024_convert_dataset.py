@@ -9,7 +9,9 @@ from lerner_lab_to_nwb.seiler_2024.seiler_2024_convert_session import session_to
 from lerner_lab_to_nwb.seiler_2024.medpc import get_start_dates, get_start_times, get_MSNs
 
 
-def dataset_to_nwb(data_dir_path: Union[str, Path], output_dir_path: Union[str, Path], stub_test: bool = False):
+def dataset_to_nwb(
+    data_dir_path: Union[str, Path], output_dir_path: Union[str, Path], stub_test: bool = False, verbose: bool = True
+):
     """Convert the entire dataset to NWB."""
     data_dir_path = Path(data_dir_path)
     output_dir_path = Path(output_dir_path)
@@ -44,6 +46,7 @@ def dataset_to_nwb(data_dir_path: Union[str, Path], output_dir_path: Union[str, 
                     experiment_type=experiment_type,
                     experimental_group=experimental_group,
                     stub_test=stub_test,
+                    verbose=verbose,
                 )
 
 
@@ -54,4 +57,4 @@ if __name__ == "__main__":
         shutil.rmtree(
             output_dir_path, ignore_errors=True
         )  # ignore errors due to MacOS race condition (https://github.com/python/cpython/issues/81441)
-    dataset_to_nwb(data_dir_path=data_dir_path, output_dir_path=output_dir_path, stub_test=False)
+    dataset_to_nwb(data_dir_path=data_dir_path, output_dir_path=output_dir_path, stub_test=False, verbose=False)
