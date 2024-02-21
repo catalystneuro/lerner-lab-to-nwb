@@ -112,3 +112,16 @@ if __name__ == "__main__":
         experimental_group=experimental_group,
         stub_test=stub_test,
     )
+
+    # session with lots of trailing whitespace
+    experimental_group = "PR"
+    subject_id = "141.308"
+    session_to_nwb(
+        data_dir_path=data_dir_path,
+        output_dir_path=output_dir_path,
+        subject_id=subject_id,
+        start_datetime=datetime(2019, 8, 1, 14, 1, 17),
+        experiment_type=experiment_type,
+        experimental_group=experimental_group,
+        stub_test=stub_test,
+    )

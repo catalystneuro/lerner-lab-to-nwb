@@ -24,3 +24,6 @@ In FP Experiments/Behavior/DPR/272.396,
 
 In FP Experiments/Behavior/DPR/334.394,
 - some of the sessions (ex. 6/17/20) have both left and right rewards (MSN: FOOD_FR1 HT TTL (Both))
+
+In FP Experiments/Behavior/PR/141.308,
+- medpc file is filled with whitespace characters like \t

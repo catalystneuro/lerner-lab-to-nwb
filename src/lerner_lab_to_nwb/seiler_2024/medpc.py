@@ -52,15 +52,16 @@ def read_medpc_file(
     start_date_is_match, start_time_is_match = False, False
     start_line, end_line = 0, len(lines)
     for i, line in enumerate(lines):
-        if line == f"Start Date: {start_date}\n":
+        line = line.strip()
+        if line == f"Start Date: {start_date}":
             start_date_is_match = True
             start_line = i
-        elif line == f"Start Time: {start_time}\n" and start_date_is_match:
+        elif line == f"Start Time: {start_time}" and start_date_is_match:
             start_time_is_match = True
-        elif line == "\n" and start_time_is_match:
+        elif line == "" and start_time_is_match:
             end_line = i
             break
-        elif line == "\n":
+        elif line == "":
             start_date_is_match, start_time_is_match = False, False
     if not (start_date_is_match and start_time_is_match):
         raise ValueError(f"Could not find start date {start_date} and time {start_time} in file {file_path}")
@@ -69,7 +70,7 @@ def read_medpc_file(
     # Parse the session lines into a dictionary
     session_dict = {}
     for i, line in enumerate(session_lines):
-        line = line.strip("\n")
+        line = line.rstrip()
         if line == "\\rec" or line == "\\Recording":  # some files have a "rec" line at the end of the session
             continue
         assert ":" in line, f"Could not find ':' in line {repr(line)}"
