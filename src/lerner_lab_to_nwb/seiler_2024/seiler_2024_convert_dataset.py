@@ -34,6 +34,7 @@ def dataset_to_nwb(
             for start_date, start_time, msn in zip(start_dates, start_times, msns):
                 if msn in {
                     "FOOD_Magazine Training 1 hr",
+                    "Magazine Training 1 hr",
                     "Probe Test Habit Training TTL",
                 }:  # TODO: Find the missing msn files
                     continue  # magazine training does not yield useful data
