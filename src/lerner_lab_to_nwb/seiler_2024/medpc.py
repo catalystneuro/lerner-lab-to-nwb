@@ -70,10 +70,9 @@ def read_medpc_file(
     session_dict = {}
     for i, line in enumerate(session_lines):
         line = line.strip("\n")
-        if line == "\\rec":  # some files have a "rec" line at the end of the session
+        if line == "\\rec" or line == "\\Recording":  # some files have a "rec" line at the end of the session
             continue
-        if not ":" in line:
-            print(repr(line))
+        assert ":" in line, f"Could not find ':' in line {repr(line)}"
         split_line = line.split(":", maxsplit=1)
         medpc_name, data = split_line
         data = data.strip()
