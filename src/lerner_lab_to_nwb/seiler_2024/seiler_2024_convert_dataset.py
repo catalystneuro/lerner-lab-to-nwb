@@ -18,6 +18,7 @@ def dataset_to_nwb(
     experiment_type = "FP"
     experimental_groups = ["DPR", "PR", "PS", "RR20"]
     behavior_path = data_dir_path / f"{experiment_type} Experiments" / "Behavior"
+    missing_msn_errors = []
     for experimental_group in experimental_groups:
         experimental_group_path = behavior_path / experimental_group
         subject_dirs = [subject_dir for subject_dir in experimental_group_path.iterdir() if subject_dir.is_dir()]
@@ -39,7 +40,6 @@ def dataset_to_nwb(
                 }:  # TODO: Find the missing msn files
                     continue  # magazine training does not yield useful data
                 start_datetime = datetime.strptime(f"{start_date} {start_time}", "%m/%d/%y %H:%M:%S")
-                # print(f"Converting {subject_id} {start_datetime.isoformat()}")
                 try:
                     session_to_nwb(
                         data_dir_path=data_dir_path,
@@ -51,9 +51,16 @@ def dataset_to_nwb(
                         stub_test=stub_test,
                         verbose=verbose,
                     )
+                except KeyError as e:
+                    missing_msn_errors.append(e)
+                    continue
                 except Exception as e:
                     print(f"Could not convert {experimental_group}/{subject_id}/{start_datetime.isoformat()}")
                     raise Exception(e)
+    if missing_msn_errors:
+        print("Missing MSN errors:")
+        for error in missing_msn_errors:
+            print(error)
 
 
 if __name__ == "__main__":
