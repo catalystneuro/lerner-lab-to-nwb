@@ -39,16 +39,20 @@ def dataset_to_nwb(
                     continue  # magazine training does not yield useful data
                 start_datetime = datetime.strptime(f"{start_date} {start_time}", "%m/%d/%y %H:%M:%S")
                 # print(f"Converting {subject_id} {start_datetime.isoformat()}")
-                session_to_nwb(
-                    data_dir_path=data_dir_path,
-                    output_dir_path=output_dir_path,
-                    start_datetime=start_datetime,
-                    subject_id=subject_id,
-                    experiment_type=experiment_type,
-                    experimental_group=experimental_group,
-                    stub_test=stub_test,
-                    verbose=verbose,
-                )
+                try:
+                    session_to_nwb(
+                        data_dir_path=data_dir_path,
+                        output_dir_path=output_dir_path,
+                        start_datetime=start_datetime,
+                        subject_id=subject_id,
+                        experiment_type=experiment_type,
+                        experimental_group=experimental_group,
+                        stub_test=stub_test,
+                        verbose=verbose,
+                    )
+                except Exception as e:
+                    print(f"Could not convert {experimental_group}/{subject_id}/{start_datetime.isoformat()}")
+                    raise Exception(e)
 
 
 if __name__ == "__main__":
