@@ -179,23 +179,21 @@ class Seiler2024BehaviorInterface(BaseDataInterface):
         behavior_module.add(left_nose_poke_times)
         behavior_module.add(right_nose_poke_times)
 
-        # Interleaved Left/Right Rewards
-        assert not (
-            len(session_dict["left_reward_times"]) > 0 and len(session_dict["right_reward_times"]) > 0
-        ), "Both left and right reward times are present (not interleaved)"
+        # Left/Right Rewards -- Interleaved for most sessions
         if len(session_dict["left_reward_times"]) > 0:
-            reward_times = Events(
-                name="reward_times",
-                description="Reward times (left)",
+            left_reward_times = Events(
+                name="left_reward_times",
+                description="Left Reward times",
                 timestamps=session_dict["left_reward_times"],
             )
-        else:
-            reward_times = Events(
-                name="reward_times",
-                description="Reward times (right)",
+            behavior_module.add(left_reward_times)
+        if len(session_dict["right_reward_times"]) > 0:
+            right_reward_times = Events(
+                name="right_reward_times",
+                description="Right Reward times",
                 timestamps=session_dict["right_reward_times"],
             )
-        behavior_module.add(reward_times)
+            behavior_module.add(right_reward_times)
 
         # Footshock
         if "ShockProbe" in metadata["NWBFile"]["session_id"]:

@@ -21,3 +21,6 @@ In FP Experiments/Behavior/PR/028.392,
 
 In FP Experiments/Behavior/DPR/272.396,
 - some of the days (ex. 7/06/20) have two sessions per day
+
+In FP Experiments/Behavior/DPR/334.394,
+- some of the sessions (ex. 6/17/20) have both left and right rewards (MSN: FOOD_FR1 HT TTL (Both))
