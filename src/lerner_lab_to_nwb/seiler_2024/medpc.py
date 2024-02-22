@@ -85,8 +85,14 @@ def read_medpc_file(
             if multiline_variable_name not in medpc_name_to_dict_name:
                 continue
             data = data.split(" ")
-            data = [datum.strip() for datum in data if datum.strip() != ""]
             for datum in data:
+                datum = datum.strip()
+                if datum == "":
+                    continue
+                if (
+                    "\t" in datum
+                ):  # some sessions have a bunch of garbage after the last datum in the line separated by tabs
+                    datum = datum.split("\t")[0]  # TODO: Make sure this is generalizable for neuroconv
                 session_dict[medpc_name_to_dict_name[multiline_variable_name]].append(datum)
 
         # single line variable

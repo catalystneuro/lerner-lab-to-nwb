@@ -15,6 +15,10 @@
 
 In FP Experiments/Behavior/PS,
 - some of the animals have csvs, but are missing the raw MEDPC Files (ex. 75.214), but some animals do have them (ex. 110.271)
+- For the animals missing raw med PC files, the plan is:
+    - Iterate through all of the MEDPC_RawFilesbyDate, grabbing all of the session start times, dates, subject IDs, and MSNs
+    - For subject IDs that match convert those sessions
+    - Will need to update the convert session function should be able to handle different subject IDs in the same session
 
 In FP Experiments/Behavior/PR/028.392,
 - some of the sessions (ex. 7/09/20) have ALL NaN values for Duration of Port Entry
@@ -31,3 +35,6 @@ In FP Experiments/Behavior/PR/141.308,
 In FP Experiments/Behavior/PS/139.298,
 - one of the sessions (ex. 09/20/19) is actually from subject 144.306
 - 144.306 is a ghost -- it doesn't show up in any of the behavior folders and not in the mosue demographics google sheet
+
+In FP Experiments/Behavior/PS/140.306,
+- one of the sessions (ex. 09/06/19) has a bunch of garbage to the right of the 'A' variable
