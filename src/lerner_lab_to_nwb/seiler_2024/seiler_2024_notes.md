@@ -27,3 +27,7 @@ In FP Experiments/Behavior/DPR/334.394,
 
 In FP Experiments/Behavior/PR/141.308,
 - medpc file is filled with whitespace characters like \t
+
+In FP Experiments/Behavior/PS/139.298,
+- one of the sessions (ex. 09/20/19) is actually from subject 144.306
+- 144.306 is a ghost -- it doesn't show up in any of the behavior folders and not in the mosue demographics google sheet

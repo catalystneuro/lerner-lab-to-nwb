@@ -40,6 +40,12 @@ def dataset_to_nwb(
                 }:  # TODO: Find the missing msn files
                     continue  # magazine training does not yield useful data
                 start_datetime = datetime.strptime(f"{start_date} {start_time}", "%m/%d/%y %H:%M:%S")
+                if (
+                    start_datetime == datetime(2019, 9, 20, 9, 42, 54)
+                    and subject_id == "139.298"
+                    and msn == "RI 60 RIGHT STIM"
+                ):
+                    continue  # this session is the wrong subject TODO: Ask Lerner Lab about this
                 try:
                     session_to_nwb(
                         data_dir_path=data_dir_path,
