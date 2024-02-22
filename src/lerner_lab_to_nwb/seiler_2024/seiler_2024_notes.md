@@ -4,6 +4,7 @@
  For all medpc files,
  - MSN refers to the name of the code file used to produce this session
 
+### FP Behavior
  In FP Experiments/Behavior,
 - G represents portEntryTs (Port Entry Times)
 - E represents DurationOfPE (Duration of Port Entry)
@@ -38,3 +39,14 @@ In FP Experiments/Behavior/PS/139.298,
 
 In FP Experiments/Behavior/PS/140.306,
 - one of the sessions (ex. 09/06/19) has a bunch of garbage to the right of the 'A' variable
+
+### Opto Behavior
+- Opto Behavior files are disorganized esp. DLS Excitatory with a mix of folders, medpc files, and csv files
+- File structure also contains important metadata for optogenetic interface ex. ChR2 vs EYFP
+- Plan: Swing back around to opto behavior when constructing optogenetic interface
+
+## Fiber Photometry
+TODO
+
+## Optogenetics
+TODO
