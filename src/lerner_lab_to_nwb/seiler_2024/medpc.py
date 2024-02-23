@@ -2,40 +2,30 @@ from datetime import datetime, date, time, timezone
 import numpy as np
 
 
-def get_start_dates(file_path: str) -> list:  # TODO: Refactor get methods into a class
-    """Get the start dates of all sessions in a MedPC file."""
+def get_medpc_variables(file_path: str, variable_names: list) -> dict:
+    """
+    Get the values of the given single-line variables from a MedPC file for all sessions in that file.
+
+    Parameters
+    ----------
+    file_path : str
+        The path to the MedPC file.
+    variable_names : list
+        The names of the variables to get the values of.
+
+    Returns
+    -------
+    dict
+        A dictionary with the variable names as keys and the variable values as values.
+    """
     with open(file_path, "r") as f:
         lines = f.readlines()
-    start_dates = []
+    medpc_variables = {}
     for line in lines:
-        if line.startswith("Start Date: "):
-            start_date = line.split("Start Date: ")[1].strip()
-            start_dates.append(start_date)
-    return start_dates
-
-
-def get_start_times(file_path: str) -> list:
-    """Get the start times of all sessions in a MedPC file."""
-    with open(file_path, "r") as f:
-        lines = f.readlines()
-    start_times = []
-    for line in lines:
-        if line.startswith("Start Time: "):
-            start_time = line.split("Start Time: ")[1].strip()
-            start_times.append(start_time)
-    return start_times
-
-
-def get_MSNs(file_path: str) -> list:
-    """Get the MSNs of all sessions in a MedPC file."""
-    with open(file_path, "r") as f:
-        lines = f.readlines()
-    msns = []
-    for line in lines:
-        if line.startswith("MSN: "):
-            msn = line.split("MSN: ")[1].strip()
-            msns.append(msn)
-    return msns
+        for variable_name in variable_names:
+            if line.startswith(variable_name):
+                medpc_variables[variable_name] = line.split(":")[1].strip()
+    return medpc_variables
 
 
 def read_medpc_file(
