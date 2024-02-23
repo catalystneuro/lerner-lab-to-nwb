@@ -6,7 +6,7 @@ from datetime import datetime
 import shutil
 
 from lerner_lab_to_nwb.seiler_2024.seiler_2024_convert_session import session_to_nwb
-from lerner_lab_to_nwb.seiler_2024.medpc import get_start_dates, get_start_times, get_MSNs
+from lerner_lab_to_nwb.seiler_2024.medpc import get_medpc_variables
 
 
 def dataset_to_nwb(
@@ -26,9 +26,12 @@ def dataset_to_nwb(
             subject_id = subject_dir.name
             medpc_file_path = subject_dir / f"{subject_id}"
             try:
-                start_dates = get_start_dates(medpc_file_path)
-                start_times = get_start_times(medpc_file_path)
-                msns = get_MSNs(medpc_file_path)
+                medpc_variables = get_medpc_variables(
+                    file_path=medpc_file_path, variable_names=["Start Date", "Start Time", "MSN"]
+                )
+                start_dates = medpc_variables["Start Date"]
+                start_times = medpc_variables["Start Time"]
+                msns = medpc_variables["MSN"]
             except FileNotFoundError:  # TODO: Find the missing medpc files
                 print(f"Could not find MedPC file for subject {subject_id}")
                 continue

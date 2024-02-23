@@ -16,15 +16,15 @@ def get_medpc_variables(file_path: str, variable_names: list) -> dict:
     Returns
     -------
     dict
-        A dictionary with the variable names as keys and the variable values as values.
+        A dictionary with the variable names as keys and a list of variable values as values.
     """
     with open(file_path, "r") as f:
         lines = f.readlines()
-    medpc_variables = {}
+    medpc_variables = {name: [] for name in variable_names}
     for line in lines:
         for variable_name in variable_names:
             if line.startswith(variable_name):
-                medpc_variables[variable_name] = line.split(":")[1].strip()
+                medpc_variables[variable_name].append(line.split(":", maxsplit=1)[1].strip())
     return medpc_variables
 
 
