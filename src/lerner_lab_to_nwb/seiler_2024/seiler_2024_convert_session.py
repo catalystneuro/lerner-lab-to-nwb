@@ -11,6 +11,7 @@ from lerner_lab_to_nwb.seiler_2024 import Seiler2024NWBConverter
 def session_to_nwb(
     data_dir_path: Union[str, Path],
     output_dir_path: Union[str, Path],
+    behavior_file_path: Union[str, Path],
     start_datetime: datetime,
     subject_id: str,
     experiment_type: Literal["FP", "Opto"],
@@ -33,14 +34,6 @@ def session_to_nwb(
     conversion_options = {}
 
     # Add Behavior
-    behavior_file_path = (
-        data_dir_path
-        / f"{experiment_type} Experiments"
-        / "Behavior"
-        / f"{experimental_group}"
-        / f"{subject_id}"
-        / f"{subject_id}"
-    )
     source_data.update(
         dict(
             Behavior={
@@ -68,9 +61,6 @@ if __name__ == "__main__":
     # Parameters for conversion
     data_dir_path = Path("/Volumes/T7/CatalystNeuro/NWB/Lerner/raw_data")
     output_dir_path = Path("/Volumes/T7/CatalystNeuro/NWB/Lerner/conversion_nwb")
-    experiment_type = "FP"
-    experimental_group = "RR20"
-    subject_id = "95.259"
     stub_test = False
 
     if output_dir_path.exists():
@@ -79,46 +69,94 @@ if __name__ == "__main__":
         )  # ignore errors due to MacOS race condition (https://github.com/python/cpython/issues/81441)
 
     # No-shock example session
+    experiment_type = "FP"
+    experimental_group = "RR20"
+    subject_id = "95.259"
+    start_datetime = datetime(2019, 4, 9, 10, 34, 30)
+    behavior_file_path = (
+        data_dir_path
+        / f"{experiment_type} Experiments"
+        / "Behavior"
+        / f"{experimental_group}"
+        / f"{subject_id}"
+        / f"{subject_id}"
+    )
     session_to_nwb(
         data_dir_path=data_dir_path,
         output_dir_path=output_dir_path,
+        behavior_file_path=behavior_file_path,
         subject_id=subject_id,
-        start_datetime=datetime(2019, 4, 9, 10, 34, 30),
+        start_datetime=start_datetime,
         experiment_type=experiment_type,
         experimental_group=experimental_group,
         stub_test=stub_test,
     )
 
     # Shock session
+    experiment_type = "FP"
+    experimental_group = "RR20"
+    subject_id = "95.259"
+    behavior_file_path = (
+        data_dir_path
+        / f"{experiment_type} Experiments"
+        / "Behavior"
+        / f"{experimental_group}"
+        / f"{subject_id}"
+        / f"{subject_id}"
+    )
+    start_datetime = datetime(2019, 4, 18, 10, 41, 42)
     session_to_nwb(
         data_dir_path=data_dir_path,
         output_dir_path=output_dir_path,
+        behavior_file_path=behavior_file_path,
         subject_id=subject_id,
-        start_datetime=datetime(2019, 4, 18, 10, 41, 42),
+        start_datetime=start_datetime,
         experiment_type=experiment_type,
         experimental_group=experimental_group,
         stub_test=stub_test,
     )
 
     # session with all NaNs for port duration
+    experiment_type = "FP"
     experimental_group = "PR"
     subject_id = "028.392"
+    start_datetime = datetime(2020, 7, 9, 13, 1, 26)
+    behavior_file_path = (
+        data_dir_path
+        / f"{experiment_type} Experiments"
+        / "Behavior"
+        / f"{experimental_group}"
+        / f"{subject_id}"
+        / f"{subject_id}"
+    )
     session_to_nwb(
         data_dir_path=data_dir_path,
         output_dir_path=output_dir_path,
+        behavior_file_path=behavior_file_path,
         subject_id=subject_id,
-        start_datetime=datetime(2020, 7, 9, 13, 1, 26),
+        start_datetime=start_datetime,
         experiment_type=experiment_type,
         experimental_group=experimental_group,
         stub_test=stub_test,
     )
 
     # session with lots of trailing whitespace
+    experiment_type = "FP"
     experimental_group = "PR"
     subject_id = "141.308"
+    start_datetime = datetime(2019, 8, 1, 14, 1, 17)
+    behavior_file_path = (
+        data_dir_path
+        / f"{experiment_type} Experiments"
+        / "Behavior"
+        / f"{experimental_group}"
+        / f"{subject_id}"
+        / f"{subject_id}"
+    )
     session_to_nwb(
         data_dir_path=data_dir_path,
         output_dir_path=output_dir_path,
+        behavior_file_path=behavior_file_path,
         subject_id=subject_id,
         start_datetime=datetime(2019, 8, 1, 14, 1, 17),
         experiment_type=experiment_type,
