@@ -100,7 +100,7 @@ class Seiler2024BehaviorInterface(BaseDataInterface):
         }
         return metadata_schema
 
-    def add_to_nwbfile(self, nwbfile: NWBFile, metadata: dict):
+    def add_to_nwbfile(self, nwbfile: NWBFile, metadata: dict, subject_id: str | None = None):
         medpc_name_to_dict_name = {
             "G": "port_entry_times",
             "E": "duration_of_port_entry",
@@ -126,6 +126,7 @@ class Seiler2024BehaviorInterface(BaseDataInterface):
             start_datetime=self.source_data["start_datetime"],
             medpc_name_to_dict_name=medpc_name_to_dict_name,
             dict_name_to_type=dict_name_to_type,
+            subject_id=subject_id,
         )
 
         # Add behavior data to nwbfile

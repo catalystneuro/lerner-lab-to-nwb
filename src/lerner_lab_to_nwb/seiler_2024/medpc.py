@@ -29,7 +29,11 @@ def get_medpc_variables(file_path: str, variable_names: list) -> dict:
 
 
 def read_medpc_file(
-    file_path: str, start_datetime: datetime, medpc_name_to_dict_name: dict, dict_name_to_type: dict
+    file_path: str,
+    start_datetime: datetime,
+    medpc_name_to_dict_name: dict,
+    dict_name_to_type: dict,
+    subject_id: str | None = None,
 ) -> dict:
     """Read a raw MedPC text file into a dictionary."""
     # Read the file
@@ -40,6 +44,10 @@ def read_medpc_file(
     start_date = start_datetime.strftime("%m/%d/%y")
     start_time = start_datetime.strftime("%H:%M:%S")
     start_date_is_match, start_time_is_match = False, False
+    if subject_id is None:
+        subject_id_is_match = True
+    else:
+        subject_id_is_match = False
     start_line, end_line = 0, len(lines)
     for i, line in enumerate(lines):
         line = line.strip()
@@ -48,11 +56,15 @@ def read_medpc_file(
             start_line = i
         elif line == f"Start Time: {start_time}" and start_date_is_match:
             start_time_is_match = True
-        elif line == "" and start_time_is_match:
+        elif line == f"Subject: {subject_id}":
+            subject_id_is_match = True
+        elif line == "" and start_time_is_match and subject_id_is_match:
             end_line = i
             break
         elif line == "":
             start_date_is_match, start_time_is_match = False, False
+            if subject_id is not None:
+                subject_id_is_match = False
     if not (start_date_is_match and start_time_is_match):
         raise ValueError(f"Could not find start date {start_date} and time {start_time} in file {file_path}")
     session_lines = lines[start_line:end_line]

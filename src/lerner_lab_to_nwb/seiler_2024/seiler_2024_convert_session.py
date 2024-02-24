@@ -16,6 +16,7 @@ def session_to_nwb(
     subject_id: str,
     experiment_type: Literal["FP", "Opto"],
     experimental_group: Literal["DPR", "PR", "PS", "RR20"],
+    filter_by_subject_id: bool = False,
     stub_test: bool = False,
     verbose: bool = True,
 ):
@@ -44,6 +45,8 @@ def session_to_nwb(
         )
     )
     conversion_options.update(dict(Behavior={}))
+    if filter_by_subject_id:
+        conversion_options["Behavior"]["subject_id"] = subject_id
 
     converter = Seiler2024NWBConverter(source_data=source_data, verbose=verbose)
     metadata = converter.get_metadata()
@@ -158,8 +161,32 @@ if __name__ == "__main__":
         output_dir_path=output_dir_path,
         behavior_file_path=behavior_file_path,
         subject_id=subject_id,
-        start_datetime=datetime(2019, 8, 1, 14, 1, 17),
+        start_datetime=start_datetime,
         experiment_type=experiment_type,
         experimental_group=experimental_group,
+        stub_test=stub_test,
+    )
+
+    # session with missing medpc file
+    experiment_type = "FP"
+    experimental_group = "PS"
+    subject_id = "75.214"
+    start_datetime = datetime(2018, 10, 29, 12, 41, 44)
+    behavior_file_path = (
+        data_dir_path
+        / f"{experiment_type} Experiments"
+        / "Behavior"
+        / "MEDPC_RawFilesbyDate"
+        / f"{start_datetime.date().isoformat()}"
+    )
+    session_to_nwb(
+        data_dir_path=data_dir_path,
+        output_dir_path=output_dir_path,
+        behavior_file_path=behavior_file_path,
+        subject_id=subject_id,
+        start_datetime=start_datetime,
+        experiment_type=experiment_type,
+        experimental_group=experimental_group,
+        filter_by_subject_id=True,
         stub_test=stub_test,
     )
