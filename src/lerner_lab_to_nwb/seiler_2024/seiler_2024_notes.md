@@ -43,6 +43,10 @@ In FP Experiments/Behavior/PS/139.298,
 In FP Experiments/Behavior/PS/140.306,
 - one of the sessions (ex. 09/06/19) has a bunch of garbage to the right of the 'A' variable
 
+In FP Experiments/Behavior/MEDPCRawFilesbyDate/2018-11-09,
+- All the sessions have the same start_date and start_time and no subject info --> need to make medpc reader support
+more generic filter conditions (ex. box number)
+
 ### Opto Behavior
 - Opto Behavior files are disorganized esp. DLS Excitatory with a mix of folders, medpc files, and csv files
 - File structure also contains important metadata for optogenetic interface ex. ChR2 vs EYFP
