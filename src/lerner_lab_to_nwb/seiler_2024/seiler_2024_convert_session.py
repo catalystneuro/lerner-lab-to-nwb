@@ -14,9 +14,10 @@ def session_to_nwb(
     behavior_file_path: Union[str, Path],
     start_datetime: datetime,
     subject_id: str,
+    session_conditions: dict,
+    start_variable: str,
     experiment_type: Literal["FP", "Opto"],
     experimental_group: Literal["DPR", "PR", "PS", "RR20"],
-    filter_by_subject_id: bool = False,
     stub_test: bool = False,
     verbose: bool = True,
 ):
@@ -39,14 +40,13 @@ def session_to_nwb(
         dict(
             Behavior={
                 "file_path": str(behavior_file_path),
-                "start_datetime": start_datetime.isoformat(),
+                "session_conditions": session_conditions,
+                "start_variable": start_variable,
                 "verbose": verbose,
             }
         )
     )
     conversion_options.update(dict(Behavior={}))
-    if filter_by_subject_id:
-        conversion_options["Behavior"]["subject_id"] = subject_id
 
     converter = Seiler2024NWBConverter(source_data=source_data, verbose=verbose)
     metadata = converter.get_metadata()
@@ -84,11 +84,18 @@ if __name__ == "__main__":
         / f"{subject_id}"
         / f"{subject_id}"
     )
+    session_conditions = {
+        "Start Date": start_datetime.strftime("%m/%d/%y"),
+        "Start Time": start_datetime.strftime("%H:%M:%S"),
+    }
+    start_variable = "Start Date"
     session_to_nwb(
         data_dir_path=data_dir_path,
         output_dir_path=output_dir_path,
         behavior_file_path=behavior_file_path,
         subject_id=subject_id,
+        session_conditions=session_conditions,
+        start_variable=start_variable,
         start_datetime=start_datetime,
         experiment_type=experiment_type,
         experimental_group=experimental_group,
@@ -99,6 +106,12 @@ if __name__ == "__main__":
     experiment_type = "FP"
     experimental_group = "RR20"
     subject_id = "95.259"
+    start_datetime = datetime(2019, 4, 18, 10, 41, 42)
+    session_conditions = {
+        "Start Date": start_datetime.strftime("%m/%d/%y"),
+        "Start Time": start_datetime.strftime("%H:%M:%S"),
+    }
+    start_variable = "Start Date"
     behavior_file_path = (
         data_dir_path
         / f"{experiment_type} Experiments"
@@ -107,12 +120,13 @@ if __name__ == "__main__":
         / f"{subject_id}"
         / f"{subject_id}"
     )
-    start_datetime = datetime(2019, 4, 18, 10, 41, 42)
     session_to_nwb(
         data_dir_path=data_dir_path,
         output_dir_path=output_dir_path,
         behavior_file_path=behavior_file_path,
         subject_id=subject_id,
+        session_conditions=session_conditions,
+        start_variable=start_variable,
         start_datetime=start_datetime,
         experiment_type=experiment_type,
         experimental_group=experimental_group,
@@ -124,6 +138,11 @@ if __name__ == "__main__":
     experimental_group = "PR"
     subject_id = "028.392"
     start_datetime = datetime(2020, 7, 9, 13, 1, 26)
+    session_conditions = {
+        "Start Date": start_datetime.strftime("%m/%d/%y"),
+        "Start Time": start_datetime.strftime("%H:%M:%S"),
+    }
+    start_variable = "Start Date"
     behavior_file_path = (
         data_dir_path
         / f"{experiment_type} Experiments"
@@ -137,6 +156,8 @@ if __name__ == "__main__":
         output_dir_path=output_dir_path,
         behavior_file_path=behavior_file_path,
         subject_id=subject_id,
+        session_conditions=session_conditions,
+        start_variable=start_variable,
         start_datetime=start_datetime,
         experiment_type=experiment_type,
         experimental_group=experimental_group,
@@ -148,6 +169,11 @@ if __name__ == "__main__":
     experimental_group = "PR"
     subject_id = "141.308"
     start_datetime = datetime(2019, 8, 1, 14, 1, 17)
+    session_conditions = {
+        "Start Date": start_datetime.strftime("%m/%d/%y"),
+        "Start Time": start_datetime.strftime("%H:%M:%S"),
+    }
+    start_variable = "Start Date"
     behavior_file_path = (
         data_dir_path
         / f"{experiment_type} Experiments"
@@ -161,6 +187,8 @@ if __name__ == "__main__":
         output_dir_path=output_dir_path,
         behavior_file_path=behavior_file_path,
         subject_id=subject_id,
+        session_conditions=session_conditions,
+        start_variable=start_variable,
         start_datetime=start_datetime,
         experiment_type=experiment_type,
         experimental_group=experimental_group,
@@ -172,6 +200,12 @@ if __name__ == "__main__":
     experimental_group = "PS"
     subject_id = "75.214"
     start_datetime = datetime(2018, 10, 29, 12, 41, 44)
+    session_conditions = {
+        "Start Date": start_datetime.strftime("%m/%d/%y"),
+        "Start Time": start_datetime.strftime("%H:%M:%S"),
+        "Subject": subject_id,
+    }
+    start_variable = "Start Date"
     behavior_file_path = (
         data_dir_path
         / f"{experiment_type} Experiments"
@@ -184,9 +218,10 @@ if __name__ == "__main__":
         output_dir_path=output_dir_path,
         behavior_file_path=behavior_file_path,
         subject_id=subject_id,
+        session_conditions=session_conditions,
+        start_variable=start_variable,
         start_datetime=start_datetime,
         experiment_type=experiment_type,
         experimental_group=experimental_group,
-        filter_by_subject_id=True,
         stub_test=stub_test,
     )
