@@ -225,3 +225,35 @@ if __name__ == "__main__":
         experimental_group=experimental_group,
         stub_test=stub_test,
     )
+
+    # session with missing medpc file and missing subject info, but has csv file
+    experiment_type = "FP"
+    experimental_group = "PS"
+    subject_id = "75.214"
+    start_datetime = datetime(2018, 11, 9, 11, 46, 33)
+    box = "1"
+    session_conditions = {
+        "Start Date": start_datetime.strftime("%m/%d/%y"),
+        "Start Time": start_datetime.strftime("%H:%M:%S"),
+        "Box": box,
+    }
+    start_variable = "Start Date"
+    behavior_file_path = (
+        data_dir_path
+        / f"{experiment_type} Experiments"
+        / "Behavior"
+        / "MEDPC_RawFilesbyDate"
+        / f"{start_datetime.date().isoformat()}"
+    )
+    session_to_nwb(
+        data_dir_path=data_dir_path,
+        output_dir_path=output_dir_path,
+        behavior_file_path=behavior_file_path,
+        subject_id=subject_id,
+        session_conditions=session_conditions,
+        start_variable=start_variable,
+        start_datetime=start_datetime,
+        experiment_type=experiment_type,
+        experimental_group=experimental_group,
+        stub_test=stub_test,
+    )
