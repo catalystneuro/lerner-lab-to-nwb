@@ -23,7 +23,7 @@ def dataset_to_nwb(
     experimental_groups = ["DPR", "PR", "PS", "RR20"]
     behavior_path = data_dir_path / f"{experiment_type} Experiments" / "Behavior"
     raw_file_to_info = get_raw_info(behavior_path)
-    missing_msn_errors = []
+    missing_msn_errors = set()
     for experimental_group in experimental_groups:
         experimental_group_path = behavior_path / experimental_group
         subject_dirs = [subject_dir for subject_dir in experimental_group_path.iterdir() if subject_dir.is_dir()]
@@ -96,17 +96,25 @@ def dataset_to_nwb(
             for start_date, start_time, msn, file, subject, box_number in zip(
                 start_dates, start_times, msns, file_paths, subjects, box_numbers
             ):
-                if msn in {
-                    "FOOD_Magazine Training 1 hr",
-                    "Magazine Training 1 hr",
-                    "Probe Test Habit Training TTL",
-                }:  # TODO: Find the missing msn files
-                    continue  # magazine training does not yield useful data
                 if (
-                    start_date == "09/20/19"
-                    and start_time == "09:42:54"
-                    and subject_id == "139.298"
-                    and msn == "RI 60 RIGHT STIM"
+                    (
+                        start_date == "09/20/19"
+                        and start_time == "09:42:54"
+                        and subject_id == "139.298"
+                        and msn == "RI 60 RIGHT STIM"
+                    )
+                    or (
+                        start_date == "07/28/20"
+                        and start_time == "13:21:15"
+                        and subject_id == "272.396"
+                        and msn == "Probe Test Habit Training TTL"
+                    )
+                    or (
+                        start_date == "07/31/20"
+                        and start_time == "12:03:31"
+                        and subject_id == "346.394"
+                        and msn == "FOOD_RI 60 RIGHT TTL"
+                    )
                 ):
                     continue  # these sessions are the wrong subject TODO: Ask Lerner Lab about this
                 session_conditions = {
@@ -133,7 +141,7 @@ def dataset_to_nwb(
                         verbose=verbose,
                     )
                 except KeyError as e:
-                    missing_msn_errors.append(e)
+                    missing_msn_errors.add(str(e))
                     continue
                 except Exception as e:
                     print(f"Could not convert {experimental_group}/{subject_id}/{start_date} {start_time}")
