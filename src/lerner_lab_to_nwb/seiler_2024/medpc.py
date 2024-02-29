@@ -95,7 +95,7 @@ def read_medpc_file(
     session_dict = {}
     for i, line in enumerate(session_lines):
         line = line.rstrip()
-        if line == "\\rec" or line == "\\Recording":  # some files have a "rec" line at the end of the session
+        if line.startswith("\\"):  # \\ indicates a commented line in the MedPC file
             continue
         assert ":" in line, f"Could not find ':' in line {repr(line)}"
         split_line = line.split(":", maxsplit=1)
