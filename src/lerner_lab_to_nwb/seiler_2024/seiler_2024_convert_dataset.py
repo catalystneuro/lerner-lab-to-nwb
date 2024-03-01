@@ -26,9 +26,7 @@ def dataset_to_nwb(
     raw_file_to_info = get_raw_info(behavior_path)
 
     # Iterate through file system to get necessary information for converting each session
-    session_to_nwb_args_per_session = (
-        []
-    )  # This is a list of dictionaries, each dictionary contains the arguments for session_to_nwb for a single session
+    session_to_nwb_args_per_session: list[dict] = []  # Each dict contains the args for session_to_nwb for a session
     for experimental_group in experimental_groups:
         experimental_group_path = behavior_path / experimental_group
         subject_dirs = [subject_dir for subject_dir in experimental_group_path.iterdir() if subject_dir.is_dir()]
@@ -114,7 +112,7 @@ def get_csv_session_dates(subject_dir):
 
 def get_header_variables(subject_dir, subject_id, raw_file_to_info, start_variable):
     medpc_file_path = subject_dir / f"{subject_id}"
-    try:
+    if medpc_file_path.exists():  # Medpc file with all the sessions for the subject is located in the subject directory
         medpc_variables = get_medpc_variables(
             file_path=medpc_file_path, variable_names=["Start Date", "Start Time", "MSN"]
         )
@@ -124,7 +122,7 @@ def get_header_variables(subject_dir, subject_id, raw_file_to_info, start_variab
         file_paths = [medpc_file_path] * len(start_dates)
         subjects = [None] * len(start_dates)
         box_numbers = [None] * len(start_dates)
-    except FileNotFoundError:
+    else:  # We need to grab all the subject's sessions from the Medpc files organized by date (rather than by subject)
         start_dates, start_times, msns, file_paths, subjects = [], [], [], [], []
         for file, info in raw_file_to_info.items():
             for subject, start_date, start_time, msn in zip(
@@ -138,7 +136,8 @@ def get_header_variables(subject_dir, subject_id, raw_file_to_info, start_variab
                     subjects.append(subject_id)
         box_numbers = [None] * len(start_dates)
 
-    # find medpc sessions that match missing csv sessions
+    # Some subjects have sessions in the Medpc files organized by date without identifying subject info
+    # We can identify these sessions by matching them to the CSV files in the subject directory
     csv_session_dates = get_csv_session_dates(subject_dir)
     for csv_date in csv_session_dates:
         if csv_date not in start_dates:
