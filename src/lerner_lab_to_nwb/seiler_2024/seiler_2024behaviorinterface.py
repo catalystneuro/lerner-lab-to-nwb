@@ -17,10 +17,11 @@ class Seiler2024BehaviorInterface(BaseDataInterface):
 
     keywords = ["behavior"]
 
-    def __init__(self, file_path: str, start_datetime: str, verbose: bool = True):
+    def __init__(self, file_path: str, session_conditions: dict, start_variable: str, verbose: bool = True):
         super().__init__(
             file_path=file_path,
-            start_datetime=datetime.fromisoformat(start_datetime),
+            session_conditions=session_conditions,
+            start_variable=start_variable,
             verbose=verbose,
         )
 
@@ -66,9 +67,10 @@ class Seiler2024BehaviorInterface(BaseDataInterface):
         }
         session_dict = read_medpc_file(
             file_path=self.source_data["file_path"],
-            start_datetime=self.source_data["start_datetime"],
             medpc_name_to_dict_name=medpc_name_to_dict_name,
             dict_name_to_type=dict_name_to_type,
+            session_conditions=self.source_data["session_conditions"],
+            start_variable=self.source_data["start_variable"],
         )
         session_start_time = datetime.combine(
             session_dict["start_date"], session_dict["start_time"], tzinfo=timezone("US/Central")
@@ -123,9 +125,10 @@ class Seiler2024BehaviorInterface(BaseDataInterface):
             dict_name_to_type["footshock_times"] = np.ndarray
         session_dict = read_medpc_file(
             file_path=self.source_data["file_path"],
-            start_datetime=self.source_data["start_datetime"],
             medpc_name_to_dict_name=medpc_name_to_dict_name,
             dict_name_to_type=dict_name_to_type,
+            session_conditions=self.source_data["session_conditions"],
+            start_variable=self.source_data["start_variable"],
         )
 
         # Add behavior data to nwbfile

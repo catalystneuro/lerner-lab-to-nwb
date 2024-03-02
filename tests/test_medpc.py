@@ -10,7 +10,8 @@ data_dir_path = Path("/Volumes/T7/CatalystNeuro/NWB/Lerner/raw_data")
 
 def test_read_medpc_file():
     file_path = data_dir_path / "FP Experiments" / "Behavior" / "RR20" / "95.259" / "95.259"
-    start_datetime = datetime(2019, 4, 17, 12, 41, 30)
+    session_contions = {"Start Date": "04/17/19", "Start Time": "12:41:30"}
+    start_variable = "Start Date"
     medpc_name_to_dict_name = {
         "Start Date": "start_date",
         "End Date": "end_date",
@@ -47,9 +48,10 @@ def test_read_medpc_file():
     }
     session_dict = read_medpc_file(
         file_path=file_path,
-        start_datetime=start_datetime,
         medpc_name_to_dict_name=medpc_name_to_dict_name,
         dict_name_to_type=dict_name_to_type,
+        session_conditions=session_contions,
+        start_variable=start_variable,
     )
     csv_path = file_path.parent / "95.259_04-17-19.csv"
     session_df = pd.read_csv(csv_path)

@@ -28,40 +28,74 @@ def get_medpc_variables(file_path: str, variable_names: list) -> dict:
     return medpc_variables
 
 
-def read_medpc_file(
-    file_path: str, start_datetime: datetime, medpc_name_to_dict_name: dict, dict_name_to_type: dict
-) -> dict:
-    """Read a raw MedPC text file into a dictionary."""
-    # Read the file
-    with open(file_path, "r") as f:
-        lines = f.readlines()
+def get_session_lines(lines: list, session_conditions: dict, start_variable: str) -> list:
+    """
+    Get the lines for a session from a MedPC file.
 
-    # Find the start and end lines for the given session
-    start_date = start_datetime.strftime("%m/%d/%y")
-    start_time = start_datetime.strftime("%H:%M:%S")
-    start_date_is_match, start_time_is_match = False, False
-    start_line, end_line = 0, len(lines)
+    Parameters
+    ----------
+    lines : list
+        The lines of the MedPC file.
+    session_conditions : dict
+        The conditions that define the session. The keys are the names of the single-line variables (ex. 'Start Date')
+        and the values are the values of those variables for the desired session (ex. '11/09/18').
+    start_variable : str
+        The name of the variable that starts the session (ex. 'Start Date').
+
+    Returns
+    -------
+    list
+        The lines for the session.
+
+    Raises
+    ------
+    ValueError
+        If the session with the given conditions could not be found.
+    ValueError
+        If the start variable of the session with the given conditions could not be found.
+    """
+    session_condition_has_been_met = {name: False for name in session_conditions}
+    start_line, end_line = None, len(lines)
     for i, line in enumerate(lines):
         line = line.strip()
-        if line == f"Start Date: {start_date}":
-            start_date_is_match = True
+        if line.startswith(f"{start_variable}:"):
             start_line = i
-        elif line == f"Start Time: {start_time}" and start_date_is_match:
-            start_time_is_match = True
-        elif line == "" and start_time_is_match:
+        for condition_name, condition_value in session_conditions.items():
+            if line == f"{condition_name}: {condition_value}":
+                session_condition_has_been_met[condition_name] = True
+        if line == "" and all(session_condition_has_been_met.values()):
             end_line = i
             break
         elif line == "":
-            start_date_is_match, start_time_is_match = False, False
-    if not (start_date_is_match and start_time_is_match):
-        raise ValueError(f"Could not find start date {start_date} and time {start_time} in file {file_path}")
+            session_condition_has_been_met = {name: False for name in session_conditions}
+            start_line = None
+    if not all(session_condition_has_been_met.values()):
+        raise ValueError(f"Could not find the session with conditions {session_conditions}")
+    if start_line is None:
+        raise ValueError(
+            f"Could not find the start variable ({start_variable}) of the session with conditions {session_conditions}"
+        )
     session_lines = lines[start_line:end_line]
+    return session_lines
+
+
+def read_medpc_file(
+    file_path: str,
+    medpc_name_to_dict_name: dict,
+    dict_name_to_type: dict,
+    session_conditions: dict,
+    start_variable: str,
+) -> dict:
+    """Read a raw MedPC text file into a dictionary."""
+    with open(file_path, "r") as f:
+        lines = f.readlines()
+    session_lines = get_session_lines(lines, session_conditions=session_conditions, start_variable=start_variable)
 
     # Parse the session lines into a dictionary
     session_dict = {}
     for i, line in enumerate(session_lines):
         line = line.rstrip()
-        if line == "\\rec" or line == "\\Recording":  # some files have a "rec" line at the end of the session
+        if line.startswith("\\"):  # \\ indicates a commented line in the MedPC file
             continue
         assert ":" in line, f"Could not find ':' in line {repr(line)}"
         split_line = line.split(":", maxsplit=1)
