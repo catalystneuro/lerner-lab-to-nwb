@@ -2,6 +2,7 @@
 from neuroconv import NWBConverter
 
 from lerner_lab_to_nwb.seiler_2024 import Seiler2024BehaviorInterface
+from lerner_lab_to_nwb.seiler_2024 import Seiler2024FiberPhotometryInterface
 
 
 class Seiler2024NWBConverter(NWBConverter):
@@ -9,4 +10,5 @@ class Seiler2024NWBConverter(NWBConverter):
 
     data_interface_classes = dict(
         Behavior=Seiler2024BehaviorInterface,
+        FiberPhotometry=Seiler2024FiberPhotometryInterface,
     )

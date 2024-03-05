@@ -12,6 +12,7 @@ def session_to_nwb(
     data_dir_path: Union[str, Path],
     output_dir_path: Union[str, Path],
     behavior_file_path: Union[str, Path],
+    fiber_photometry_folder_path: Union[str, Path],
     start_datetime: datetime,
     subject_id: str,
     session_conditions: dict,
@@ -48,6 +49,18 @@ def session_to_nwb(
     )
     conversion_options.update(dict(Behavior={}))
 
+    # Add Fiber Photometry
+    if experiment_type == "FP":
+        source_data.update(
+            dict(
+                FiberPhotometry={
+                    "folder_path": str(fiber_photometry_folder_path),
+                    "verbose": verbose,
+                }
+            )
+        )
+        conversion_options.update(dict(FiberPhotometry={}))
+
     converter = Seiler2024NWBConverter(source_data=source_data, verbose=verbose)
     metadata = converter.get_metadata()
 
@@ -71,69 +84,194 @@ if __name__ == "__main__":
             output_dir_path, ignore_errors=True
         )  # ignore errors due to MacOS race condition (https://github.com/python/cpython/issues/81441)
 
-    # No-shock example session
-    experiment_type = "FP"
-    experimental_group = "RR20"
-    subject_id = "95.259"
-    start_datetime = datetime(2019, 4, 9, 10, 34, 30)
-    behavior_file_path = (
-        data_dir_path
-        / f"{experiment_type} Experiments"
-        / "Behavior"
-        / f"{experimental_group}"
-        / f"{subject_id}"
-        / f"{subject_id}"
-    )
-    session_conditions = {
-        "Start Date": start_datetime.strftime("%m/%d/%y"),
-        "Start Time": start_datetime.strftime("%H:%M:%S"),
-    }
-    start_variable = "Start Date"
-    session_to_nwb(
-        data_dir_path=data_dir_path,
-        output_dir_path=output_dir_path,
-        behavior_file_path=behavior_file_path,
-        subject_id=subject_id,
-        session_conditions=session_conditions,
-        start_variable=start_variable,
-        start_datetime=start_datetime,
-        experiment_type=experiment_type,
-        experimental_group=experimental_group,
-        stub_test=stub_test,
-    )
+    # # No-shock example session
+    # experiment_type = "FP"
+    # experimental_group = "RR20"
+    # subject_id = "95.259"
+    # start_datetime = datetime(2019, 4, 9, 10, 34, 30)
+    # behavior_file_path = (
+    #     data_dir_path
+    #     / f"{experiment_type} Experiments"
+    #     / "Behavior"
+    #     / f"{experimental_group}"
+    #     / f"{subject_id}"
+    #     / f"{subject_id}"
+    # )
+    # session_conditions = {
+    #     "Start Date": start_datetime.strftime("%m/%d/%y"),
+    #     "Start Time": start_datetime.strftime("%H:%M:%S"),
+    # }
+    # start_variable = "Start Date"
+    # session_to_nwb(
+    #     data_dir_path=data_dir_path,
+    #     output_dir_path=output_dir_path,
+    #     behavior_file_path=behavior_file_path,
+    #     subject_id=subject_id,
+    #     session_conditions=session_conditions,
+    #     start_variable=start_variable,
+    #     start_datetime=start_datetime,
+    #     experiment_type=experiment_type,
+    #     experimental_group=experimental_group,
+    #     stub_test=stub_test,
+    # )
 
-    # Shock session
-    experiment_type = "FP"
-    experimental_group = "RR20"
-    subject_id = "95.259"
-    start_datetime = datetime(2019, 4, 18, 10, 41, 42)
-    session_conditions = {
-        "Start Date": start_datetime.strftime("%m/%d/%y"),
-        "Start Time": start_datetime.strftime("%H:%M:%S"),
-    }
-    start_variable = "Start Date"
-    behavior_file_path = (
-        data_dir_path
-        / f"{experiment_type} Experiments"
-        / "Behavior"
-        / f"{experimental_group}"
-        / f"{subject_id}"
-        / f"{subject_id}"
-    )
-    session_to_nwb(
-        data_dir_path=data_dir_path,
-        output_dir_path=output_dir_path,
-        behavior_file_path=behavior_file_path,
-        subject_id=subject_id,
-        session_conditions=session_conditions,
-        start_variable=start_variable,
-        start_datetime=start_datetime,
-        experiment_type=experiment_type,
-        experimental_group=experimental_group,
-        stub_test=stub_test,
-    )
+    # # Shock session
+    # experiment_type = "FP"
+    # experimental_group = "RR20"
+    # subject_id = "95.259"
+    # start_datetime = datetime(2019, 4, 18, 10, 41, 42)
+    # session_conditions = {
+    #     "Start Date": start_datetime.strftime("%m/%d/%y"),
+    #     "Start Time": start_datetime.strftime("%H:%M:%S"),
+    # }
+    # start_variable = "Start Date"
+    # behavior_file_path = (
+    #     data_dir_path
+    #     / f"{experiment_type} Experiments"
+    #     / "Behavior"
+    #     / f"{experimental_group}"
+    #     / f"{subject_id}"
+    #     / f"{subject_id}"
+    # )
+    # session_to_nwb(
+    #     data_dir_path=data_dir_path,
+    #     output_dir_path=output_dir_path,
+    #     behavior_file_path=behavior_file_path,
+    #     subject_id=subject_id,
+    #     session_conditions=session_conditions,
+    #     start_variable=start_variable,
+    #     start_datetime=start_datetime,
+    #     experiment_type=experiment_type,
+    #     experimental_group=experimental_group,
+    #     stub_test=stub_test,
+    # )
 
-    # session with all NaNs for port duration
+    # # session with all NaNs for port duration
+    # experiment_type = "FP"
+    # experimental_group = "PR"
+    # subject_id = "028.392"
+    # start_datetime = datetime(2020, 7, 9, 13, 1, 26)
+    # session_conditions = {
+    #     "Start Date": start_datetime.strftime("%m/%d/%y"),
+    #     "Start Time": start_datetime.strftime("%H:%M:%S"),
+    # }
+    # start_variable = "Start Date"
+    # behavior_file_path = (
+    #     data_dir_path
+    #     / f"{experiment_type} Experiments"
+    #     / "Behavior"
+    #     / f"{experimental_group}"
+    #     / f"{subject_id}"
+    #     / f"{subject_id}"
+    # )
+    # session_to_nwb(
+    #     data_dir_path=data_dir_path,
+    #     output_dir_path=output_dir_path,
+    #     behavior_file_path=behavior_file_path,
+    #     subject_id=subject_id,
+    #     session_conditions=session_conditions,
+    #     start_variable=start_variable,
+    #     start_datetime=start_datetime,
+    #     experiment_type=experiment_type,
+    #     experimental_group=experimental_group,
+    #     stub_test=stub_test,
+    # )
+
+    # # session with lots of trailing whitespace
+    # experiment_type = "FP"
+    # experimental_group = "PR"
+    # subject_id = "141.308"
+    # start_datetime = datetime(2019, 8, 1, 14, 1, 17)
+    # session_conditions = {
+    #     "Start Date": start_datetime.strftime("%m/%d/%y"),
+    #     "Start Time": start_datetime.strftime("%H:%M:%S"),
+    # }
+    # start_variable = "Start Date"
+    # behavior_file_path = (
+    #     data_dir_path
+    #     / f"{experiment_type} Experiments"
+    #     / "Behavior"
+    #     / f"{experimental_group}"
+    #     / f"{subject_id}"
+    #     / f"{subject_id}"
+    # )
+    # session_to_nwb(
+    #     data_dir_path=data_dir_path,
+    #     output_dir_path=output_dir_path,
+    #     behavior_file_path=behavior_file_path,
+    #     subject_id=subject_id,
+    #     session_conditions=session_conditions,
+    #     start_variable=start_variable,
+    #     start_datetime=start_datetime,
+    #     experiment_type=experiment_type,
+    #     experimental_group=experimental_group,
+    #     stub_test=stub_test,
+    # )
+
+    # # session with missing medpc file
+    # experiment_type = "FP"
+    # experimental_group = "PS"
+    # subject_id = "75.214"
+    # start_datetime = datetime(2018, 10, 29, 12, 41, 44)
+    # session_conditions = {
+    #     "Start Date": start_datetime.strftime("%m/%d/%y"),
+    #     "Start Time": start_datetime.strftime("%H:%M:%S"),
+    #     "Subject": subject_id,
+    # }
+    # start_variable = "Start Date"
+    # behavior_file_path = (
+    #     data_dir_path
+    #     / f"{experiment_type} Experiments"
+    #     / "Behavior"
+    #     / "MEDPC_RawFilesbyDate"
+    #     / f"{start_datetime.date().isoformat()}"
+    # )
+    # session_to_nwb(
+    #     data_dir_path=data_dir_path,
+    #     output_dir_path=output_dir_path,
+    #     behavior_file_path=behavior_file_path,
+    #     subject_id=subject_id,
+    #     session_conditions=session_conditions,
+    #     start_variable=start_variable,
+    #     start_datetime=start_datetime,
+    #     experiment_type=experiment_type,
+    #     experimental_group=experimental_group,
+    #     stub_test=stub_test,
+    # )
+
+    # # session with missing medpc file and missing subject info, but has csv file
+    # experiment_type = "FP"
+    # experimental_group = "PS"
+    # subject_id = "75.214"
+    # start_datetime = datetime(2018, 11, 9, 11, 46, 33)
+    # box = "1"
+    # session_conditions = {
+    #     "Start Date": start_datetime.strftime("%m/%d/%y"),
+    #     "Start Time": start_datetime.strftime("%H:%M:%S"),
+    #     "Box": box,
+    # }
+    # start_variable = "Start Date"
+    # behavior_file_path = (
+    #     data_dir_path
+    #     / f"{experiment_type} Experiments"
+    #     / "Behavior"
+    #     / "MEDPC_RawFilesbyDate"
+    #     / f"{start_datetime.date().isoformat()}"
+    # )
+    # session_to_nwb(
+    #     data_dir_path=data_dir_path,
+    #     output_dir_path=output_dir_path,
+    #     behavior_file_path=behavior_file_path,
+    #     subject_id=subject_id,
+    #     session_conditions=session_conditions,
+    #     start_variable=start_variable,
+    #     start_datetime=start_datetime,
+    #     experiment_type=experiment_type,
+    #     experimental_group=experimental_group,
+    #     stub_test=stub_test,
+    # )
+
+    # Fiber Photometry session
     experiment_type = "FP"
     experimental_group = "PR"
     subject_id = "028.392"
@@ -151,104 +289,20 @@ if __name__ == "__main__":
         / f"{subject_id}"
         / f"{subject_id}"
     )
-    session_to_nwb(
-        data_dir_path=data_dir_path,
-        output_dir_path=output_dir_path,
-        behavior_file_path=behavior_file_path,
-        subject_id=subject_id,
-        session_conditions=session_conditions,
-        start_variable=start_variable,
-        start_datetime=start_datetime,
-        experiment_type=experiment_type,
-        experimental_group=experimental_group,
-        stub_test=stub_test,
-    )
-
-    # session with lots of trailing whitespace
-    experiment_type = "FP"
-    experimental_group = "PR"
-    subject_id = "141.308"
-    start_datetime = datetime(2019, 8, 1, 14, 1, 17)
-    session_conditions = {
-        "Start Date": start_datetime.strftime("%m/%d/%y"),
-        "Start Time": start_datetime.strftime("%H:%M:%S"),
-    }
-    start_variable = "Start Date"
-    behavior_file_path = (
+    fiber_photometry_folder_path = (
         data_dir_path
         / f"{experiment_type} Experiments"
-        / "Behavior"
-        / f"{experimental_group}"
-        / f"{subject_id}"
-        / f"{subject_id}"
+        / "Photometry"
+        / f"Punishment Resistant"
+        / f"Early RI60"
+        / f"Photo_{subject_id.split('.')[0]}_{subject_id.split('.')[1]}-200709-130922"
     )
+    print(fiber_photometry_folder_path)
     session_to_nwb(
         data_dir_path=data_dir_path,
         output_dir_path=output_dir_path,
         behavior_file_path=behavior_file_path,
-        subject_id=subject_id,
-        session_conditions=session_conditions,
-        start_variable=start_variable,
-        start_datetime=start_datetime,
-        experiment_type=experiment_type,
-        experimental_group=experimental_group,
-        stub_test=stub_test,
-    )
-
-    # session with missing medpc file
-    experiment_type = "FP"
-    experimental_group = "PS"
-    subject_id = "75.214"
-    start_datetime = datetime(2018, 10, 29, 12, 41, 44)
-    session_conditions = {
-        "Start Date": start_datetime.strftime("%m/%d/%y"),
-        "Start Time": start_datetime.strftime("%H:%M:%S"),
-        "Subject": subject_id,
-    }
-    start_variable = "Start Date"
-    behavior_file_path = (
-        data_dir_path
-        / f"{experiment_type} Experiments"
-        / "Behavior"
-        / "MEDPC_RawFilesbyDate"
-        / f"{start_datetime.date().isoformat()}"
-    )
-    session_to_nwb(
-        data_dir_path=data_dir_path,
-        output_dir_path=output_dir_path,
-        behavior_file_path=behavior_file_path,
-        subject_id=subject_id,
-        session_conditions=session_conditions,
-        start_variable=start_variable,
-        start_datetime=start_datetime,
-        experiment_type=experiment_type,
-        experimental_group=experimental_group,
-        stub_test=stub_test,
-    )
-
-    # session with missing medpc file and missing subject info, but has csv file
-    experiment_type = "FP"
-    experimental_group = "PS"
-    subject_id = "75.214"
-    start_datetime = datetime(2018, 11, 9, 11, 46, 33)
-    box = "1"
-    session_conditions = {
-        "Start Date": start_datetime.strftime("%m/%d/%y"),
-        "Start Time": start_datetime.strftime("%H:%M:%S"),
-        "Box": box,
-    }
-    start_variable = "Start Date"
-    behavior_file_path = (
-        data_dir_path
-        / f"{experiment_type} Experiments"
-        / "Behavior"
-        / "MEDPC_RawFilesbyDate"
-        / f"{start_datetime.date().isoformat()}"
-    )
-    session_to_nwb(
-        data_dir_path=data_dir_path,
-        output_dir_path=output_dir_path,
-        behavior_file_path=behavior_file_path,
+        fiber_photometry_folder_path=fiber_photometry_folder_path,
         subject_id=subject_id,
         session_conditions=session_conditions,
         start_variable=start_variable,
