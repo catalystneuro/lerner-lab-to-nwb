@@ -5,3 +5,5 @@ dandi
 pre-commit
 pytest
 ndx-events
+ipykernel
+tdt
