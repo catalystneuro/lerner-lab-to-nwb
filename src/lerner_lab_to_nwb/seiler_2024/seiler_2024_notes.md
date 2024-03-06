@@ -60,6 +60,10 @@ more generic filter conditions (ex. box number)
     - Dv4B = array of photometry response dls 405nm???
     - Fi1d = 4xN array of demodulated commanded voltages: dms 465nm, dms 405nm, dls 465nm, dls 405nm
     - Fi1r = 2xN array of modulated commanded voltages: dms and dls
+- Questions for Lerner Lab:
+    - Are the data streams noted above correct?
+    - Photodetector? Peak wavelength, type, etc.
+    - Temporal Alignment: Where are the TTL pulses from the operant chambers?
 
 ## Optogenetics
 TODO
