@@ -83,22 +83,22 @@ class Seiler2024FiberPhotometryInterface(BaseDataInterface):
             description="465nm and 405nm LEDs were modulated at 211 Hz and 330 Hz, respectively, for DMS probes. 465nm and 405nm LEDs were modulated at 450 Hz and 270 Hz, respectively for DLS probes. LED currents were adjusted in order to return a voltage between 150-200mV for each signal, were offset by 5 mA, were demodulated using a 4 Hz lowpass frequency filter.",
         )
         excitation_sources_table.add_row(
-            peak_wavelength=465,
+            peak_wavelength=465.0,
             source_type="LED",
             commanded_voltage=dms_commanded_signal_series,
         )
         excitation_sources_table.add_row(
-            peak_wavelength=405,
+            peak_wavelength=405.0,
             source_type="LED",
             commanded_voltage=dms_commanded_reference_series,
         )
         excitation_sources_table.add_row(
-            peak_wavelength=465,
+            peak_wavelength=465.0,
             source_type="LED",
             commanded_voltage=dls_commanded_signal_series,
         )
         excitation_sources_table.add_row(
-            peak_wavelength=405,
+            peak_wavelength=405.0,
             source_type="LED",
             commanded_voltage=dls_commanded_reference_series,
         )
