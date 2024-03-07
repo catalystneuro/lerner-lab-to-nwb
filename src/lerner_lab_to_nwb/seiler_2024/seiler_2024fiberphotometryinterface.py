@@ -2,8 +2,6 @@
 from pynwb.file import NWBFile
 from pynwb.core import DynamicTableRegion
 from pynwb.ophys import RoiResponseSeries
-from datetime import datetime, date, time
-from pytz import timezone
 from neuroconv.basedatainterface import BaseDataInterface
 from neuroconv.utils import DeepDict
 from neuroconv.tools import nwb_helpers
@@ -16,6 +14,7 @@ from ndx_photometry import (
     FiberPhotometry,
     FluorophoresTable,
 )
+from hdmf.backends.hdf5.h5_utils import H5DataIO
 from tdt import read_block
 
 
@@ -48,7 +47,7 @@ class Seiler2024FiberPhotometryInterface(BaseDataInterface):
         multi_commanded_voltage = MultiCommandedVoltage()
         dms_commanded_signal_series = multi_commanded_voltage.create_commanded_voltage_series(
             name="dms_commanded_signal",
-            data=tdt_photometry.streams["Fi1d"].data[0, :],
+            data=H5DataIO(tdt_photometry.streams["Fi1d"].data[0, :], compression=True),
             frequency=211.0,
             power=1.0,
             rate=tdt_photometry.streams["Fi1d"].fs,
@@ -56,7 +55,7 @@ class Seiler2024FiberPhotometryInterface(BaseDataInterface):
         )
         dms_commanded_reference_series = multi_commanded_voltage.create_commanded_voltage_series(
             name="dms_commanded_reference",
-            data=tdt_photometry.streams["Fi1d"].data[1, :],
+            data=H5DataIO(tdt_photometry.streams["Fi1d"].data[1, :], compression=True),
             frequency=330.0,
             power=1.0,
             rate=tdt_photometry.streams["Fi1d"].fs,
@@ -64,7 +63,7 @@ class Seiler2024FiberPhotometryInterface(BaseDataInterface):
         )
         dls_commanded_signal_series = multi_commanded_voltage.create_commanded_voltage_series(
             name="dls_commanded_signal",
-            data=tdt_photometry.streams["Fi1d"].data[3, :],
+            data=H5DataIO(tdt_photometry.streams["Fi1d"].data[3, :], compression=True),
             frequency=450.0,
             power=1.0,
             rate=tdt_photometry.streams["Fi1d"].fs,
@@ -72,7 +71,7 @@ class Seiler2024FiberPhotometryInterface(BaseDataInterface):
         )
         dls_commanded_reference_series = multi_commanded_voltage.create_commanded_voltage_series(
             name="dls_commanded_reference",
-            data=tdt_photometry.streams["Fi1d"].data[2, :],
+            data=H5DataIO(tdt_photometry.streams["Fi1d"].data[2, :], compression=True),
             frequency=270.0,
             power=1.0,
             rate=tdt_photometry.streams["Fi1d"].fs,
@@ -176,7 +175,7 @@ class Seiler2024FiberPhotometryInterface(BaseDataInterface):
         # ROI Responses
         dms_signal_series = RoiResponseSeries(
             name="dms_signal",
-            data=tdt_photometry.streams["Dv1A"].data,
+            data=H5DataIO(tdt_photometry.streams["Dv1A"].data, compression=True),
             rois=fibers_ref,
             unit="a.u.",
             rate=tdt_photometry.streams["Dv1A"].fs,
@@ -184,7 +183,7 @@ class Seiler2024FiberPhotometryInterface(BaseDataInterface):
         )
         dms_reference_series = RoiResponseSeries(
             name="dms_reference",
-            data=tdt_photometry.streams["Dv2A"].data,
+            data=H5DataIO(tdt_photometry.streams["Dv2A"].data, compression=True),
             rois=fibers_ref,
             unit="a.u.",
             rate=tdt_photometry.streams["Dv2A"].fs,
@@ -192,7 +191,7 @@ class Seiler2024FiberPhotometryInterface(BaseDataInterface):
         )
         dls_signal_series = RoiResponseSeries(
             name="dls_signal",
-            data=tdt_photometry.streams["Dv3B"].data,
+            data=H5DataIO(tdt_photometry.streams["Dv3B"].data, compression=True),
             rois=fibers_ref,
             unit="a.u.",
             rate=tdt_photometry.streams["Dv3B"].fs,
@@ -200,7 +199,7 @@ class Seiler2024FiberPhotometryInterface(BaseDataInterface):
         )
         dls_reference_series = RoiResponseSeries(
             name="dls_reference",
-            data=tdt_photometry.streams["Dv4B"].data,
+            data=H5DataIO(tdt_photometry.streams["Dv4B"].data, compression=True),
             rois=fibers_ref,
             unit="a.u.",
             rate=tdt_photometry.streams["Dv4B"].fs,
