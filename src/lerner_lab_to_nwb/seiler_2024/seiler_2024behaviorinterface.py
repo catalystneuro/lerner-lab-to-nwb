@@ -8,6 +8,7 @@ from neuroconv.tools import nwb_helpers
 import numpy as np
 from ndx_events import Events
 from pynwb.behavior import BehavioralEpochs, IntervalSeries
+from hdmf.backends.hdf5.h5_utils import H5DataIO
 
 from .medpc import read_medpc_file
 
@@ -17,9 +18,13 @@ class Seiler2024BehaviorInterface(BaseDataInterface):
 
     keywords = ["behavior"]
 
-    def __init__(self, file_path: str, start_date: str):
-        start_date = start_date.replace("_", "/")
-        super().__init__(file_path=file_path, start_date=start_date)
+    def __init__(self, file_path: str, session_conditions: dict, start_variable: str, verbose: bool = True):
+        super().__init__(
+            file_path=file_path,
+            session_conditions=session_conditions,
+            start_variable=start_variable,
+            verbose=verbose,
+        )
 
     def get_metadata(self) -> DeepDict:
         metadata = super().get_metadata()
@@ -58,19 +63,21 @@ class Seiler2024BehaviorInterface(BaseDataInterface):
             "FOOD_FR1 TTL Right": "FR1",
             "FOOD_FR1 TTL Left": "FR1",
             "FOOD_FR1 HT TTL (Both)": "FR1",
+            "FOOD_FR1 Habit Training TTL": "FR1",  # TODO: Get mpc file for this msn
             "20sOmissions_TTL": "OmissionProbe",
         }
         session_dict = read_medpc_file(
             file_path=self.source_data["file_path"],
-            start_date=self.source_data["start_date"],
             medpc_name_to_dict_name=medpc_name_to_dict_name,
-            medpc_name_to_type=dict_name_to_type,
+            dict_name_to_type=dict_name_to_type,
+            session_conditions=self.source_data["session_conditions"],
+            start_variable=self.source_data["start_variable"],
         )
         session_start_time = datetime.combine(
             session_dict["start_date"], session_dict["start_time"], tzinfo=timezone("US/Central")
         )
         training_stage = msn_to_training_stage[session_dict["MSN"]]
-        session_id = self.source_data["start_date"].replace("/", "-") + "-" + training_stage
+        session_id = session_start_time.isoformat() + "-" + training_stage
 
         metadata["NWBFile"]["session_description"] = session_dict["MSN"]
         metadata["NWBFile"]["session_start_time"] = session_start_time
@@ -119,9 +126,10 @@ class Seiler2024BehaviorInterface(BaseDataInterface):
             dict_name_to_type["footshock_times"] = np.ndarray
         session_dict = read_medpc_file(
             file_path=self.source_data["file_path"],
-            start_date=self.source_data["start_date"],
             medpc_name_to_dict_name=medpc_name_to_dict_name,
-            medpc_name_to_type=dict_name_to_type,
+            dict_name_to_type=dict_name_to_type,
+            session_conditions=self.source_data["session_conditions"],
+            start_variable=self.source_data["start_variable"],
         )
 
         # Add behavior data to nwbfile
@@ -135,11 +143,12 @@ class Seiler2024BehaviorInterface(BaseDataInterface):
         if (
             len(session_dict["duration_of_port_entry"]) == 0
         ):  # some sessions are missing port entry durations ex. FP Experiments/Behavior/PR/028.392/07-09-20
-            print(f"No port entry durations found for {metadata['NWBFile']['session_id']}")
+            if self.verbose:
+                print(f"No port entry durations found for {metadata['NWBFile']['session_id']}")
             reward_port_entry_times = Events(
                 name="reward_port_entry_times",
                 description="Reward port entry times",
-                timestamps=session_dict["port_entry_times"],
+                timestamps=H5DataIO(session_dict["port_entry_times"], compression=True),
             )
             behavior_module.add(reward_port_entry_times)
         else:
@@ -154,7 +163,7 @@ class Seiler2024BehaviorInterface(BaseDataInterface):
             reward_port_intervals = IntervalSeries(
                 name="reward_port_intervals",
                 description="Interval of time spent in reward port (1 is entry, -1 is exit)",
-                timestamps=port_times,
+                timestamps=H5DataIO(port_times, compression=True),
                 data=data,
             )
             behavioral_epochs = BehavioralEpochs(name="behavioral_epochs")
@@ -165,33 +174,31 @@ class Seiler2024BehaviorInterface(BaseDataInterface):
         left_nose_poke_times = Events(
             name="left_nose_poke_times",
             description="Left nose poke times",
-            timestamps=session_dict["left_nose_poke_times"],
+            timestamps=H5DataIO(session_dict["left_nose_poke_times"], compression=True),
         )
         right_nose_poke_times = Events(
             name="right_nose_poke_times",
             description="Right nose poke times",
-            timestamps=session_dict["right_nose_poke_times"],
+            timestamps=H5DataIO(session_dict["right_nose_poke_times"], compression=True),
         )
         behavior_module.add(left_nose_poke_times)
         behavior_module.add(right_nose_poke_times)
 
-        # Interleaved Left/Right Rewards
-        assert not (
-            len(session_dict["left_reward_times"]) > 0 and len(session_dict["right_reward_times"]) > 0
-        ), "Both left and right reward times are present (not interleaved)"
+        # Left/Right Rewards -- Interleaved for most sessions
         if len(session_dict["left_reward_times"]) > 0:
-            reward_times = Events(
-                name="reward_times",
-                description="Reward times (left)",
-                timestamps=session_dict["left_reward_times"],
+            left_reward_times = Events(
+                name="left_reward_times",
+                description="Left Reward times",
+                timestamps=H5DataIO(session_dict["left_reward_times"], compression=True),
             )
-        else:
-            reward_times = Events(
-                name="reward_times",
-                description="Reward times (right)",
-                timestamps=session_dict["right_reward_times"],
+            behavior_module.add(left_reward_times)
+        if len(session_dict["right_reward_times"]) > 0:
+            right_reward_times = Events(
+                name="right_reward_times",
+                description="Right Reward times",
+                timestamps=H5DataIO(session_dict["right_reward_times"], compression=True),
             )
-        behavior_module.add(reward_times)
+            behavior_module.add(right_reward_times)
 
         # Footshock
         if "ShockProbe" in metadata["NWBFile"]["session_id"]:
