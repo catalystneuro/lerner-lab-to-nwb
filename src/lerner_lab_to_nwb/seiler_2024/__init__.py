@@ -1,2 +1,3 @@
 from .seiler_2024behaviorinterface import Seiler2024BehaviorInterface
+from .seiler_2024fiberphotometryinterface import Seiler2024FiberPhotometryInterface
 from .seiler_2024nwbconverter import Seiler2024NWBConverter
