@@ -19,6 +19,20 @@ class Seiler2024BehaviorInterface(BaseDataInterface):
     keywords = ["behavior"]
 
     def __init__(self, file_path: str, session_conditions: dict, start_variable: str, verbose: bool = True):
+        """Initialize Seiler2024BehaviorInterface.
+
+        Parameters
+        ----------
+        file_path : str
+            Path to the MedPC file.
+        session_conditions : dict
+            The conditions that define the session. The keys are the names of the single-line variables (ex. 'Start Date')
+            and the values are the values of those variables for the desired session (ex. '11/09/18').
+        start_variable : str
+            The name of the variable that starts the session (ex. 'Start Date').
+        verbose : bool, optional
+            Whether to print verbose output, by default True
+        """
         super().__init__(
             file_path=file_path,
             session_conditions=session_conditions,
