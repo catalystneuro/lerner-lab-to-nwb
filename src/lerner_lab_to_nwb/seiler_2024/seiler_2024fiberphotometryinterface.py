@@ -130,17 +130,12 @@ class Seiler2024FiberPhotometryInterface(BaseDataInterface):
         # Fibers
         fibers_table = FibersTable(
             description="Mice for fiber photometry experiments received infusions of 1ml of AAV5-CAG-FLEX-jGCaMP7b-WPRE (1.02e13 vg/mL, Addgene, lot 18-429) into lateral SNc (AP 3.1, ML 1.3, DV 4.2) in one hemisphere and medial SNc (AP 3.1, ML 0.8, DV 4.7) in the other. Hemispheres were counterbalanced between mice. Fiber optic implants (Doric Lenses; 400 mm, 0.48 NA) were placed above DMS (AP 0.8, ML 1.5, DV 2.8) and DLS (AP 0.1, ML 2.8, DV 3.5). The DMS implant was placed in the hemisphere receiving a medial SNc viral injection, while the DLS implant was placed in the hemisphere receiving a lateral SNc viral injection. Calcium signals from dopamine terminals in DMS and DLS were recorded during RI30, on the first and last days of RI60/RR20 training as well as on both footshock probes for each mouse. All recordings were done using a fiber photometry rig with optical components from Doric lenses controlled by a real-time processor from Tucker Davis Technologies (TDT; RZ5P). TDT Synapse software was used for data acquisition.",
-        )
-        nwbfile.add_lab_meta_data(
-            FiberPhotometry(
-                fibers=fibers_table,
-                excitation_sources=excitation_sources_table,
-                photodetectors=photodetectors_table,
+            target_tables=dict(
+                excitation_source=excitation_sources_table,
+                photodetector=photodetectors_table,
                 fluorophores=fluorophores_table,
-            )
+            ),
         )
-        # Important: we add the fibers to the fibers table _after_ adding the metadata
-        # This ensures that we can find this data in their tables of origin
         fibers_table.add_fiber(
             excitation_source=0,
             photodetector=0,
@@ -164,6 +159,15 @@ class Seiler2024FiberPhotometryInterface(BaseDataInterface):
             photodetector=0,
             fluorophores=[1],
             location="DLS",
+        )
+
+        nwbfile.add_lab_meta_data(
+            FiberPhotometry(
+                fibers=fibers_table,
+                excitation_sources=excitation_sources_table,
+                photodetectors=photodetectors_table,
+                fluorophores=fluorophores_table,
+            )
         )
         fibers_ref = DynamicTableRegion(
             name="rois",

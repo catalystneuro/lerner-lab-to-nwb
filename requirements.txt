@@ -1,11 +1,11 @@
-hdmf==3.6.1
+hdmf
 neuroconv
 nwbwidgets
 nwbinspector
-dandi==0.58.0
+dandi
 pre-commit
 pytest
 ndx-events
-ndx-photometry @ git+https://github.com/catalystneuro/ndx-photometry.git@7ea9d755ceac9524125f50ab528b403b135c4530
+ndx-photometry
 ipykernel
 tdt
