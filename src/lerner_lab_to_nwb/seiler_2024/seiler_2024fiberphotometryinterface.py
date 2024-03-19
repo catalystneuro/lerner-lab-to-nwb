@@ -104,31 +104,31 @@ class Seiler2024FiberPhotometryInterface(BaseDataInterface):
         )
 
         photodetectors_table = PhotodetectorsTable(
-            description="Some description",  # TODO: Get description from Lerner lab
+            description="Newport Visible Femtowatt Photoreceiver Module: This battery-operated photoreceiver has high gain and detects CW light signals in the sub-picowatt to nanowatt range. When used in conjunction with a modulated light source and a lock-in amplifier to reduce the measurement bandwidth, it achieves sensitivity levels in the femtowatt range. Doric offer this Newport product with add-on fiber optic adapter that improves coupling efficiency between the large core, high NA optical fibers used in Fiber Photometry and relatively small detector area. Its output analog voltage (0-5 V) can be monitored with an oscilloscope or with a DAQ board to record the data with a computer.",
         )
         photodetectors_table.add_row(
-            peak_wavelength=527.0,  # TODO: Get peak wavelength from Lerner lab
-            type="PMT",  # TODO: Get type from Lerner lab
-            gain=1.0,  # TODO: Get gain from Lerner lab
+            peak_wavelength=525.0,
+            type="photodiode",
+            gain=1e10,
         )
 
         # Fluorophores
         fluorophores_table = FluorophoresTable(
-            description="GCaMP7b was used as the fluorophore in both DMS and DLS.",
+            description="Mice for fiber photometry experiments received infusions of 1ml of AAV5-CAG-FLEX-jGCaMP7b-WPRE (1.02e13 vg/mL, Addgene, lot 18-429) into lateral SNc (AP 3.1, ML 1.3, DV 4.2) in one hemisphere and medial SNc (AP 3.1, ML 0.8, DV 4.7) in the other. Hemispheres were counterbalanced between mice. ",
         )
         fluorophores_table.add_row(
             label="GCaMP7b",
-            location="DMS",
-            coordinates=(0.8, 1.5, -2.8),  # (AP, ML, DV)
+            location="medial SNc",
+            coordinates=(3.1, 0.8, 4.7),  # (AP, ML, DV)
         )
         fluorophores_table.add_row(
             label="GCaMP7b",
-            location="DLS",
-            coordinates=(-0.1, 2.8, -3.5),  # (AP, ML, DV)
+            location="lateral SNc",
+            coordinates=(3.1, 1.3, 4.2),  # (AP, ML, DV)
         )
 
         fibers_table = FibersTable(
-            description="Mice for fiber photometry experiments received infusions of 1ml of AAV5-CAG-FLEX-jGCaMP7b-WPRE (1.02e13 vg/mL, Addgene, lot 18-429) into lateral SNc (AP 3.1, ML 1.3, DV 4.2) in one hemisphere and medial SNc (AP 3.1, ML 0.8, DV 4.7) in the other. Hemispheres were counterbalanced between mice. Fiber optic implants (Doric Lenses; 400 mm, 0.48 NA) were placed above DMS (AP 0.8, ML 1.5, DV 2.8) and DLS (AP 0.1, ML 2.8, DV 3.5). The DMS implant was placed in the hemisphere receiving a medial SNc viral injection, while the DLS implant was placed in the hemisphere receiving a lateral SNc viral injection. Calcium signals from dopamine terminals in DMS and DLS were recorded during RI30, on the first and last days of RI60/RR20 training as well as on both footshock probes for each mouse. All recordings were done using a fiber photometry rig with optical components from Doric lenses controlled by a real-time processor from Tucker Davis Technologies (TDT; RZ5P). TDT Synapse software was used for data acquisition.",
+            description="Fiber optic implants (Doric Lenses; 400 mm, 0.48 NA) were placed above DMS (AP 0.8, ML 1.5, DV 2.8) and DLS (AP 0.1, ML 2.8, DV 3.5). The DMS implant was placed in the hemisphere receiving a medial SNc viral injection, while the DLS implant was placed in the hemisphere receiving a lateral SNc viral injection. Calcium signals from dopamine terminals in DMS and DLS were recorded during RI30, on the first and last days of RI60/RR20 training as well as on both footshock probes for each mouse. All recordings were done using a fiber photometry rig with optical components from Doric lenses controlled by a real-time processor from Tucker Davis Technologies (TDT; RZ5P). TDT Synapse software was used for data acquisition.",
         )
         fibers_table.add_row(location="DMS")
         fibers_table.add_row(location="DLS")
