@@ -1,7 +1,6 @@
 """Primary class for converting experiment-specific fiber photometry."""
 from pynwb.file import NWBFile
 from pynwb.core import DynamicTableRegion
-from pynwb.ophys import RoiResponseSeries
 from neuroconv.basedatainterface import BaseDataInterface
 from neuroconv.utils import DeepDict
 from neuroconv.tools import nwb_helpers
@@ -13,6 +12,7 @@ from ndx_photometry import (
     MultiCommandedVoltage,
     FiberPhotometry,
     FluorophoresTable,
+    FiberPhotometryResponseSeries,
 )
 from hdmf.backends.hdf5.h5_utils import H5DataIO
 from tdt import read_block
@@ -127,39 +127,11 @@ class Seiler2024FiberPhotometryInterface(BaseDataInterface):
             coordinates=(-0.1, 2.8, -3.5),  # (AP, ML, DV)
         )
 
-        # Fibers
         fibers_table = FibersTable(
             description="Mice for fiber photometry experiments received infusions of 1ml of AAV5-CAG-FLEX-jGCaMP7b-WPRE (1.02e13 vg/mL, Addgene, lot 18-429) into lateral SNc (AP 3.1, ML 1.3, DV 4.2) in one hemisphere and medial SNc (AP 3.1, ML 0.8, DV 4.7) in the other. Hemispheres were counterbalanced between mice. Fiber optic implants (Doric Lenses; 400 mm, 0.48 NA) were placed above DMS (AP 0.8, ML 1.5, DV 2.8) and DLS (AP 0.1, ML 2.8, DV 3.5). The DMS implant was placed in the hemisphere receiving a medial SNc viral injection, while the DLS implant was placed in the hemisphere receiving a lateral SNc viral injection. Calcium signals from dopamine terminals in DMS and DLS were recorded during RI30, on the first and last days of RI60/RR20 training as well as on both footshock probes for each mouse. All recordings were done using a fiber photometry rig with optical components from Doric lenses controlled by a real-time processor from Tucker Davis Technologies (TDT; RZ5P). TDT Synapse software was used for data acquisition.",
-            target_tables=dict(
-                excitation_source=excitation_sources_table,
-                photodetector=photodetectors_table,
-                fluorophores=fluorophores_table,
-            ),
         )
-        fibers_table.add_fiber(
-            excitation_source=0,
-            photodetector=0,
-            fluorophores=[0],
-            location="DMS",
-        )
-        fibers_table.add_fiber(
-            excitation_source=1,
-            photodetector=0,
-            fluorophores=[0],
-            location="DMS",
-        )
-        fibers_table.add_fiber(
-            excitation_source=2,
-            photodetector=0,
-            fluorophores=[1],
-            location="DLS",
-        )
-        fibers_table.add_fiber(
-            excitation_source=3,
-            photodetector=0,
-            fluorophores=[1],
-            location="DLS",
-        )
+        fibers_table.add_row(location="DMS")
+        fibers_table.add_row(location="DLS")
 
         nwbfile.add_lab_meta_data(
             FiberPhotometry(
@@ -169,55 +141,114 @@ class Seiler2024FiberPhotometryInterface(BaseDataInterface):
                 fluorophores=fluorophores_table,
             )
         )
-        fibers_ref = DynamicTableRegion(
-            name="rois",
-            data=[0, 1, 2, 3],
-            description="Fibers used for fiber photometry.",
+        dms_fiber_ref = DynamicTableRegion(
+            # name="dms_fiber",
+            name="fiber",
+            data=[0],
+            description="Fiber used in the DMS.",
             table=fibers_table,
         )
+        dls_fiber_ref = DynamicTableRegion(
+            # name="dls_fiber",
+            name="fiber",
+            data=[1],
+            description="Fiber used in the DLS.",
+            table=fibers_table,
+        )
+        dms_excitation_ref = DynamicTableRegion(
+            # name="dms_excitation",
+            name="excitation_source",
+            data=[0, 1],
+            description="Excitation sources used in the DMS.",
+            table=excitation_sources_table,
+        )
+        dls_excitation_ref = DynamicTableRegion(
+            # name="dls_excitation",
+            name="excitation_source",
+            data=[2, 3],
+            description="Excitation sources used in the DLS.",
+            table=excitation_sources_table,
+        )
+        photodetector_ref = DynamicTableRegion(
+            name="photodetector",
+            data=[0],
+            description="Photodetector used in the DMS and DLS.",
+            table=photodetectors_table,
+        )
+        dms_fluorophore_ref = DynamicTableRegion(
+            # name="dms_fluorophore",
+            name="fluorophore",
+            data=[0],
+            description="Fluorophore used in the DMS.",
+            table=fluorophores_table,
+        )
+        dls_fluorophore_ref = DynamicTableRegion(
+            # name="dls_fluorophore",
+            name="fluorophore",
+            data=[1],
+            description="Fluorophore used in the DLS.",
+            table=fluorophores_table,
+        )
 
-        # ROI Responses
-        dms_signal_series = RoiResponseSeries(
+        dms_signal_series = FiberPhotometryResponseSeries(
             name="dms_signal",
-            data=H5DataIO(tdt_photometry.streams["Dv1A"].data, compression=True),
-            rois=fibers_ref,
-            unit="a.u.",
-            rate=tdt_photometry.streams["Dv1A"].fs,
             description="The fluorescence from the blue light excitation (465nm) corresponding to the calcium signal in the DMS.",
+            data=H5DataIO(tdt_photometry.streams["Dv1A"].data, compression=True),
+            unit="a.u.",
+            fiber=dms_fiber_ref,
+            excitation_source=dms_excitation_ref,
+            photodetector=photodetector_ref,
+            fluorophore=dms_fluorophore_ref,
+            rate=tdt_photometry.streams["Dv1A"].fs,
         )
-        dms_reference_series = RoiResponseSeries(
+        dms_reference_series = FiberPhotometryResponseSeries(
             name="dms_reference",
-            data=H5DataIO(tdt_photometry.streams["Dv2A"].data, compression=True),
-            rois=fibers_ref,
-            unit="a.u.",
-            rate=tdt_photometry.streams["Dv2A"].fs,
             description="The fluorescence from the UV light excitation (405nm) corresponding to the isosbestic reference in the DMS.",
+            data=H5DataIO(tdt_photometry.streams["Dv2A"].data, compression=True),
+            unit="a.u.",
+            fiber=dms_fiber_ref,
+            excitation_source=dms_excitation_ref,
+            photodetector=photodetector_ref,
+            fluorophore=dms_fluorophore_ref,
+            rate=tdt_photometry.streams["Dv2A"].fs,
         )
-        dls_signal_series = RoiResponseSeries(
+        dls_signal_series = FiberPhotometryResponseSeries(
             name="dls_signal",
-            data=H5DataIO(tdt_photometry.streams["Dv3B"].data, compression=True),
-            rois=fibers_ref,
-            unit="a.u.",
-            rate=tdt_photometry.streams["Dv3B"].fs,
             description="The fluorescence from the blue light excitation (465nm) corresponding to the calcium signal in the DLS.",
-        )
-        dls_reference_series = RoiResponseSeries(
-            name="dls_reference",
-            data=H5DataIO(tdt_photometry.streams["Dv4B"].data, compression=True),
-            rois=fibers_ref,
+            data=H5DataIO(tdt_photometry.streams["Dv3B"].data, compression=True),
             unit="a.u.",
-            rate=tdt_photometry.streams["Dv4B"].fs,
+            fiber=dls_fiber_ref,
+            excitation_source=dls_excitation_ref,
+            photodetector=photodetector_ref,
+            fluorophore=dls_fluorophore_ref,
+            rate=tdt_photometry.streams["Dv3B"].fs,
+        )
+        dls_reference_series = FiberPhotometryResponseSeries(
+            name="dls_reference",
             description="The fluorescence from the UV light excitation (405nm) corresponding to the isosbestic reference in the DLS.",
+            data=H5DataIO(tdt_photometry.streams["Dv4B"].data, compression=True),
+            unit="a.u.",
+            fiber=dls_fiber_ref,
+            excitation_source=dls_excitation_ref,
+            photodetector=photodetector_ref,
+            fluorophore=dls_fluorophore_ref,
+            rate=tdt_photometry.streams["Dv4B"].fs,
         )
 
         # Add the data to the NWBFile
-        ophys_module = nwb_helpers.get_module(
-            nwbfile=nwbfile,
-            name="ophys",
-            description="Fiber photometry data from DMS and DLS.",
-        )
-        ophys_module.add(multi_commanded_voltage)
-        ophys_module.add(dms_signal_series)
-        ophys_module.add(dms_reference_series)
-        ophys_module.add(dls_signal_series)
-        ophys_module.add(dls_reference_series)
+        # ophys_module = nwb_helpers.get_module(
+        #     nwbfile=nwbfile,
+        #     name="ophys",
+        #     description="Fiber photometry data from DMS and DLS.",
+        # )
+        # ophys_module.add(multi_commanded_voltage)
+        # ophys_module.add(dms_signal_series)
+        # ophys_module.add(dms_reference_series)
+        # ophys_module.add(dls_signal_series)
+        # ophys_module.add(dls_reference_series)
+        # TODO: Acquisition or Ophys?
+        nwbfile.add_acquisition(multi_commanded_voltage)
+        nwbfile.add_acquisition(dms_signal_series)
+        nwbfile.add_acquisition(dms_reference_series)
+        nwbfile.add_acquisition(dls_signal_series)
+        nwbfile.add_acquisition(dls_reference_series)

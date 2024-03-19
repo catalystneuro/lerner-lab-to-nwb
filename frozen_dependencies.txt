@@ -87,7 +87,7 @@ natsort==8.4.0
 ndx-events==0.2.0
 ndx-grayscalevolume==0.0.2
 ndx-icephys-meta==0.1.0
-ndx-photometry @ git+https://github.com/catalystneuro/ndx-photometry.git@7ea9d755ceac9524125f50ab528b403b135c4530
+-e git+https://github.com/catalystneuro/ndx-photometry.git@8ea2cef9b365fe8a1cabbe485441800dbe30ef37#egg=ndx_photometry
 ndx-spectrum==0.2.2
 nest-asyncio==1.6.0
 networkx==3.2.1
