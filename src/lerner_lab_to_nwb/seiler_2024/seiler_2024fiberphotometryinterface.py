@@ -1,4 +1,5 @@
 """Primary class for converting experiment-specific fiber photometry."""
+import numpy as np
 from pynwb.file import NWBFile
 from pynwb.core import DynamicTableRegion
 from neuroconv.basedatainterface import BaseDataInterface
@@ -43,14 +44,41 @@ class Seiler2024FiberPhotometryInterface(BaseDataInterface):
         assert folder_path.is_dir(), f"Folder path {folder_path} does not exist."
         tdt_photometry = read_block(str(folder_path))
 
+        # Extract TTL information
+        ttl_names_to_behavior_names = {
+            "LNPS": "left_nose_poke_times",
+            "RNRW": "right_reward_times",
+            "RNnR": "right_nose_poke_times",
+            "PrtN": "reward_port_entry_times",
+            "Sock": "footshock_times",
+        }
+        all_ttl_timestamps, all_behavior_timestamps = [], []
+        for ttl_name, nwb_name in ttl_names_to_behavior_names.items():
+            if ttl_name == "PrtN":
+                ttl_timestamps = np.sort(
+                    np.concatenate((tdt_photometry.epocs["PrtN"].onset, tdt_photometry.epocs["PrtR"].onset))
+                )
+            elif ttl_name == "Sock":
+                continue
+            else:
+                ttl_timestamps = tdt_photometry.epocs[ttl_name].onset
+            behavior_timestamps = nwbfile.processing["behavior"].data_interfaces[nwb_name].timestamps
+            for ttl_timestamp, behavior_timestamp in zip(ttl_timestamps, behavior_timestamps):
+                all_ttl_timestamps.append(ttl_timestamp)
+                all_behavior_timestamps.append(behavior_timestamp)
+
         # Commanded Voltages
+        commanded_len = len(tdt_photometry.streams["Fi1d"].data[0, :])
+        commanded_fs = tdt_photometry.streams["Fi1d"].fs
+        commanded_timestamps = np.linspace(0, commanded_len / commanded_fs, commanded_len)
+        aligned_commanded_timestamps = np.interp(commanded_timestamps, all_ttl_timestamps, all_behavior_timestamps)
         multi_commanded_voltage = MultiCommandedVoltage()
         dms_commanded_signal_series = multi_commanded_voltage.create_commanded_voltage_series(
             name="dms_commanded_signal",
             data=H5DataIO(tdt_photometry.streams["Fi1d"].data[0, :], compression=True),
             frequency=211.0,
             power=1.0,
-            rate=tdt_photometry.streams["Fi1d"].fs,
+            timestamps=H5DataIO(aligned_commanded_timestamps, compression=True),
             unit="volts",
         )
         dms_commanded_reference_series = multi_commanded_voltage.create_commanded_voltage_series(
@@ -58,7 +86,7 @@ class Seiler2024FiberPhotometryInterface(BaseDataInterface):
             data=H5DataIO(tdt_photometry.streams["Fi1d"].data[1, :], compression=True),
             frequency=330.0,
             power=1.0,
-            rate=tdt_photometry.streams["Fi1d"].fs,
+            timestamps=dms_commanded_signal_series.timestamps,
             unit="volts",
         )
         dls_commanded_signal_series = multi_commanded_voltage.create_commanded_voltage_series(
@@ -66,7 +94,7 @@ class Seiler2024FiberPhotometryInterface(BaseDataInterface):
             data=H5DataIO(tdt_photometry.streams["Fi1d"].data[3, :], compression=True),
             frequency=450.0,
             power=1.0,
-            rate=tdt_photometry.streams["Fi1d"].fs,
+            timestamps=dms_commanded_signal_series.timestamps,
             unit="volts",
         )
         dls_commanded_reference_series = multi_commanded_voltage.create_commanded_voltage_series(
@@ -74,7 +102,7 @@ class Seiler2024FiberPhotometryInterface(BaseDataInterface):
             data=H5DataIO(tdt_photometry.streams["Fi1d"].data[2, :], compression=True),
             frequency=270.0,
             power=1.0,
-            rate=tdt_photometry.streams["Fi1d"].fs,
+            timestamps=dms_commanded_signal_series.timestamps,
             unit="volts",
         )
 
@@ -141,98 +169,77 @@ class Seiler2024FiberPhotometryInterface(BaseDataInterface):
                 fluorophores=fluorophores_table,
             )
         )
-        dms_fiber_ref = DynamicTableRegion(
-            # name="dms_fiber",
-            name="fiber",
-            data=[0],
-            description="Fiber used in the DMS.",
-            table=fibers_table,
-        )
-        dls_fiber_ref = DynamicTableRegion(
-            # name="dls_fiber",
-            name="fiber",
-            data=[1],
-            description="Fiber used in the DLS.",
-            table=fibers_table,
-        )
-        dms_excitation_ref = DynamicTableRegion(
-            # name="dms_excitation",
-            name="excitation_source",
-            data=[0, 1],
+        dms_fiber_ref = fibers_table.create_fiber_region(region=[0], description="Fiber used in the DMS.")
+        dls_fiber_ref = fibers_table.create_fiber_region(region=[1], description="Fiber used in the DLS.")
+        dms_excitation_ref = excitation_sources_table.create_excitation_source_region(
+            region=[0, 1],
             description="Excitation sources used in the DMS.",
-            table=excitation_sources_table,
         )
-        dls_excitation_ref = DynamicTableRegion(
-            # name="dls_excitation",
-            name="excitation_source",
-            data=[2, 3],
+        dls_excitation_ref = excitation_sources_table.create_excitation_source_region(
+            region=[2, 3],
             description="Excitation sources used in the DLS.",
-            table=excitation_sources_table,
         )
-        photodetector_ref = DynamicTableRegion(
-            name="photodetector",
-            data=[0],
+        photodetector_ref = photodetectors_table.create_photodetector_region(
+            region=[0],
             description="Photodetector used in the DMS and DLS.",
-            table=photodetectors_table,
         )
-        dms_fluorophore_ref = DynamicTableRegion(
-            # name="dms_fluorophore",
-            name="fluorophore",
-            data=[0],
+        dms_fluorophore_ref = fluorophores_table.create_fluorophore_region(
+            region=[0],
             description="Fluorophore used in the DMS.",
-            table=fluorophores_table,
         )
-        dls_fluorophore_ref = DynamicTableRegion(
-            # name="dls_fluorophore",
-            name="fluorophore",
-            data=[1],
+        dls_fluorophore_ref = fluorophores_table.create_fluorophore_region(
+            region=[1],
             description="Fluorophore used in the DLS.",
-            table=fluorophores_table,
         )
 
+        # Fiber Photometry Response Series
+        response_len = len(tdt_photometry.streams["Dv1A"].data)
+        response_fs = tdt_photometry.streams["Dv1A"].fs
+        response_timestamps = np.linspace(0, response_len / response_fs, response_len)
+        aligned_response_timestamps = np.interp(response_timestamps, all_ttl_timestamps, all_behavior_timestamps)
         dms_signal_series = FiberPhotometryResponseSeries(
             name="dms_signal",
             description="The fluorescence from the blue light excitation (465nm) corresponding to the calcium signal in the DMS.",
             data=H5DataIO(tdt_photometry.streams["Dv1A"].data, compression=True),
             unit="a.u.",
-            fiber=dms_fiber_ref,
-            excitation_source=dms_excitation_ref,
-            photodetector=photodetector_ref,
-            fluorophore=dms_fluorophore_ref,
-            rate=tdt_photometry.streams["Dv1A"].fs,
+            fibers=dms_fiber_ref,
+            excitation_sources=dms_excitation_ref,
+            photodetectors=photodetector_ref,
+            fluorophores=dms_fluorophore_ref,
+            timestamps=H5DataIO(aligned_response_timestamps, compression=True),
         )
         dms_reference_series = FiberPhotometryResponseSeries(
             name="dms_reference",
             description="The fluorescence from the UV light excitation (405nm) corresponding to the isosbestic reference in the DMS.",
             data=H5DataIO(tdt_photometry.streams["Dv2A"].data, compression=True),
             unit="a.u.",
-            fiber=dms_fiber_ref,
-            excitation_source=dms_excitation_ref,
-            photodetector=photodetector_ref,
-            fluorophore=dms_fluorophore_ref,
-            rate=tdt_photometry.streams["Dv2A"].fs,
+            fibers=dms_fiber_ref,
+            excitation_sources=dms_excitation_ref,
+            photodetectors=photodetector_ref,
+            fluorophores=dms_fluorophore_ref,
+            timestamps=dms_signal_series.timestamps,
         )
         dls_signal_series = FiberPhotometryResponseSeries(
             name="dls_signal",
             description="The fluorescence from the blue light excitation (465nm) corresponding to the calcium signal in the DLS.",
             data=H5DataIO(tdt_photometry.streams["Dv3B"].data, compression=True),
             unit="a.u.",
-            fiber=dls_fiber_ref,
-            excitation_source=dls_excitation_ref,
-            photodetector=photodetector_ref,
-            fluorophore=dls_fluorophore_ref,
-            rate=tdt_photometry.streams["Dv3B"].fs,
+            fibers=dls_fiber_ref,
+            excitation_sources=dls_excitation_ref,
+            photodetectors=photodetector_ref,
+            fluorophores=dls_fluorophore_ref,
+            timestamps=dms_signal_series.timestamps,
         )
         dls_reference_series = FiberPhotometryResponseSeries(
             name="dls_reference",
             description="The fluorescence from the UV light excitation (405nm) corresponding to the isosbestic reference in the DLS.",
             data=H5DataIO(tdt_photometry.streams["Dv4B"].data, compression=True),
             unit="a.u.",
-            fiber=dls_fiber_ref,
-            excitation_source=dls_excitation_ref,
-            photodetector=photodetector_ref,
-            fluorophore=dls_fluorophore_ref,
-            rate=tdt_photometry.streams["Dv4B"].fs,
+            fibers=dls_fiber_ref,
+            excitation_sources=dls_excitation_ref,
+            photodetectors=photodetector_ref,
+            fluorophores=dls_fluorophore_ref,
+            timestamps=dms_signal_series.timestamps,
         )
 
         # Add the data to the NWBFile
