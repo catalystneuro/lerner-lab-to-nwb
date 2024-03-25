@@ -25,16 +25,13 @@ class Seiler2024NWBConverter(NWBConverter):
         # Read Behavior Data
         medpc_name_to_dict_name = {
             "G": "port_entry_times",
-            "E": "duration_of_port_entry",
             "A": "left_nose_poke_times",
             "C": "right_nose_poke_times",
             "D": "right_reward_times",
             "B": "left_reward_times",
         }
         dict_name_to_type = {
-            "MSN": str,
             "port_entry_times": np.ndarray,
-            "duration_of_port_entry": np.ndarray,
             "left_nose_poke_times": np.ndarray,
             "right_nose_poke_times": np.ndarray,
             "right_reward_times": np.ndarray,
@@ -47,25 +44,38 @@ class Seiler2024NWBConverter(NWBConverter):
             session_conditions=self.data_interface_objects["Behavior"].source_data["session_conditions"],
             start_variable=self.data_interface_objects["Behavior"].source_data["start_variable"],
         )
+        metadata = self.data_interface_objects["Behavior"].get_metadata(session_dict)
 
         # Read Fiber Photometry Data
         tdt_photometry = read_block(self.data_interface_objects["FiberPhotometry"].source_data["folder_path"])
 
         # Aggregate TTLs and Behavior Timestamps
-        ttl_names_to_behavior_names = {
-            "LNPS": "left_nose_poke_times",
-            "RNRW": "right_reward_times",
-            "RNnR": "right_nose_poke_times",
-            "PrtN": "port_entry_times",
-            "Sock": "footshock_times",
-        }
+        msn = metadata["NWBFile"]["session_description"]
+        if "RIGHT" in msn or "Right" in msn or "right" in msn:
+            ttl_names_to_behavior_names = {
+                "LNPS": "left_nose_poke_times",
+                "RNRW": "right_reward_times",
+                "RNnR": "right_nose_poke_times",
+                "PrtN": "port_entry_times",
+                "Sock": "footshock_times",
+            }
+        elif "LEFT" in msn or "Left" in msn or "left" in msn:
+            ttl_names_to_behavior_names = {
+                "RNPS": "right_nose_poke_times",
+                "LNRW": "left_reward_times",
+                "LNnR": "left_nose_poke_times",
+                "PrtN": "port_entry_times",
+                "Sock": "footshock_times",
+            }
+        else:
+            raise ValueError(f"MSN ({msn}) does not indicate appropriate TTLs for alignment.")
         all_ttl_timestamps, all_behavior_timestamps = [], []
         for ttl_name, behavior_name in ttl_names_to_behavior_names.items():
             if ttl_name == "PrtN":
                 ttl_timestamps = np.sort(
                     np.concatenate((tdt_photometry.epocs["PrtN"].onset, tdt_photometry.epocs["PrtR"].onset))
                 )
-            elif ttl_name == "Sock":
+            elif ttl_name == "Sock" and "ShockProbe" not in metadata["NWBFile"]["session_id"]:
                 continue
             else:
                 ttl_timestamps = tdt_photometry.epocs[ttl_name].onset
