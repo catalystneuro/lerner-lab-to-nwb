@@ -1,5 +1,6 @@
 """Primary class for converting experiment-specific fiber photometry."""
 import numpy as np
+from sklearn.linear_model import LinearRegression
 from pynwb.file import NWBFile
 from pynwb.core import DynamicTableRegion
 from neuroconv.basedatainterface import BaseDataInterface
@@ -66,12 +67,21 @@ class Seiler2024FiberPhotometryInterface(BaseDataInterface):
             for ttl_timestamp, behavior_timestamp in zip(ttl_timestamps, behavior_timestamps):
                 all_ttl_timestamps.append(ttl_timestamp)
                 all_behavior_timestamps.append(behavior_timestamp)
+        sort_indices = np.argsort(all_ttl_timestamps)
+        all_ttl_timestamps = np.array(all_ttl_timestamps)[sort_indices]
+        all_behavior_timestamps = np.array(all_behavior_timestamps)[sort_indices]
 
         # Commanded Voltages
         commanded_len = len(tdt_photometry.streams["Fi1d"].data[0, :])
         commanded_fs = tdt_photometry.streams["Fi1d"].fs
         commanded_timestamps = np.linspace(0, commanded_len / commanded_fs, commanded_len)
-        aligned_commanded_timestamps = np.interp(commanded_timestamps, all_ttl_timestamps, all_behavior_timestamps)
+        aligned_commanded_timestamps = np.interp(
+            commanded_timestamps, all_ttl_timestamps, all_behavior_timestamps, left=np.nan, right=np.nan
+        )
+        extrapolated_timestamp_mask = np.isnan(aligned_commanded_timestamps)
+        linear_model = LinearRegression().fit(all_ttl_timestamps.reshape(-1, 1), all_behavior_timestamps)
+        extrapolated_timestamps = linear_model.predict(commanded_timestamps[extrapolated_timestamp_mask].reshape(-1, 1))
+        aligned_commanded_timestamps[extrapolated_timestamp_mask] = extrapolated_timestamps
         multi_commanded_voltage = MultiCommandedVoltage()
         dms_commanded_signal_series = multi_commanded_voltage.create_commanded_voltage_series(
             name="dms_commanded_signal",

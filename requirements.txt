@@ -9,3 +9,4 @@ ndx-events
 ndx-photometry
 ipykernel
 tdt
+scikit-learn
