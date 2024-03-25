@@ -18,6 +18,10 @@ class Seiler2024NWBConverter(NWBConverter):
     )
 
     def temporally_align_data_interfaces(self):
+        if not "FiberPhotometry" in self.data_interface_objects.keys():
+            self.data_interface_objects["Behavior"].source_data["start_time_offset"] = 0
+            return  # No need to align if there is no fiber photometry data
+
         # Read Behavior Data
         medpc_name_to_dict_name = {
             "G": "port_entry_times",
@@ -98,6 +102,7 @@ class Seiler2024NWBConverter(NWBConverter):
         self.data_interface_objects["FiberPhotometry"].source_data[
             "aligned_response_timestamps"
         ] = aligned_response_timestamps
+        self.data_interface_objects["Behavior"].source_data["start_time_offset"] = start_time_offset
 
     def align_timestamps(self, unaligned_dense_timestamps, unaligned_sparse_timestamps, aligned_sparse_timestamps):
         aligned_dense_timestamps = np.interp(
