@@ -112,7 +112,6 @@ class Seiler2024BehaviorInterface(BaseDataInterface):
             "B": "left_reward_times",
         }
         dict_name_to_type = {
-            "MSN": str,
             "port_entry_times": np.ndarray,
             "duration_of_port_entry": np.ndarray,
             "left_nose_poke_times": np.ndarray,
@@ -130,6 +129,13 @@ class Seiler2024BehaviorInterface(BaseDataInterface):
             session_conditions=self.source_data["session_conditions"],
             start_variable=self.source_data["start_variable"],
         )
+
+        # Temporally align with photometry
+        # Note: The start time offset is set to 0 if there is no photometry data
+        for k, v in session_dict.items():
+            if k == "duration_of_port_entry":
+                continue  # duration_of_port_entry does not need to be temporally aligned
+            session_dict[k] = v - self.source_data["start_time_offset"]
 
         # Add behavior data to nwbfile
         behavior_module = nwb_helpers.get_module(
