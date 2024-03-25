@@ -18,6 +18,11 @@ class Seiler2024NWBConverter(NWBConverter):
     )
 
     def temporally_align_data_interfaces(self):
+        """Align the FiberPhotometry and Behavior data interfaces in time.
+
+        This method uses TTLs from the FiberPhotometry data that correspond to behavior events to generate aligned
+        timestamps for the photometry data. Then, all timestamps are shifted such that the fiber photometry starts at 0s.
+        """
         if not "FiberPhotometry" in self.data_interface_objects.keys():
             self.data_interface_objects["Behavior"].source_data["start_time_offset"] = 0
             return  # No need to align if there is no fiber photometry data
@@ -115,6 +120,34 @@ class Seiler2024NWBConverter(NWBConverter):
         self.data_interface_objects["Behavior"].source_data["start_time_offset"] = start_time_offset
 
     def align_timestamps(self, unaligned_dense_timestamps, unaligned_sparse_timestamps, aligned_sparse_timestamps):
+        """
+        Interpolate the timestamps of this interface using a mapping from some unaligned time basis to its aligned one.
+        Then, using a linear model, extrapolate the timestamps that could not be interpolated.
+
+        Use this method if the unaligned timestamps of the data in this interface are not directly tracked by a primary
+        system, but are known to occur between timestamps that are tracked, then align the timestamps of this interface
+        by interpolating between the two.
+
+        An example could be a metronomic TTL pulse (e.g., every second) from a secondary data stream to the primary
+        timing system; if the time references of this interface are recorded within the relative time of the secondary
+        data stream, then their exact time in the primary system is inferred given the pulse times.
+
+        Must be in units seconds relative to the common 'session_start_time'.
+
+        Parameters
+        ----------
+        unaligned_dense_timestamps : numpy.ndarray
+            The dense timestamps of the unaligned secondary time basis.
+        unaligned_timestamps : numpy.ndarray
+            The sparse timestamps of the unaligned secondary time basis.
+        aligned_timestamps : numpy.ndarray
+            The sparse timestamps aligned to the primary time basis.
+
+        Returns
+        -------
+        numpy.ndarray
+            The dense timestamps aligned to the primary time basis.
+        """
         aligned_dense_timestamps = np.interp(
             unaligned_dense_timestamps,
             unaligned_sparse_timestamps,
