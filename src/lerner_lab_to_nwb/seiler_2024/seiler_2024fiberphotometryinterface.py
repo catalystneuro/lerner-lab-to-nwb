@@ -18,6 +18,7 @@ from ndx_photometry import (
 )
 from hdmf.backends.hdf5.h5_utils import H5DataIO
 from tdt import read_block
+from .medpc import read_medpc_file
 
 
 class Seiler2024FiberPhotometryInterface(BaseDataInterface):
@@ -25,9 +26,10 @@ class Seiler2024FiberPhotometryInterface(BaseDataInterface):
 
     keywords = ["fiber photometry"]
 
-    def __init__(self, folder_path: str, verbose: bool = True):
+    def __init__(self, folder_path: str, behavior_kwargs: dict, verbose: bool = True):
         super().__init__(
             folder_path=folder_path,
+            behavior_kwargs=behavior_kwargs,
             verbose=verbose,
         )
 
@@ -40,6 +42,24 @@ class Seiler2024FiberPhotometryInterface(BaseDataInterface):
         return metadata_schema
 
     def add_to_nwbfile(self, nwbfile: NWBFile, metadata: dict):
+        medpc_name_to_dict_name = {  # TODO: Move to metadata.yaml
+            "G": "port_entry_times",
+            "E": "duration_of_port_entry",
+            "A": "left_nose_poke_times",
+            "C": "right_nose_poke_times",
+            "D": "right_reward_times",
+            "B": "left_reward_times",
+        }
+        dict_name_to_type = {
+            "MSN": str,
+            "port_entry_times": np.ndarray,
+            "duration_of_port_entry": np.ndarray,
+            "left_nose_poke_times": np.ndarray,
+            "right_nose_poke_times": np.ndarray,
+            "right_reward_times": np.ndarray,
+            "left_reward_times": np.ndarray,
+        }
+
         # Load Data
         folder_path = Path(self.source_data["folder_path"])
         assert folder_path.is_dir(), f"Folder path {folder_path} does not exist."
@@ -50,11 +70,18 @@ class Seiler2024FiberPhotometryInterface(BaseDataInterface):
             "LNPS": "left_nose_poke_times",
             "RNRW": "right_reward_times",
             "RNnR": "right_nose_poke_times",
-            "PrtN": "reward_port_entry_times",
+            "PrtN": "port_entry_times",
             "Sock": "footshock_times",
         }
+        session_dict = read_medpc_file(
+            file_path=self.source_data["behavior_kwargs"]["file_path"],
+            medpc_name_to_dict_name=medpc_name_to_dict_name,
+            dict_name_to_type=dict_name_to_type,
+            session_conditions=self.source_data["behavior_kwargs"]["session_conditions"],
+            start_variable=self.source_data["behavior_kwargs"]["start_variable"],
+        )
         all_ttl_timestamps, all_behavior_timestamps = [], []
-        for ttl_name, nwb_name in ttl_names_to_behavior_names.items():
+        for ttl_name, behavior_name in ttl_names_to_behavior_names.items():
             if ttl_name == "PrtN":
                 ttl_timestamps = np.sort(
                     np.concatenate((tdt_photometry.epocs["PrtN"].onset, tdt_photometry.epocs["PrtR"].onset))
@@ -63,7 +90,7 @@ class Seiler2024FiberPhotometryInterface(BaseDataInterface):
                 continue
             else:
                 ttl_timestamps = tdt_photometry.epocs[ttl_name].onset
-            behavior_timestamps = nwbfile.processing["behavior"].data_interfaces[nwb_name].timestamps
+            behavior_timestamps = session_dict[behavior_name]
             for ttl_timestamp, behavior_timestamp in zip(ttl_timestamps, behavior_timestamps):
                 all_ttl_timestamps.append(ttl_timestamp)
                 all_behavior_timestamps.append(behavior_timestamp)
@@ -71,17 +98,26 @@ class Seiler2024FiberPhotometryInterface(BaseDataInterface):
         all_ttl_timestamps = np.array(all_ttl_timestamps)[sort_indices]
         all_behavior_timestamps = np.array(all_behavior_timestamps)[sort_indices]
 
-        # Commanded Voltages
+        # Align Timestamps
         commanded_len = len(tdt_photometry.streams["Fi1d"].data[0, :])
         commanded_fs = tdt_photometry.streams["Fi1d"].fs
-        commanded_timestamps = np.linspace(0, commanded_len / commanded_fs, commanded_len)
-        aligned_commanded_timestamps = np.interp(
-            commanded_timestamps, all_ttl_timestamps, all_behavior_timestamps, left=np.nan, right=np.nan
+        unaligned_commanded_timestamps = np.linspace(0, commanded_len / commanded_fs, commanded_len)
+        aligned_commanded_timestamps = self.align_timestamps(
+            unaligned_commanded_timestamps, all_ttl_timestamps, all_behavior_timestamps
         )
-        extrapolated_timestamp_mask = np.isnan(aligned_commanded_timestamps)
-        linear_model = LinearRegression().fit(all_ttl_timestamps.reshape(-1, 1), all_behavior_timestamps)
-        extrapolated_timestamps = linear_model.predict(commanded_timestamps[extrapolated_timestamp_mask].reshape(-1, 1))
-        aligned_commanded_timestamps[extrapolated_timestamp_mask] = extrapolated_timestamps
+
+        response_len = len(tdt_photometry.streams["Dv1A"].data)
+        response_fs = tdt_photometry.streams["Dv1A"].fs
+        unaligned_response_timestamps = np.linspace(0, response_len / response_fs, response_len)
+        aligned_response_timestamps = self.align_timestamps(
+            unaligned_response_timestamps, all_ttl_timestamps, all_behavior_timestamps
+        )
+
+        start_time_offset = np.minimum(aligned_commanded_timestamps[0], aligned_response_timestamps[0])
+        aligned_commanded_timestamps -= start_time_offset
+        aligned_response_timestamps -= start_time_offset
+
+        # Commanded Voltages
         multi_commanded_voltage = MultiCommandedVoltage()
         dms_commanded_signal_series = multi_commanded_voltage.create_commanded_voltage_series(
             name="dms_commanded_signal",
@@ -203,10 +239,6 @@ class Seiler2024FiberPhotometryInterface(BaseDataInterface):
         )
 
         # Fiber Photometry Response Series
-        response_len = len(tdt_photometry.streams["Dv1A"].data)
-        response_fs = tdt_photometry.streams["Dv1A"].fs
-        response_timestamps = np.linspace(0, response_len / response_fs, response_len)
-        aligned_response_timestamps = np.interp(response_timestamps, all_ttl_timestamps, all_behavior_timestamps)
         dms_signal_series = FiberPhotometryResponseSeries(
             name="dms_signal",
             description="The fluorescence from the blue light excitation (465nm) corresponding to the calcium signal in the DMS.",
@@ -269,3 +301,19 @@ class Seiler2024FiberPhotometryInterface(BaseDataInterface):
         nwbfile.add_acquisition(dms_reference_series)
         nwbfile.add_acquisition(dls_signal_series)
         nwbfile.add_acquisition(dls_reference_series)
+
+    def align_timestamps(self, unaligned_dense_timestamps, unaligned_sparse_timestamps, aligned_sparse_timestamps):
+        aligned_dense_timestamps = np.interp(
+            unaligned_dense_timestamps,
+            unaligned_sparse_timestamps,
+            aligned_sparse_timestamps,
+            left=np.nan,
+            right=np.nan,
+        )
+        extrapolated_timestamp_mask = np.isnan(aligned_dense_timestamps)
+        linear_model = LinearRegression().fit(unaligned_sparse_timestamps.reshape(-1, 1), aligned_sparse_timestamps)
+        extrapolated_timestamps = linear_model.predict(
+            unaligned_dense_timestamps[extrapolated_timestamp_mask].reshape(-1, 1)
+        )
+        aligned_dense_timestamps[extrapolated_timestamp_mask] = extrapolated_timestamps
+        return aligned_dense_timestamps

@@ -54,10 +54,10 @@ more generic filter conditions (ex. box number)
 
 ## Fiber Photometry
 - 6 data streams:
-    - Dv1A = array of photometry response dms 465nm???
-    - Dv2A = array of photometry response dms 405nm???
-    - Dv3B = array of photometry response dls 465nm???
-    - Dv4B = array of photometry response dls 405nm???
+    - Dv1A = array of photometry response dms 465nm
+    - Dv2A = array of photometry response dms 405nm
+    - Dv3B = array of photometry response dls 465nm
+    - Dv4B = array of photometry response dls 405nm
     - Fi1d = 4xN array of demodulated commanded voltages: dms 465nm, dms 405nm, dls 465nm, dls 405nm
     - Fi1r = 2xN array of modulated commanded voltages: dms and dls
 - Questions for Lerner Lab:

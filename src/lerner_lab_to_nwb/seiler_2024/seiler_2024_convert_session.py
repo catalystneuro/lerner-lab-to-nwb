@@ -56,6 +56,7 @@ def session_to_nwb(
                 FiberPhotometry={
                     "folder_path": str(fiber_photometry_folder_path),
                     "verbose": verbose,
+                    "behavior_kwargs": source_data["Behavior"],
                 }
             )
         )
