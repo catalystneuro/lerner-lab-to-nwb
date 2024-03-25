@@ -93,14 +93,14 @@ class Seiler2024NWBConverter(NWBConverter):
         all_behavior_timestamps = np.array(all_behavior_timestamps)[sort_indices]
 
         # Align Timestamps
-        commanded_len = len(tdt_photometry.streams["Fi1d"].data[0, :])
+        commanded_len = tdt_photometry.streams["Fi1d"].data.shape[1]
         commanded_fs = tdt_photometry.streams["Fi1d"].fs
         unaligned_commanded_timestamps = np.linspace(0, commanded_len / commanded_fs, commanded_len)
         aligned_commanded_timestamps = self.align_timestamps(
             unaligned_commanded_timestamps, all_ttl_timestamps, all_behavior_timestamps
         )
 
-        response_len = len(tdt_photometry.streams["Dv1A"].data)
+        response_len = tdt_photometry.streams["Dv1A"].data.shape[0]
         response_fs = tdt_photometry.streams["Dv1A"].fs
         unaligned_response_timestamps = np.linspace(0, response_len / response_fs, response_len)
         aligned_response_timestamps = self.align_timestamps(
