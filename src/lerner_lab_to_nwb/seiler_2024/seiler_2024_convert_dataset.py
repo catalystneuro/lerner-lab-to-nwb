@@ -22,42 +22,80 @@ def dataset_to_nwb(
     output_dir_path = Path(output_dir_path)
     experiment_type = "FP"
     experimental_groups = ["DPR", "PR", "PS", "RR20"]
+    experimental_group_to_long_name = {
+        "DPR": "Delayed Punishment Resistant",
+        "PR": "Punishment Resistant",
+        "PS": "Punishment Sensitive",
+        "RR20": "RR20",
+    }
     behavior_path = data_dir_path / f"{experiment_type} Experiments" / "Behavior"
+    photometry_path = data_dir_path / f"{experiment_type} Experiments" / "Photometry"
     raw_file_to_info = get_raw_info(behavior_path)
 
     # Iterate through file system to get necessary information for converting each session
     session_to_nwb_args_per_session: list[dict] = []  # Each dict contains the args for session_to_nwb for a session
-    for experimental_group in experimental_groups:
-        experimental_group_path = behavior_path / experimental_group
-        subject_dirs = [subject_dir for subject_dir in experimental_group_path.iterdir() if subject_dir.is_dir()]
-        for subject_dir in subject_dirs:
-            subject_id = subject_dir.name
-            header_variables = get_header_variables(subject_dir, subject_id, raw_file_to_info, start_variable)
-            start_dates, start_times, msns, file_paths, subjects, box_numbers = header_variables
-            for start_date, start_time, msn, file, subject, box_number in zip(
-                start_dates, start_times, msns, file_paths, subjects, box_numbers
-            ):
-                if (
-                    (
-                        start_date == "09/20/19"
-                        and start_time == "09:42:54"
-                        and subject_id == "139.298"
-                        and msn == "RI 60 RIGHT STIM"
-                    )
-                    or (
-                        start_date == "07/28/20"
-                        and start_time == "13:21:15"
-                        and subject_id == "272.396"
-                        and msn == "Probe Test Habit Training TTL"
-                    )
-                    or (
-                        start_date == "07/31/20"
-                        and start_time == "12:03:31"
-                        and subject_id == "346.394"
-                        and msn == "FOOD_RI 60 RIGHT TTL"
-                    )
+
+    # Iterate through all photometry files
+    for experimental_group, long_name in experimental_group_to_long_name.items():
+        experimental_group_path = photometry_path / long_name
+        experimental_subgroups = [subgroup for subgroup in experimental_group_path.iterdir() if subgroup.is_dir()]
+        for experimental_subgroup in experimental_subgroups:  # Early or Late but with typos ex. 'late' vs 'Late'
+            fiber_photometry_folder_paths = [
+                fiber_photometry_folder_path
+                for fiber_photometry_folder_path in experimental_subgroup.iterdir()
+                if fiber_photometry_folder_path.is_dir()
+            ]
+            for fiber_photometry_folder_path in fiber_photometry_folder_paths:
+                print(f"Converting {experimental_group}/{fiber_photometry_folder_path.name}")
+                photometry_subject_id = (
+                    fiber_photometry_folder_path.name.split("-")[0].split("Photo_")[1].replace("_", ".")
+                )
+                photometry_start_date = fiber_photometry_folder_path.name.split("-")[1]
+                photometry_start_date = datetime.strptime(photometry_start_date, "%y%m%d").strftime("%m/%d/%y")
+
+                subject_dir = behavior_path / experimental_group / photometry_subject_id
+                header_variables = get_header_variables(
+                    subject_dir, photometry_subject_id, raw_file_to_info, start_variable
+                )
+                start_dates, start_times, msns, file_paths, subjects, box_numbers = header_variables
+                (
+                    matching_start_dates,
+                    matching_start_times,
+                    matching_msns,
+                    matching_file_paths,
+                    matching_subjects,
+                    matching_box_numbers,
+                ) = ([], [], [], [], [], [])
+                for start_date, start_time, msn, file, subject, box_number in zip(
+                    start_dates, start_times, msns, file_paths, subjects, box_numbers
                 ):
-                    continue  # these sessions are the wrong subject TODO: Ask Lerner Lab about this
+                    if start_date == photometry_start_date:
+                        matching_start_dates.append(start_date)
+                        matching_start_times.append(start_time)
+                        matching_msns.append(msn)
+                        matching_file_paths.append(file)
+                        matching_subjects.append(subject)
+                        matching_box_numbers.append(box_number)
+                if (
+                    photometry_subject_id == "88.239" and photometry_start_date == "02/19/19"
+                ):  # TODO: Ask Lerner Lab about this
+                    matching_start_dates = matching_start_dates[1:]
+                    matching_start_times = matching_start_times[1:]
+                    matching_msns = matching_msns[1:]
+                    matching_file_paths = matching_file_paths[1:]
+                    matching_subjects = matching_subjects[1:]
+                    matching_box_numbers = matching_box_numbers[1:]
+                assert (
+                    len(matching_start_dates) == 1
+                ), f"Expected 1 matching session for {experimental_group}/{photometry_subject_id} on {photometry_start_date}, but found {len(matching_start_dates)}"
+                start_date, start_time, msn, file, subject, box_number = (
+                    matching_start_dates[0],
+                    matching_start_times[0],
+                    matching_msns[0],
+                    matching_file_paths[0],
+                    matching_subjects[0],
+                    matching_box_numbers[0],
+                )
                 session_conditions = {
                     "Start Date": start_date,
                     "Start Time": start_time,
@@ -71,7 +109,8 @@ def dataset_to_nwb(
                     data_dir_path=data_dir_path,
                     output_dir_path=output_dir_path,
                     behavior_file_path=file,
-                    subject_id=subject_id,
+                    fiber_photometry_folder_path=fiber_photometry_folder_path,
+                    subject_id=photometry_subject_id,
                     session_conditions=session_conditions,
                     start_variable=start_variable,
                     start_datetime=start_datetime,
@@ -81,6 +120,62 @@ def dataset_to_nwb(
                     verbose=verbose,
                 )
                 session_to_nwb_args_per_session.append(session_to_nwb_args)
+
+    # Iterate through all behavior files
+    # for experimental_group in experimental_groups:
+    #     experimental_group_path = behavior_path / experimental_group
+    #     subject_dirs = [subject_dir for subject_dir in experimental_group_path.iterdir() if subject_dir.is_dir()]
+    #     for subject_dir in subject_dirs:
+    #         subject_id = subject_dir.name
+    #         header_variables = get_header_variables(subject_dir, subject_id, raw_file_to_info, start_variable)
+    #         start_dates, start_times, msns, file_paths, subjects, box_numbers = header_variables
+    #         for start_date, start_time, msn, file, subject, box_number in zip(
+    #             start_dates, start_times, msns, file_paths, subjects, box_numbers
+    #         ):
+    #             if (
+    #                 (
+    #                     start_date == "09/20/19"
+    #                     and start_time == "09:42:54"
+    #                     and subject_id == "139.298"
+    #                     and msn == "RI 60 RIGHT STIM"
+    #                 )
+    #                 or (
+    #                     start_date == "07/28/20"
+    #                     and start_time == "13:21:15"
+    #                     and subject_id == "272.396"
+    #                     and msn == "Probe Test Habit Training TTL"
+    #                 )
+    #                 or (
+    #                     start_date == "07/31/20"
+    #                     and start_time == "12:03:31"
+    #                     and subject_id == "346.394"
+    #                     and msn == "FOOD_RI 60 RIGHT TTL"
+    #                 )
+    #             ):
+    #                 continue  # these sessions are the wrong subject TODO: Ask Lerner Lab about this
+    #             session_conditions = {
+    #                 "Start Date": start_date,
+    #                 "Start Time": start_time,
+    #             }
+    #             if subject is not None:
+    #                 session_conditions["Subject"] = subject
+    #             if box_number is not None:
+    #                 session_conditions["Box"] = box_number
+    #             start_datetime = datetime.strptime(f"{start_date} {start_time}", "%m/%d/%y %H:%M:%S")
+    #             session_to_nwb_args = dict(
+    #                 data_dir_path=data_dir_path,
+    #                 output_dir_path=output_dir_path,
+    #                 behavior_file_path=file,
+    #                 subject_id=subject_id,
+    #                 session_conditions=session_conditions,
+    #                 start_variable=start_variable,
+    #                 start_datetime=start_datetime,
+    #                 experiment_type=experiment_type,
+    #                 experimental_group=experimental_group,
+    #                 stub_test=stub_test,
+    #                 verbose=verbose,
+    #             )
+    #             session_to_nwb_args_per_session.append(session_to_nwb_args)
 
     # Convert all sessions and handle missing MSNs
     missing_msn_errors = set()

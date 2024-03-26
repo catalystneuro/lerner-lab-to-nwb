@@ -47,6 +47,9 @@ In FP Experiments/Behavior/MEDPCRawFilesbyDate/2018-11-09,
 - All the sessions have the same start_date and start_time and no subject info --> need to make medpc reader support
 more generic filter conditions (ex. box number)
 
+In FP Experiments/Behavior/MEDPCRawFilesbyDate/2019-02-19,
+- One of the animals (88.239) has 2 sessions in the same day, with one only 9mins long -- mistaken session?
+
 ### Opto Behavior
 - Opto Behavior files are disorganized esp. DLS Excitatory with a mix of folders, medpc files, and csv files
 - File structure also contains important metadata for optogenetic interface ex. ChR2 vs EYFP
@@ -60,9 +63,12 @@ more generic filter conditions (ex. box number)
     - Dv4B = array of photometry response dls 405nm
     - Fi1d = 4xN array of demodulated commanded voltages: dms 465nm, dms 405nm, dls 465nm, dls 405nm
     - Fi1r = 2xN array of modulated commanded voltages: dms and dls
+- Folders are named 'Photo_<subject_id>-YYMMDD-HHMMSS' --> match with same day behavior session
+- some folders have subject_id with multiple session folders for each subject
 - Questions for Lerner Lab:
     - The TTL for 'unrewarded right nose pokes' (RNnR), corresponds to the nose pokes variable in medpc, which supposedly
     records *all* nosepokes. Which is correct?
+    - Mistaken session 88.239?
 
 ## Optogenetics
 TODO
