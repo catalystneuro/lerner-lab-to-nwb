@@ -40,13 +40,15 @@ def dataset_to_nwb(
         experimental_group_path = photometry_path / long_name
         experimental_subgroups = [subgroup for subgroup in experimental_group_path.iterdir() if subgroup.is_dir()]
         for experimental_subgroup in experimental_subgroups:  # Early or Late but with typos ex. 'late' vs 'Late'
-            fiber_photometry_folder_paths = [
-                fiber_photometry_folder_path
-                for fiber_photometry_folder_path in experimental_subgroup.iterdir()
-                if fiber_photometry_folder_path.is_dir()
-            ]
+            fiber_photometry_folder_paths = []
+            for fiber_photometry_folder_path in experimental_subgroup.iterdir():
+                if fiber_photometry_folder_path.name.startswith("Photo"):
+                    fiber_photometry_folder_paths.append(fiber_photometry_folder_path)
+                elif fiber_photometry_folder_path.is_dir():
+                    for fiber_photometry_folder_path_sub in fiber_photometry_folder_path.iterdir():
+                        if fiber_photometry_folder_path_sub.name.startswith("Photo"):
+                            fiber_photometry_folder_paths.append(fiber_photometry_folder_path_sub)
             for fiber_photometry_folder_path in fiber_photometry_folder_paths:
-                print(f"Converting {experimental_group}/{fiber_photometry_folder_path.name}")
                 photometry_subject_id = (
                     fiber_photometry_folder_path.name.split("-")[0].split("Photo_")[1].replace("_", ".")
                 )
@@ -77,14 +79,12 @@ def dataset_to_nwb(
                         matching_subjects.append(subject)
                         matching_box_numbers.append(box_number)
                 if (
-                    photometry_subject_id == "88.239" and photometry_start_date == "02/19/19"
-                ):  # TODO: Ask Lerner Lab about this
-                    matching_start_dates = matching_start_dates[1:]
-                    matching_start_times = matching_start_times[1:]
-                    matching_msns = matching_msns[1:]
-                    matching_file_paths = matching_file_paths[1:]
-                    matching_subjects = matching_subjects[1:]
-                    matching_box_numbers = matching_box_numbers[1:]
+                    (photometry_subject_id == "88.239" and photometry_start_date == "02/19/19")
+                    or (photometry_subject_id == "271.396" and photometry_start_date == "07/07/20")
+                    or (photometry_subject_id == "332.393" and photometry_start_date == "07/28/20")
+                    or (photometry_subject_id == "333.393" and photometry_start_date == "07/13/20")
+                ):  # TODO: Ask Lerner Lab about these sessions
+                    continue
                 assert (
                     len(matching_start_dates) == 1
                 ), f"Expected 1 matching session for {experimental_group}/{photometry_subject_id} on {photometry_start_date}, but found {len(matching_start_dates)}"

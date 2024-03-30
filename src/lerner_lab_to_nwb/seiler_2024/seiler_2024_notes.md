@@ -65,10 +65,16 @@ In FP Experiments/Behavior/MEDPCRawFilesbyDate/2019-02-19,
     - Fi1r = 2xN array of modulated commanded voltages: dms and dls
 - Folders are named 'Photo_<subject_id>-YYMMDD-HHMMSS' --> match with same day behavior session
 - some folders have subject_id with multiple session folders for each subject
+- For DPR/334.394/07/02/20, no right nosepokes were made --> photometry object doesn't have a RNPS object
 - Questions for Lerner Lab:
     - The TTL for 'unrewarded right nose pokes' (RNnR), corresponds to the nose pokes variable in medpc, which supposedly
     records *all* nosepokes. Which is correct?
     - Mistaken session 88.239?
+    - PS/271.396_07/07/20 has two behavioral sessions but only 1 fp session folder
+    - PS/332.393_07/28/20 has a fp session but no matching behavior session
+    - The RR20 folder only has .mat files rather than tdt synapse output folders -- pls provide?
+    - Delayed Punishment Resistant/Early/Photo_333_393-200713-121027 only has Fi1r NOT Fi1d
+
 
 ## Optogenetics
 TODO

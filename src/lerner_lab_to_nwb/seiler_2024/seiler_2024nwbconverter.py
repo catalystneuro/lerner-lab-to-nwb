@@ -7,6 +7,8 @@ from .medpc import read_medpc_file
 import numpy as np
 from tdt import read_block
 from sklearn.linear_model import LinearRegression
+import os
+from contextlib import redirect_stdout
 
 
 class Seiler2024NWBConverter(NWBConverter):
@@ -49,10 +51,11 @@ class Seiler2024NWBConverter(NWBConverter):
             session_conditions=self.data_interface_objects["Behavior"].source_data["session_conditions"],
             start_variable=self.data_interface_objects["Behavior"].source_data["start_variable"],
         )
-        metadata = self.data_interface_objects["Behavior"].get_metadata(session_dict)
+        metadata = self.data_interface_objects["Behavior"].get_metadata()
 
         # Read Fiber Photometry Data
-        tdt_photometry = read_block(self.data_interface_objects["FiberPhotometry"].source_data["folder_path"])
+        with open(os.devnull, "w") as f, redirect_stdout(f):
+            tdt_photometry = read_block(self.data_interface_objects["FiberPhotometry"].source_data["folder_path"])
 
         # Aggregate TTLs and Behavior Timestamps
         msn = metadata["NWBFile"]["session_description"]
@@ -83,6 +86,8 @@ class Seiler2024NWBConverter(NWBConverter):
             elif ttl_name == "Sock" and "ShockProbe" not in metadata["NWBFile"]["session_id"]:
                 continue
             else:
+                if len(session_dict[behavior_name]) == 0:
+                    continue  # If behavior is not present the tdt file will not have the appropriate TTL
                 ttl_timestamps = tdt_photometry.epocs[ttl_name].onset
             behavior_timestamps = session_dict[behavior_name]
             for ttl_timestamp, behavior_timestamp in zip(ttl_timestamps, behavior_timestamps):
