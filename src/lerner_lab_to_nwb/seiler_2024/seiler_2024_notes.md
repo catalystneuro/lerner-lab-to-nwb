@@ -71,7 +71,7 @@ In FP Experiments/Behavior/MEDPCRawFilesbyDate/2019-02-19,
     records *all* nosepokes. Which is correct?
     - Mistaken session 88.239?
     - PS/271.396_07/07/20 has two behavioral sessions but only 1 fp session folder
-    - PS/332.393_07/28/20 has a fp session but no matching behavior session
+    - PS/332.393_07/28/20 has 2 fp sessions but no matching behavior session
     - The RR20 folder only has .mat files rather than tdt synapse output folders -- pls provide?
     - Several sessions don't have fi1d -- see printout
     - Delayed Punishment Resistant/Late/Photo_334_394-200721-131257 throws an error from tdt.read_block, but loads fine if t2 <= 824
