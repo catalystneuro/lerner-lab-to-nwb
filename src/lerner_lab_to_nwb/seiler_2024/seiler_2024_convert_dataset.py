@@ -82,7 +82,9 @@ def dataset_to_nwb(
                     (photometry_subject_id == "88.239" and photometry_start_date == "02/19/19")
                     or (photometry_subject_id == "271.396" and photometry_start_date == "07/07/20")
                     or (photometry_subject_id == "332.393" and photometry_start_date == "07/28/20")
-                    or (photometry_subject_id == "333.393" and photometry_start_date == "07/13/20")
+                    or (photometry_subject_id == "334.394" and photometry_start_date == "07/21/20")
+                    or (photometry_subject_id == "140.306" and photometry_start_date == "08/09/19")
+                    or (photometry_subject_id == "139.298" and photometry_start_date == "09/12/19")
                 ):  # TODO: Ask Lerner Lab about these sessions
                     continue
                 assert (
@@ -177,14 +179,26 @@ def dataset_to_nwb(
     #             )
     #             session_to_nwb_args_per_session.append(session_to_nwb_args)
 
-    # Convert all sessions and handle missing MSNs
+    # Convert all sessions and handle missing MSNs and missing Fi1d's
     missing_msn_errors = set()
+    missing_fi1d_sessions = []
     for session_to_nwb_args in tqdm(session_to_nwb_args_per_session):
         try:
             session_to_nwb(**session_to_nwb_args)
         except KeyError as e:
             missing_msn_errors.add(str(e))
             continue
+        except AttributeError as e:
+            if str(e) == "'StructType' object has no attribute 'Fi1d'":
+                missing_fi1d_sessions.append(
+                    session_to_nwb_args["fiber_photometry_folder_path"].split("Photometry/")[1]
+                )
+                continue
+            else:
+                print(
+                    f"Could not convert {session_to_nwb_args['experimental_group']}/{session_to_nwb_args['subject_id']}/{session_to_nwb_args['session_conditions']['Start Date']} {session_to_nwb_args['session_conditions']['Start Time']}"
+                )
+                raise AttributeError(e)
         except Exception as e:
             print(
                 f"Could not convert {session_to_nwb_args['experimental_group']}/{session_to_nwb_args['subject_id']}/{session_to_nwb_args['session_conditions']['Start Date']} {session_to_nwb_args['session_conditions']['Start Time']}"
@@ -194,6 +208,10 @@ def dataset_to_nwb(
         print("Missing MSN errors:")
         for error in missing_msn_errors:
             print(error)
+    if missing_fi1d_sessions:
+        print("Missing Fi1d Sessions:")
+        for session in missing_fi1d_sessions:
+            print(session)
 
 
 def get_csv_session_dates(subject_dir):

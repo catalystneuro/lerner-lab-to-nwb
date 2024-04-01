@@ -80,9 +80,14 @@ class Seiler2024NWBConverter(NWBConverter):
         all_ttl_timestamps, all_behavior_timestamps = [], []
         for ttl_name, behavior_name in ttl_names_to_behavior_names.items():
             if ttl_name == "PrtN":
-                ttl_timestamps = np.sort(
-                    np.concatenate((tdt_photometry.epocs["PrtN"].onset, tdt_photometry.epocs["PrtR"].onset))
-                )
+                ttl_timestamps = []
+                if "PrtN" in tdt_photometry.epocs:
+                    for timestamp in tdt_photometry.epocs["PrtN"].onset:
+                        ttl_timestamps.append(timestamp)
+                if "PrtR" in tdt_photometry.epocs:
+                    for timestamp in tdt_photometry.epocs["PrtR"].onset:
+                        ttl_timestamps.append(timestamp)
+                ttl_timestamps = np.sort(ttl_timestamps)
             elif ttl_name == "Sock" and "ShockProbe" not in metadata["NWBFile"]["session_id"]:
                 continue
             else:

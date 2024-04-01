@@ -298,7 +298,46 @@ if __name__ == "__main__":
         / f"Early RI60"
         / f"Photo_{subject_id.split('.')[0]}_{subject_id.split('.')[1]}-200709-130922"
     )
-    print(fiber_photometry_folder_path)
+    session_to_nwb(
+        data_dir_path=data_dir_path,
+        output_dir_path=output_dir_path,
+        behavior_file_path=behavior_file_path,
+        fiber_photometry_folder_path=fiber_photometry_folder_path,
+        subject_id=subject_id,
+        session_conditions=session_conditions,
+        start_variable=start_variable,
+        start_datetime=start_datetime,
+        experiment_type=experiment_type,
+        experimental_group=experimental_group,
+        stub_test=stub_test,
+    )
+
+    # Fiber Photometry session without unrewarded port entries
+    experiment_type = "FP"
+    experimental_group = "PS"
+    subject_id = "249.391"
+    start_datetime = datetime(2020, 7, 21, 11, 42, 49)
+    session_conditions = {
+        "Start Date": start_datetime.strftime("%m/%d/%y"),
+        "Start Time": start_datetime.strftime("%H:%M:%S"),
+    }
+    start_variable = "Start Date"
+    behavior_file_path = (
+        data_dir_path
+        / f"{experiment_type} Experiments"
+        / "Behavior"
+        / f"{experimental_group}"
+        / f"{subject_id}"
+        / f"{subject_id}"
+    )
+    fiber_photometry_folder_path = (
+        data_dir_path
+        / f"{experiment_type} Experiments"
+        / "Photometry"
+        / f"Punishment Sensitive"
+        / f"Late RI60"
+        / f"Photo_{subject_id.split('.')[0]}_{subject_id.split('.')[1]}-200721-120136"
+    )
     session_to_nwb(
         data_dir_path=data_dir_path,
         output_dir_path=output_dir_path,
