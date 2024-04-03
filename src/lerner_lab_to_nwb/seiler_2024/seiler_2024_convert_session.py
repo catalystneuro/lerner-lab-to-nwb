@@ -23,7 +23,34 @@ def session_to_nwb(
     stub_test: bool = False,
     verbose: bool = True,
 ):
-    """Convert a session to NWB."""
+    """Convert a session to NWB.
+
+    Parameters
+    ----------
+    data_dir_path : Union[str, Path]
+        Path to the directory containing the raw data.
+    output_dir_path : Union[str, Path]
+        Path to the directory to save the NWB file.
+    behavior_file_path : Union[str, Path]
+        Path to the MedPC file.
+    start_datetime : datetime
+        The start datetime of the session.
+    subject_id : str
+        The subject ID.
+    session_conditions : dict
+        The conditions that define the session. The keys are the names of the single-line variables (ex. 'Start Date')
+        and the values are the values of those variables for the desired session (ex. '11/09/18').
+    start_variable : str
+        The name of the variable that starts the session (ex. 'Start Date').
+    experiment_type : Literal["FP", "Opto"]
+        The type of experiment.
+    experimental_group : Literal["DPR", "PR", "PS", "RR20"]
+        The experimental group.
+    stub_test : bool, optional
+        Whether to run a stub test, by default False
+    verbose : bool, optional
+        Whether to print verbose output, by default True
+    """
 
     data_dir_path = Path(data_dir_path)
     output_dir_path = Path(output_dir_path)

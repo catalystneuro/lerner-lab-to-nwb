@@ -8,6 +8,7 @@ from neuroconv.tools import nwb_helpers
 import numpy as np
 from ndx_events import Events
 from pynwb.behavior import BehavioralEpochs, IntervalSeries
+from hdmf.backends.hdf5.h5_utils import H5DataIO
 
 from .medpc import read_medpc_file
 
@@ -18,6 +19,20 @@ class Seiler2024BehaviorInterface(BaseDataInterface):
     keywords = ["behavior"]
 
     def __init__(self, file_path: str, session_conditions: dict, start_variable: str, verbose: bool = True):
+        """Initialize Seiler2024BehaviorInterface.
+
+        Parameters
+        ----------
+        file_path : str
+            Path to the MedPC file.
+        session_conditions : dict
+            The conditions that define the session. The keys are the names of the single-line variables (ex. 'Start Date')
+            and the values are the values of those variables for the desired session (ex. '11/09/18').
+        start_variable : str
+            The name of the variable that starts the session (ex. 'Start Date').
+        verbose : bool, optional
+            Whether to print verbose output, by default True
+        """
         super().__init__(
             file_path=file_path,
             session_conditions=session_conditions,
@@ -149,7 +164,7 @@ class Seiler2024BehaviorInterface(BaseDataInterface):
             reward_port_entry_times = Events(
                 name="reward_port_entry_times",
                 description="Reward port entry times",
-                timestamps=session_dict["port_entry_times"],
+                timestamps=H5DataIO(session_dict["port_entry_times"], compression=True),
             )
             behavior_module.add(reward_port_entry_times)
         else:
@@ -164,7 +179,7 @@ class Seiler2024BehaviorInterface(BaseDataInterface):
             reward_port_intervals = IntervalSeries(
                 name="reward_port_intervals",
                 description="Interval of time spent in reward port (1 is entry, -1 is exit)",
-                timestamps=port_times,
+                timestamps=H5DataIO(port_times, compression=True),
                 data=data,
             )
             behavioral_epochs = BehavioralEpochs(name="behavioral_epochs")
@@ -175,12 +190,12 @@ class Seiler2024BehaviorInterface(BaseDataInterface):
         left_nose_poke_times = Events(
             name="left_nose_poke_times",
             description="Left nose poke times",
-            timestamps=session_dict["left_nose_poke_times"],
+            timestamps=H5DataIO(session_dict["left_nose_poke_times"], compression=True),
         )
         right_nose_poke_times = Events(
             name="right_nose_poke_times",
             description="Right nose poke times",
-            timestamps=session_dict["right_nose_poke_times"],
+            timestamps=H5DataIO(session_dict["right_nose_poke_times"], compression=True),
         )
         behavior_module.add(left_nose_poke_times)
         behavior_module.add(right_nose_poke_times)
@@ -190,14 +205,14 @@ class Seiler2024BehaviorInterface(BaseDataInterface):
             left_reward_times = Events(
                 name="left_reward_times",
                 description="Left Reward times",
-                timestamps=session_dict["left_reward_times"],
+                timestamps=H5DataIO(session_dict["left_reward_times"], compression=True),
             )
             behavior_module.add(left_reward_times)
         if len(session_dict["right_reward_times"]) > 0:
             right_reward_times = Events(
                 name="right_reward_times",
                 description="Right Reward times",
-                timestamps=session_dict["right_reward_times"],
+                timestamps=H5DataIO(session_dict["right_reward_times"], compression=True),
             )
             behavior_module.add(right_reward_times)
 
