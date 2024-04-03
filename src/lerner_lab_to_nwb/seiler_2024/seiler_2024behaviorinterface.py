@@ -103,39 +103,35 @@ class Seiler2024BehaviorInterface(BaseDataInterface):
         return metadata_schema
 
     def add_to_nwbfile(self, nwbfile: NWBFile, metadata: dict):
-        medpc_name_to_dict_name = {
-            "G": "port_entry_times",
-            "E": "duration_of_port_entry",
-            "A": "left_nose_poke_times",
-            "C": "right_nose_poke_times",
-            "D": "right_reward_times",
-            "B": "left_reward_times",
-        }
-        dict_name_to_type = {
-            "port_entry_times": np.ndarray,
-            "duration_of_port_entry": np.ndarray,
-            "left_nose_poke_times": np.ndarray,
-            "right_nose_poke_times": np.ndarray,
-            "right_reward_times": np.ndarray,
-            "left_reward_times": np.ndarray,
-        }
-        if "ShockProbe" in metadata["NWBFile"]["session_id"]:
-            medpc_name_to_dict_name["H"] = "footshock_times"
-            dict_name_to_type["footshock_times"] = np.ndarray
-        session_dict = read_medpc_file(
-            file_path=self.source_data["file_path"],
-            medpc_name_to_dict_name=medpc_name_to_dict_name,
-            dict_name_to_type=dict_name_to_type,
-            session_conditions=self.source_data["session_conditions"],
-            start_variable=self.source_data["start_variable"],
-        )
-
-        # Temporally align with photometry
-        # Note: The start time offset is set to 0 if there is no photometry data
-        for k, v in session_dict.items():
-            if k == "duration_of_port_entry":
-                continue  # duration_of_port_entry does not need to be temporally aligned
-            session_dict[k] = v - self.source_data["start_time_offset"]
+        if self.source_data["session_dict"] is None:
+            medpc_name_to_dict_name = {
+                "G": "port_entry_times",
+                "E": "duration_of_port_entry",
+                "A": "left_nose_poke_times",
+                "C": "right_nose_poke_times",
+                "D": "right_reward_times",
+                "B": "left_reward_times",
+            }
+            dict_name_to_type = {
+                "port_entry_times": np.ndarray,
+                "duration_of_port_entry": np.ndarray,
+                "left_nose_poke_times": np.ndarray,
+                "right_nose_poke_times": np.ndarray,
+                "right_reward_times": np.ndarray,
+                "left_reward_times": np.ndarray,
+            }
+            if "ShockProbe" in metadata["NWBFile"]["session_id"]:
+                medpc_name_to_dict_name["H"] = "footshock_times"
+                dict_name_to_type["footshock_times"] = np.ndarray
+            session_dict = read_medpc_file(
+                file_path=self.source_data["file_path"],
+                medpc_name_to_dict_name=medpc_name_to_dict_name,
+                dict_name_to_type=dict_name_to_type,
+                session_conditions=self.source_data["session_conditions"],
+                start_variable=self.source_data["start_variable"],
+            )
+        else:
+            session_dict = self.source_data["session_dict"]
 
         # Add behavior data to nwbfile
         behavior_module = nwb_helpers.get_module(

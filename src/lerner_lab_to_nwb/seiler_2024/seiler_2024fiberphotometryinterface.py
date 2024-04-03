@@ -49,14 +49,13 @@ class Seiler2024FiberPhotometryInterface(BaseDataInterface):
             tdt_photometry = read_block(str(folder_path))
 
         # Commanded Voltages
-        aligned_commanded_timestamps = self.source_data["aligned_commanded_timestamps"]
         multi_commanded_voltage = MultiCommandedVoltage()
         dms_commanded_signal_series = multi_commanded_voltage.create_commanded_voltage_series(
             name="dms_commanded_signal",
             data=H5DataIO(tdt_photometry.streams["Fi1d"].data[0, :], compression=True),
             frequency=211.0,
             power=1.0,
-            timestamps=H5DataIO(aligned_commanded_timestamps, compression=True),
+            rate=tdt_photometry.streams["Fi1d"].fs,
             unit="volts",
         )
         dms_commanded_reference_series = multi_commanded_voltage.create_commanded_voltage_series(
@@ -64,7 +63,7 @@ class Seiler2024FiberPhotometryInterface(BaseDataInterface):
             data=H5DataIO(tdt_photometry.streams["Fi1d"].data[1, :], compression=True),
             frequency=330.0,
             power=1.0,
-            timestamps=dms_commanded_signal_series.timestamps,
+            rate=tdt_photometry.streams["Fi1d"].fs,
             unit="volts",
         )
         dls_commanded_signal_series = multi_commanded_voltage.create_commanded_voltage_series(
@@ -72,7 +71,7 @@ class Seiler2024FiberPhotometryInterface(BaseDataInterface):
             data=H5DataIO(tdt_photometry.streams["Fi1d"].data[3, :], compression=True),
             frequency=450.0,
             power=1.0,
-            timestamps=dms_commanded_signal_series.timestamps,
+            rate=tdt_photometry.streams["Fi1d"].fs,
             unit="volts",
         )
         dls_commanded_reference_series = multi_commanded_voltage.create_commanded_voltage_series(
@@ -80,7 +79,7 @@ class Seiler2024FiberPhotometryInterface(BaseDataInterface):
             data=H5DataIO(tdt_photometry.streams["Fi1d"].data[2, :], compression=True),
             frequency=270.0,
             power=1.0,
-            timestamps=dms_commanded_signal_series.timestamps,
+            rate=tdt_photometry.streams["Fi1d"].fs,
             unit="volts",
         )
 
@@ -171,7 +170,6 @@ class Seiler2024FiberPhotometryInterface(BaseDataInterface):
         )
 
         # Fiber Photometry Response Series
-        aligned_response_timestamps = self.source_data["aligned_response_timestamps"]
         dms_signal_series = FiberPhotometryResponseSeries(
             name="dms_signal",
             description="The fluorescence from the blue light excitation (465nm) corresponding to the calcium signal in the DMS.",
@@ -181,7 +179,7 @@ class Seiler2024FiberPhotometryInterface(BaseDataInterface):
             excitation_sources=dms_excitation_ref,
             photodetectors=photodetector_ref,
             fluorophores=dms_fluorophore_ref,
-            timestamps=H5DataIO(aligned_response_timestamps, compression=True),
+            rate=tdt_photometry.streams["Dv1A"].fs,
         )
         dms_reference_series = FiberPhotometryResponseSeries(
             name="dms_reference",
@@ -192,7 +190,7 @@ class Seiler2024FiberPhotometryInterface(BaseDataInterface):
             excitation_sources=dms_excitation_ref,
             photodetectors=photodetector_ref,
             fluorophores=dms_fluorophore_ref,
-            timestamps=dms_signal_series.timestamps,
+            rate=tdt_photometry.streams["Dv2A"].fs,
         )
         dls_signal_series = FiberPhotometryResponseSeries(
             name="dls_signal",
@@ -203,7 +201,7 @@ class Seiler2024FiberPhotometryInterface(BaseDataInterface):
             excitation_sources=dls_excitation_ref,
             photodetectors=photodetector_ref,
             fluorophores=dls_fluorophore_ref,
-            timestamps=dms_signal_series.timestamps,
+            rate=tdt_photometry.streams["Dv3B"].fs,
         )
         dls_reference_series = FiberPhotometryResponseSeries(
             name="dls_reference",
@@ -214,21 +212,8 @@ class Seiler2024FiberPhotometryInterface(BaseDataInterface):
             excitation_sources=dls_excitation_ref,
             photodetectors=photodetector_ref,
             fluorophores=dls_fluorophore_ref,
-            timestamps=dms_signal_series.timestamps,
+            rate=tdt_photometry.streams["Dv4B"].fs,
         )
-
-        # Add the data to the NWBFile
-        # ophys_module = nwb_helpers.get_module(
-        #     nwbfile=nwbfile,
-        #     name="ophys",
-        #     description="Fiber photometry data from DMS and DLS.",
-        # )
-        # ophys_module.add(multi_commanded_voltage)
-        # ophys_module.add(dms_signal_series)
-        # ophys_module.add(dms_reference_series)
-        # ophys_module.add(dls_signal_series)
-        # ophys_module.add(dls_reference_series)
-        # TODO: Acquisition or Ophys?
         nwbfile.add_acquisition(multi_commanded_voltage)
         nwbfile.add_acquisition(dms_signal_series)
         nwbfile.add_acquisition(dms_reference_series)
