@@ -77,8 +77,16 @@ class Seiler2024BehaviorInterface(BaseDataInterface):
             "FOOD_FR1 TTL Right": "FR1",
             "FOOD_FR1 TTL Left": "FR1",
             "FOOD_FR1 HT TTL (Both)": "FR1",
-            "FOOD_FR1 Habit Training TTL": "FR1",  # TODO: Get mpc file for this msn
+            "FOOD_FR1 Habit Training TTL": "FR1",
             "20sOmissions_TTL": "OmissionProbe",
+            "20sOmissions": "OmissionProbe",
+            "RR5_Left_CVC": "?",
+            "RR20Right": "RR20",
+            "FOOD_FR1 Habit Training TTL": "FR1",
+            "FOOD_Magazine Training 1 hr": "MagazineTraining",
+            "Probe Test Habit Training TTL": "OmissionProbe",
+            "RI 30 RIGHT_STIM": "RI30",
+            "RI 60 RIGHT STIM": "RI60",
         }
         session_dict = read_medpc_file(
             file_path=self.source_data["file_path"],

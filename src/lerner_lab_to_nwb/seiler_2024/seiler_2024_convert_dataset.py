@@ -31,103 +31,115 @@ def dataset_to_nwb(
     behavior_path = data_dir_path / f"{experiment_type} Experiments" / "Behavior"
     photometry_path = data_dir_path / f"{experiment_type} Experiments" / "Photometry"
     raw_file_to_info = get_raw_info(behavior_path)
+    msns_to_skip = {
+        "RR10_Right_AHJS",
+        "Magazine Training 1 hr",
+        "RI_60_Left_Probability_AH_050619",
+        "RI_60_Right_Probability_AH_050619",
+        "RR20_Right_AHJS",
+        "RR20_Left",
+        "Extinction - 1 HR",
+        "RR10_Left_AHJS",
+        "Probe Test Habit Training CC",
+        "FOOD_FR1 Hapit Training TTL",
+    }
 
     # Iterate through file system to get necessary information for converting each session
     session_to_nwb_args_per_session: list[dict] = []  # Each dict contains the args for session_to_nwb for a session
     nwbfile_paths = set()  # Each path is the path to the nwb file created for a session
 
-    # Iterate through all photometry files
-    for experimental_group, long_name in experimental_group_to_long_name.items():
-        experimental_group_path = photometry_path / long_name
-        experimental_subgroups = [subgroup for subgroup in experimental_group_path.iterdir() if subgroup.is_dir()]
-        for experimental_subgroup in experimental_subgroups:  # Early or Late but with typos ex. 'late' vs 'Late'
-            fiber_photometry_folder_paths = []
-            for fiber_photometry_folder_path in experimental_subgroup.iterdir():
-                if fiber_photometry_folder_path.name.startswith("Photo"):
-                    fiber_photometry_folder_paths.append(fiber_photometry_folder_path)
-                elif fiber_photometry_folder_path.is_dir():
-                    for fiber_photometry_folder_path_sub in fiber_photometry_folder_path.iterdir():
-                        if fiber_photometry_folder_path_sub.name.startswith("Photo"):
-                            fiber_photometry_folder_paths.append(fiber_photometry_folder_path_sub)
-            for fiber_photometry_folder_path in fiber_photometry_folder_paths:
-                photometry_subject_id = (
-                    fiber_photometry_folder_path.name.split("-")[0].split("Photo_")[1].replace("_", ".")
-                )
-                photometry_start_date = fiber_photometry_folder_path.name.split("-")[1]
-                photometry_start_date = datetime.strptime(photometry_start_date, "%y%m%d").strftime("%m/%d/%y")
+    # # Iterate through all photometry files
+    # for experimental_group, long_name in experimental_group_to_long_name.items():
+    #     experimental_group_path = photometry_path / long_name
+    #     experimental_subgroups = [subgroup for subgroup in experimental_group_path.iterdir() if subgroup.is_dir()]
+    #     for experimental_subgroup in experimental_subgroups:  # Early or Late but with typos ex. 'late' vs 'Late'
+    #         fiber_photometry_folder_paths = []
+    #         for fiber_photometry_folder_path in experimental_subgroup.iterdir():
+    #             if fiber_photometry_folder_path.name.startswith("Photo"):
+    #                 fiber_photometry_folder_paths.append(fiber_photometry_folder_path)
+    #             elif fiber_photometry_folder_path.is_dir():
+    #                 for fiber_photometry_folder_path_sub in fiber_photometry_folder_path.iterdir():
+    #                     if fiber_photometry_folder_path_sub.name.startswith("Photo"):
+    #                         fiber_photometry_folder_paths.append(fiber_photometry_folder_path_sub)
+    #         for fiber_photometry_folder_path in fiber_photometry_folder_paths:
+    #             photometry_subject_id = (
+    #                 fiber_photometry_folder_path.name.split("-")[0].split("Photo_")[1].replace("_", ".")
+    #             )
+    #             photometry_start_date = fiber_photometry_folder_path.name.split("-")[1]
+    #             photometry_start_date = datetime.strptime(photometry_start_date, "%y%m%d").strftime("%m/%d/%y")
 
-                subject_dir = behavior_path / experimental_group / photometry_subject_id
-                header_variables = get_header_variables(
-                    subject_dir, photometry_subject_id, raw_file_to_info, start_variable
-                )
-                start_dates, start_times, msns, file_paths, subjects, box_numbers = header_variables
-                (
-                    matching_start_dates,
-                    matching_start_times,
-                    matching_msns,
-                    matching_file_paths,
-                    matching_subjects,
-                    matching_box_numbers,
-                ) = ([], [], [], [], [], [])
-                for start_date, start_time, msn, file, subject, box_number in zip(
-                    start_dates, start_times, msns, file_paths, subjects, box_numbers
-                ):
-                    if start_date == photometry_start_date:
-                        matching_start_dates.append(start_date)
-                        matching_start_times.append(start_time)
-                        matching_msns.append(msn)
-                        matching_file_paths.append(file)
-                        matching_subjects.append(subject)
-                        matching_box_numbers.append(box_number)
-                if (
-                    (photometry_subject_id == "88.239" and photometry_start_date == "02/19/19")
-                    or (photometry_subject_id == "271.396" and photometry_start_date == "07/07/20")
-                    or (photometry_subject_id == "332.393" and photometry_start_date == "07/28/20")
-                    or (photometry_subject_id == "334.394" and photometry_start_date == "07/21/20")
-                    or (photometry_subject_id == "140.306" and photometry_start_date == "08/09/19")
-                    or (photometry_subject_id == "139.298" and photometry_start_date == "09/12/19")
-                ):  # TODO: Ask Lerner Lab about these sessions
-                    continue
-                assert (
-                    len(matching_start_dates) == 1
-                ), f"Expected 1 matching session for {experimental_group}/{photometry_subject_id} on {photometry_start_date}, but found {len(matching_start_dates)}"
-                start_date, start_time, msn, file, subject, box_number = (
-                    matching_start_dates[0],
-                    matching_start_times[0],
-                    matching_msns[0],
-                    matching_file_paths[0],
-                    matching_subjects[0],
-                    matching_box_numbers[0],
-                )
-                session_conditions = {
-                    "Start Date": start_date,
-                    "Start Time": start_time,
-                }
-                if subject is not None:
-                    session_conditions["Subject"] = subject
-                if box_number is not None:
-                    session_conditions["Box"] = box_number
-                start_datetime = datetime.strptime(f"{start_date} {start_time}", "%m/%d/%y %H:%M:%S")
-                session_to_nwb_args = dict(
-                    data_dir_path=data_dir_path,
-                    output_dir_path=output_dir_path,
-                    behavior_file_path=file,
-                    fiber_photometry_folder_path=fiber_photometry_folder_path,
-                    subject_id=photometry_subject_id,
-                    session_conditions=session_conditions,
-                    start_variable=start_variable,
-                    start_datetime=start_datetime,
-                    experiment_type=experiment_type,
-                    experimental_group=experimental_group,
-                    stub_test=stub_test,
-                    verbose=verbose,
-                )
-                session_to_nwb_args_per_session.append(session_to_nwb_args)
-                nwbfile_path = (
-                    output_dir_path
-                    / f"{experiment_type}_{experimental_group}_{photometry_subject_id}_{start_datetime.isoformat()}.nwb"
-                )
-                nwbfile_paths.add(nwbfile_path)
+    #             subject_dir = behavior_path / experimental_group / photometry_subject_id
+    #             header_variables = get_header_variables(
+    #                 subject_dir, photometry_subject_id, raw_file_to_info, start_variable
+    #             )
+    #             start_dates, start_times, msns, file_paths, subjects, box_numbers = header_variables
+    #             (
+    #                 matching_start_dates,
+    #                 matching_start_times,
+    #                 matching_msns,
+    #                 matching_file_paths,
+    #                 matching_subjects,
+    #                 matching_box_numbers,
+    #             ) = ([], [], [], [], [], [])
+    #             for start_date, start_time, msn, file, subject, box_number in zip(
+    #                 start_dates, start_times, msns, file_paths, subjects, box_numbers
+    #             ):
+    #                 if start_date == photometry_start_date:
+    #                     matching_start_dates.append(start_date)
+    #                     matching_start_times.append(start_time)
+    #                     matching_msns.append(msn)
+    #                     matching_file_paths.append(file)
+    #                     matching_subjects.append(subject)
+    #                     matching_box_numbers.append(box_number)
+    #             if (
+    #                 (photometry_subject_id == "88.239" and photometry_start_date == "02/19/19")
+    #                 or (photometry_subject_id == "271.396" and photometry_start_date == "07/07/20")
+    #                 or (photometry_subject_id == "332.393" and photometry_start_date == "07/28/20")
+    #                 or (photometry_subject_id == "334.394" and photometry_start_date == "07/21/20")
+    #                 or (photometry_subject_id == "140.306" and photometry_start_date == "08/09/19")
+    #                 or (photometry_subject_id == "139.298" and photometry_start_date == "09/12/19")
+    #             ):  # TODO: Ask Lerner Lab about these sessions
+    #                 continue
+    #             assert (
+    #                 len(matching_start_dates) == 1
+    #             ), f"Expected 1 matching session for {experimental_group}/{photometry_subject_id} on {photometry_start_date}, but found {len(matching_start_dates)}"
+    #             start_date, start_time, msn, file, subject, box_number = (
+    #                 matching_start_dates[0],
+    #                 matching_start_times[0],
+    #                 matching_msns[0],
+    #                 matching_file_paths[0],
+    #                 matching_subjects[0],
+    #                 matching_box_numbers[0],
+    #             )
+    #             session_conditions = {
+    #                 "Start Date": start_date,
+    #                 "Start Time": start_time,
+    #             }
+    #             if subject is not None:
+    #                 session_conditions["Subject"] = subject
+    #             if box_number is not None:
+    #                 session_conditions["Box"] = box_number
+    #             start_datetime = datetime.strptime(f"{start_date} {start_time}", "%m/%d/%y %H:%M:%S")
+    #             session_to_nwb_args = dict(
+    #                 data_dir_path=data_dir_path,
+    #                 output_dir_path=output_dir_path,
+    #                 behavior_file_path=file,
+    #                 fiber_photometry_folder_path=fiber_photometry_folder_path,
+    #                 subject_id=photometry_subject_id,
+    #                 session_conditions=session_conditions,
+    #                 start_variable=start_variable,
+    #                 start_datetime=start_datetime,
+    #                 experiment_type=experiment_type,
+    #                 experimental_group=experimental_group,
+    #                 stub_test=stub_test,
+    #                 verbose=verbose,
+    #             )
+    #             session_to_nwb_args_per_session.append(session_to_nwb_args)
+    #             nwbfile_path = (
+    #                 output_dir_path
+    #                 / f"{experiment_type}_{experimental_group}_{photometry_subject_id}_{start_datetime.isoformat()}.nwb"
+    #             )
+    #             nwbfile_paths.add(nwbfile_path)
 
     # Iterate through all behavior files
     for experimental_group in experimental_groups:
@@ -140,6 +152,8 @@ def dataset_to_nwb(
             for start_date, start_time, msn, file, subject, box_number in zip(
                 start_dates, start_times, msns, file_paths, subjects, box_numbers
             ):
+                if msn in msns_to_skip:
+                    continue
                 if (
                     (
                         start_date == "09/20/19"
