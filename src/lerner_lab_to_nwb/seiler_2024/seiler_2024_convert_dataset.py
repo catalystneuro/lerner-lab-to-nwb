@@ -34,6 +34,7 @@ def dataset_to_nwb(
     msns_to_skip = {
         "RR10_Right_AHJS",
         "Magazine Training 1 hr",
+        "FOOD_Magazine Training 1 hr",
         "RI_60_Left_Probability_AH_050619",
         "RI_60_Right_Probability_AH_050619",
         "RR20_Right_AHJS",
