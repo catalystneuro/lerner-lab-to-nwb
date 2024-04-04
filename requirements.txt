@@ -6,6 +6,6 @@ dandi
 pre-commit
 pytest
 ndx-events
-ndx-photometry
+ndx-photometry @ git+https://github.com/catalystneuro/ndx-photometry.git@main
 ipykernel
 tdt

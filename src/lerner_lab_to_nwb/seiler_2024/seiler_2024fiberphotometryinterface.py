@@ -125,18 +125,28 @@ class Seiler2024FiberPhotometryInterface(BaseDataInterface):
             label="GCaMP7b",
             location="medial SNc",
             coordinates=(3.1, 0.8, 4.7),  # (AP, ML, DV)
+            excitation_peak_wavelength=465.0,
+            emission_peak_wavelength=525.0,
         )
         fluorophores_table.add_row(
             label="GCaMP7b",
             location="lateral SNc",
             coordinates=(3.1, 1.3, 4.2),  # (AP, ML, DV)
+            excitation_peak_wavelength=465.0,
+            emission_peak_wavelength=525.0,
         )
 
         fibers_table = FibersTable(
             description="Fiber optic implants (Doric Lenses; 400 mm, 0.48 NA) were placed above DMS (AP 0.8, ML 1.5, DV 2.8) and DLS (AP 0.1, ML 2.8, DV 3.5). The DMS implant was placed in the hemisphere receiving a medial SNc viral injection, while the DLS implant was placed in the hemisphere receiving a lateral SNc viral injection. Calcium signals from dopamine terminals in DMS and DLS were recorded during RI30, on the first and last days of RI60/RR20 training as well as on both footshock probes for each mouse. All recordings were done using a fiber photometry rig with optical components from Doric lenses controlled by a real-time processor from Tucker Davis Technologies (TDT; RZ5P). TDT Synapse software was used for data acquisition.",
         )
-        fibers_table.add_row(location="DMS")
-        fibers_table.add_row(location="DLS")
+        fibers_table.add_row(
+            location="DMS",
+            coordinates=(0.8, 1.5, 2.8),  # (AP, ML, DV)
+        )
+        fibers_table.add_row(
+            location="DLS",
+            coordinates=(0.1, 2.8, 3.5),  # (AP, ML, DV)
+        )
 
         nwbfile.add_lab_meta_data(
             FiberPhotometry(
