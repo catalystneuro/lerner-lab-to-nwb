@@ -47,13 +47,86 @@ In FP Experiments/Behavior/MEDPCRawFilesbyDate/2018-11-09,
 - All the sessions have the same start_date and start_time and no subject info --> need to make medpc reader support
 more generic filter conditions (ex. box number)
 
+In FP Experiments/Behavior/MEDPCRawFilesbyDate/2019-02-19,
+- One of the animals (88.239) has 2 sessions in the same day, with one only 9mins long -- mistaken session?
+
 ### Opto Behavior
 - Opto Behavior files are disorganized esp. DLS Excitatory with a mix of folders, medpc files, and csv files
 - File structure also contains important metadata for optogenetic interface ex. ChR2 vs EYFP
 - Plan: Swing back around to opto behavior when constructing optogenetic interface
 
 ## Fiber Photometry
-TODO
+- 6 data streams:
+    - Dv1A = array of photometry response dms 465nm
+    - Dv2A = array of photometry response dms 405nm
+    - Dv3B = array of photometry response dls 465nm
+    - Dv4B = array of photometry response dls 405nm
+    - Fi1d = 4xN array of demodulated commanded voltages: dms 465nm, dms 405nm, dls 465nm, dls 405nm
+    - Fi1r = 2xN array of modulated commanded voltages: dms and dls
+- Folders are named 'Photo_<subject_id>-YYMMDD-HHMMSS' --> match with same day behavior session
+- some folders have subject_id with multiple session folders for each subject
+- For DPR/334.394/07/02/20, no right nosepokes were made --> photometry object doesn't have a RNPS object
+- Questions for Lerner Lab:
+    - The TTL for 'unrewarded right nose pokes' (RNnR), corresponds to the nose pokes variable in medpc, which supposedly
+    records *all* nosepokes. Which is correct?
+    - Mistaken session 88.239?
+    - PS/271.396_07/07/20 has two behavioral sessions but only 1 fp session folder
+    - PS/332.393_07/28/20 has 2 fp sessions but no matching behavior session
+    - The RR20 folder only has .mat files rather than tdt synapse output folders -- pls provide?
+    - Several sessions don't have fi1d -- see printout
+    - Delayed Punishment Resistant/Late/Photo_334_394-200721-131257 throws an error from tdt.read_block, but loads fine if t2 <= 824
+    - Punishment Sensitive/Late RI60/Photo_139_298-190912-095034 throws an error from tdt.read_block, but loads fine if t2 <= 2267
+    - Punishment Sensitive/Early RI60/Photo_140_306-190809-121107 has msn FOOD_RI 60 LEFT TTL, but epocs
+    PrtN, RNnR, PrtR, LNPS, RNRW -- why is this mismatched with the expected epocs?
+    - Some of the animals/days have 2 photometry sessions but only 1 behavior session
+    (ex. Punishment Sensitive/Late RI60/Photo_139_298-190912-095034 and Photo_139_298-190912-103544) is the photometry
+    for that 1 session split across the two folders?
+    - List of missing Fi1d sessions:
+    Delayed Punishment Resistant/Early/Photo_333_393-200713-121027
+    Delayed Punishment Resistant/Early/Photo_346_394-200707-141513
+    Delayed Punishment Resistant/Early/Photo_64_205-181017-094913
+    Delayed Punishment Resistant/Early/Photo_81_236-190117-102128
+    Delayed Punishment Resistant/Early/Photo_87_239-190228-111317
+    Delayed Punishment Resistant/Late/64.205/Photo_64_205-181017-094913
+    Delayed Punishment Resistant/Late/81.236/Photo_81_236-190117-102128
+    Delayed Punishment Resistant/Late/81.236/Photo_81_236-190207-101451
+    Delayed Punishment Resistant/Late/87.239/Photo_87_239-190228-111317
+    Delayed Punishment Resistant/Late/87.239/Photo_87_239-190321-110120
+    Delayed Punishment Resistant/Late/88.239/Photo_88_239-190311-112034
+    Delayed Punishment Resistant/Late/Photo_333_393-200729-115506
+    Delayed Punishment Resistant/Late/Photo_346_394-200722-132345
+    Delayed Punishment Resistant/Late/Photo_349_393-200717-123319
+    Punishment Resistant/Early RI60/Photo_111_285-190605-142759
+    Punishment Resistant/Early RI60/Photo_141_308-190809-143410
+    Punishment Resistant/Early RI60/Photo_80_236-190121-093425
+    Punishment Resistant/Late RI60/61.207/Photo_61_207-181017-105639
+    Punishment Resistant/Late RI60/63.207/Photo_63_207-181015-093910
+    Punishment Resistant/Late RI60/63.207/Photo_63_207-181030-103332
+    Punishment Resistant/Late RI60/80.236/Photo_80_236-190121-093425
+    Punishment Resistant/Late RI60/89.247/Photo_89_247-190328-125515
+    Punishment Resistant/Late RI60/Photo_028_392-200724-130323
+    Punishment Resistant/Late RI60/Photo_048_392-200728-121222
+    Punishment Sensitive/Early RI60/Photo_112_283-190620-093542
+    Punishment Sensitive/Early RI60/Photo_113_283-190605-115438
+    Punishment Sensitive/Early RI60/Photo_114_273-190607-140822
+    Punishment Sensitive/Early RI60/Photo_115_273-190611-115654
+    Punishment Sensitive/Early RI60/Photo_139_298-190809-132427
+    Punishment Sensitive/Early RI60/Photo_75_214-181029-124815
+    Punishment Sensitive/Early RI60/Photo_92_246-190227-143210
+    Punishment Sensitive/Early RI60/Photo_78_214-181031-131820
+    Punishment Sensitive/Early RI60/Photo_92_246-190227-150307
+    Punishment Sensitive/Early RI60/Photo_93_246-190222-130128
+    Punishment Sensitive/Late RI60/75.214/Photo_75_214-181029-124815
+    Punishment Sensitive/Late RI60/78.214/Photo_78_214-181031-131820
+    Punishment Sensitive/Late RI60/90.247/Photo_90_247-190328-103249
+    Punishment Sensitive/Late RI60/92.246/Photo_92_246-190228-132737
+    Punishment Sensitive/Late RI60/92.246/Photo_92_246-190319-114357
+    Punishment Sensitive/Late RI60/93.246/Photo_93_246-190222-130128
+    Punishment Sensitive/Late RI60/94.246/Photo_94_246-190328-113641
+    Punishment Sensitive/Late RI60/Photo_140_306-190903-102551
+    Punishment Sensitive/Late RI60/Photo_271_396-200722-121638
+    Punishment Sensitive/Late RI60/Photo_347_393-200723-113530
+    Punishment Sensitive/Late RI60/Photo_348_393-200730-113125
 
 ## Optogenetics
 TODO

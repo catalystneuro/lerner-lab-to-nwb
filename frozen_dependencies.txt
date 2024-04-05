@@ -22,7 +22,7 @@ click-didyoumean==0.3.0
 comm==0.2.1
 contourpy==1.2.0
 cycler==0.12.1
-dandi==0.58.0
+dandi==0.59.1
 dandischema==0.8.4
 debugpy==1.8.1
 decorator==5.1.1
@@ -42,7 +42,7 @@ fscacher==0.4.0
 fsspec==2023.12.2
 gast==0.4.0
 h5py==3.10.0
-hdmf==3.6.1
+hdmf==3.12.2
 hdmf_zarr==0.5.0
 humanize==4.9.0
 identify==2.5.33
@@ -87,15 +87,15 @@ natsort==8.4.0
 ndx-events==0.2.0
 ndx-grayscalevolume==0.0.2
 ndx-icephys-meta==0.1.0
-ndx-photometry @ git+https://github.com/catalystneuro/ndx-photometry.git@7ea9d755ceac9524125f50ab528b403b135c4530
+ndx-photometry @ git+https://github.com/catalystneuro/ndx-photometry.git@c1284c91a7e0a5dfd19f84bbf683e17fa607d4ec
 ndx-spectrum==0.2.2
 nest-asyncio==1.6.0
 networkx==3.2.1
-neuroconv==0.4.4
+neuroconv==0.4.7
 nodeenv==1.8.0
 numcodecs==0.11.0
 numpy==1.26.3
-nwbinspector==0.4.31
+nwbinspector==0.4.33
 nwbwidgets==0.11.3
 packaging==23.2
 pandas==2.2.0
@@ -106,7 +106,7 @@ pillow==10.2.0
 platformdirs==4.1.0
 plotly==5.13.1
 pluggy==1.4.0
-pre-commit==3.6.0
+pre-commit==3.6.2
 prompt-toolkit==3.0.43
 psutil==5.9.8
 ptyprocess==0.7.0
@@ -115,10 +115,10 @@ py2vega==0.6.1
 pycryptodomex==3.20.0
 pydantic==1.10.14
 Pygments==2.17.2
-pynwb==2.3.3
+pynwb==2.6.0
 pyout==0.7.3
 pyparsing==3.1.1
-pytest==8.0.0
+pytest==8.1.1
 python-dateutil==2.8.2
 pythreejs==2.4.2
 pytz==2023.4
@@ -134,6 +134,7 @@ ruamel.yaml.clib==0.2.8
 s3fs==2023.12.2
 s3transfer==0.10.0
 scikit-image==0.22.0
+scikit-learn==1.4.1.post1
 scipy==1.12.0
 semantic-version==2.10.0
 setuptools==69.0.3
@@ -161,5 +162,5 @@ widgetsnbextension==4.0.9
 wrapt==1.16.0
 yarl==1.9.4
 zarr==2.16.1
-zarr-checksum==0.2.12
+zarr-checksum==0.4.0
 zipp==3.17.0
