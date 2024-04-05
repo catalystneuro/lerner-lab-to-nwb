@@ -284,8 +284,7 @@ def get_header_variables(subject_dir, subject_id, raw_file_to_info, start_variab
             start_variable=start_variable,
         )
         if start_date is None:
-            continue
-            # raise ValueError(f"Could not find a match for {subject_id} on {csv_date}")
+            raise ValueError(f"Could not find a match for {subject_id} on {csv_date}")
         else:
             start_dates.append(start_date)
             start_times.append(start_time)
