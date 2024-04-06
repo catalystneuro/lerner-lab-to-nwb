@@ -6,6 +6,7 @@ from neuroconv.basedatainterface import BaseDataInterface
 from neuroconv.utils import DeepDict
 from neuroconv.tools import nwb_helpers
 import numpy as np
+import pandas as pd
 from ndx_events import Events
 from pynwb.behavior import BehavioralEpochs, IntervalSeries
 from hdmf.backends.hdf5.h5_utils import H5DataIO
@@ -154,7 +155,18 @@ class Seiler2024BehaviorInterface(BaseDataInterface):
                 start_variable=self.source_data["start_variable"],
             )
         elif self.source_data["session_dict"] is None and from_csv:
-            raise NotImplementedError("Reading from CSV not yet implemented in add_to_nwbfile.")
+            csv_name_to_dict_name = {
+                "portEntryTs": "port_entry_times",
+                "DurationOfPE": "duration_of_port_entry",
+                "LeftNoseTs": "left_nose_poke_times",
+                "RightNoseTs": "right_nose_poke_times",
+                "RightRewardTs": "right_reward_times",
+                "LeftRewardTs": "left_reward_times",
+            }
+            session_df = pd.read_csv(self.source_data["file_path"])
+            session_dict = {}
+            for csv_name, dict_name in csv_name_to_dict_name.items():
+                session_dict[dict_name] = np.trim_zeros(session_df[csv_name].dropna().values, trim="b")
         else:
             session_dict = self.source_data["session_dict"]
 
