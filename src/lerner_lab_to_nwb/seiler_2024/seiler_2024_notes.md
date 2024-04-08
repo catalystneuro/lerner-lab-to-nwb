@@ -50,6 +50,10 @@ more generic filter conditions (ex. box number)
 In FP Experiments/Behavior/MEDPCRawFilesbyDate/2019-02-19,
 - One of the animals (88.239) has 2 sessions in the same day, with one only 9mins long -- mistaken session?
 
+What experimental stage (FR1, footshock probe, omission probe, etc.) does "Probe Test Habit Training TTL" correspond to?
+
+Many MSNs (ex. 'FOOD_FR1 TTL Left', 'FOOD_FR1 TTL Right', and 'FOOD_RI 30 LEFT') list both E and U as corresponding to duration of port entry.
+
 ### Opto Behavior
 - Opto Behavior files are disorganized esp. DLS Excitatory with a mix of folders, medpc files, and csv files
 - File structure also contains important metadata for optogenetic interface ex. ChR2 vs EYFP

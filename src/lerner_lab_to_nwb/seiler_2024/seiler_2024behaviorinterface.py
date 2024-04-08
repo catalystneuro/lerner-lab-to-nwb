@@ -77,8 +77,15 @@ class Seiler2024BehaviorInterface(BaseDataInterface):
             "FOOD_FR1 TTL Right": "FR1",
             "FOOD_FR1 TTL Left": "FR1",
             "FOOD_FR1 HT TTL (Both)": "FR1",
-            "FOOD_FR1 Habit Training TTL": "FR1",  # TODO: Get mpc file for this msn
+            "FOOD_FR1 Habit Training TTL": "FR1",
             "20sOmissions_TTL": "OmissionProbe",
+            "20sOmissions": "OmissionProbe",
+            "RR5_Left_CVC": "RR5",
+            "RR20Right": "RR20",
+            "FOOD_FR1 Habit Training TTL": "FR1",
+            "Probe Test Habit Training TTL": "OmissionProbe",  # TODO: Confirm with Lerner Lab
+            "RI 30 RIGHT_STIM": "RI30",
+            "RI 60 RIGHT STIM": "RI60",
         }
         session_dict = read_medpc_file(
             file_path=self.source_data["file_path"],
@@ -93,7 +100,6 @@ class Seiler2024BehaviorInterface(BaseDataInterface):
         training_stage = msn_to_training_stage[session_dict["MSN"]]
         session_id = session_start_time.isoformat() + "-" + training_stage
 
-        metadata["NWBFile"]["session_description"] = session_dict["MSN"]
         metadata["NWBFile"]["session_start_time"] = session_start_time
         metadata["NWBFile"]["identifier"] = session_dict["subject"] + "-" + session_id
         metadata["NWBFile"]["session_id"] = session_id
@@ -104,6 +110,7 @@ class Seiler2024BehaviorInterface(BaseDataInterface):
 
         metadata["Behavior"] = {}
         metadata["Behavior"]["box"] = session_dict["box"]
+        metadata["Behavior"]["msn"] = session_dict["MSN"]
 
         return metadata
 
@@ -113,31 +120,16 @@ class Seiler2024BehaviorInterface(BaseDataInterface):
             "type": "object",
             "properties": {
                 "box": {"type": "string"},
+                "msn": {"type": "string"},
             },
         }
         return metadata_schema
 
     def add_to_nwbfile(self, nwbfile: NWBFile, metadata: dict):
         if self.source_data["session_dict"] is None:
-            medpc_name_to_dict_name = {
-                "G": "port_entry_times",
-                "E": "duration_of_port_entry",
-                "A": "left_nose_poke_times",
-                "C": "right_nose_poke_times",
-                "D": "right_reward_times",
-                "B": "left_reward_times",
-            }
-            dict_name_to_type = {
-                "port_entry_times": np.ndarray,
-                "duration_of_port_entry": np.ndarray,
-                "left_nose_poke_times": np.ndarray,
-                "right_nose_poke_times": np.ndarray,
-                "right_reward_times": np.ndarray,
-                "left_reward_times": np.ndarray,
-            }
-            if "ShockProbe" in metadata["NWBFile"]["session_id"]:
-                medpc_name_to_dict_name["H"] = "footshock_times"
-                dict_name_to_type["footshock_times"] = np.ndarray
+            msn = metadata["Behavior"]["msn"]
+            medpc_name_to_dict_name = metadata["Behavior"]["msn_to_medpc_name_to_dict_name"][msn]
+            dict_name_to_type = {dict_name: np.ndarray for dict_name in medpc_name_to_dict_name.values()}
             session_dict = read_medpc_file(
                 file_path=self.source_data["file_path"],
                 medpc_name_to_dict_name=medpc_name_to_dict_name,
@@ -217,7 +209,7 @@ class Seiler2024BehaviorInterface(BaseDataInterface):
             behavior_module.add(right_reward_times)
 
         # Footshock
-        if "ShockProbe" in metadata["NWBFile"]["session_id"]:
+        if "footshock_times" in session_dict:
             footshock_times = Events(
                 name="footshock_times",
                 description="Footshock times",

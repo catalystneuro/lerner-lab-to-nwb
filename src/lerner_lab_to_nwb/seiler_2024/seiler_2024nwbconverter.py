@@ -1,5 +1,8 @@
 """Primary NWBConverter class for this dataset."""
 from neuroconv import NWBConverter
+from typing import Optional
+from pynwb import NWBFile
+from neuroconv.tools.nwb_helpers import make_or_load_nwbfile
 
 from lerner_lab_to_nwb.seiler_2024 import Seiler2024BehaviorInterface
 from lerner_lab_to_nwb.seiler_2024 import Seiler2024FiberPhotometryInterface
@@ -18,37 +21,25 @@ class Seiler2024NWBConverter(NWBConverter):
         FiberPhotometry=Seiler2024FiberPhotometryInterface,
     )
 
-    def temporally_align_data_interfaces(self):
+    def temporally_align_data_interfaces(self, metadata: dict):
         """Align the FiberPhotometry and Behavior data interfaces in time.
 
         This method uses TTLs from the FiberPhotometry data that correspond to behavior events to generate aligned
         timestamps for the behavior data in the fiber photometry time basis.
+
+        Parameters
+        ----------
+        metadata : dict
+            The metadata for the session.
         """
         if not "FiberPhotometry" in self.data_interface_objects.keys():
             self.data_interface_objects["Behavior"].source_data["session_dict"] = None
             return  # No need to align if there is no fiber photometry data
 
         # Read Behavior Data
-        medpc_name_to_dict_name = {
-            "G": "port_entry_times",
-            "E": "duration_of_port_entry",
-            "A": "left_nose_poke_times",
-            "C": "right_nose_poke_times",
-            "D": "right_reward_times",
-            "B": "left_reward_times",
-        }
-        dict_name_to_type = {
-            "port_entry_times": np.ndarray,
-            "duration_of_port_entry": np.ndarray,
-            "left_nose_poke_times": np.ndarray,
-            "right_nose_poke_times": np.ndarray,
-            "right_reward_times": np.ndarray,
-            "left_reward_times": np.ndarray,
-        }
-        metadata = self.data_interface_objects["Behavior"].get_metadata()
-        if "ShockProbe" in metadata["NWBFile"]["session_id"]:
-            medpc_name_to_dict_name["H"] = "footshock_times"
-            dict_name_to_type["footshock_times"] = np.ndarray
+        msn = metadata["Behavior"]["msn"]
+        medpc_name_to_dict_name = metadata["Behavior"]["msn_to_medpc_name_to_dict_name"][msn]
+        dict_name_to_type = {dict_name: np.ndarray for dict_name in medpc_name_to_dict_name.values()}
         session_dict = read_medpc_file(
             file_path=self.data_interface_objects["Behavior"].source_data["file_path"],
             medpc_name_to_dict_name=medpc_name_to_dict_name,
@@ -62,7 +53,6 @@ class Seiler2024NWBConverter(NWBConverter):
             tdt_photometry = read_block(self.data_interface_objects["FiberPhotometry"].source_data["folder_path"])
 
         # Aggregate TTLs and Behavior Timestamps
-        msn = metadata["NWBFile"]["session_description"]
         if "RIGHT" in msn or "Right" in msn or "right" in msn:
             ttl_names_to_behavior_names = {
                 "LNPS": "left_nose_poke_times",
@@ -99,3 +89,29 @@ class Seiler2024NWBConverter(NWBConverter):
                 ttl_timestamps = tdt_photometry.epocs[ttl_name].onset
             session_dict[behavior_name] = ttl_timestamps
         self.data_interface_objects["Behavior"].source_data["session_dict"] = session_dict
+
+    def run_conversion(
+        self,
+        nwbfile_path: Optional[str] = None,
+        nwbfile: Optional[NWBFile] = None,
+        metadata: Optional[dict] = None,
+        overwrite: bool = False,
+        conversion_options: Optional[dict] = None,
+    ) -> None:
+        if metadata is None:
+            metadata = self.get_metadata()
+
+        self.validate_metadata(metadata=metadata)
+
+        self.validate_conversion_options(conversion_options=conversion_options)
+
+        self.temporally_align_data_interfaces(metadata=metadata)
+
+        with make_or_load_nwbfile(
+            nwbfile_path=nwbfile_path,
+            nwbfile=nwbfile,
+            metadata=metadata,
+            overwrite=overwrite,
+            verbose=self.verbose,
+        ) as nwbfile_out:
+            self.add_to_nwbfile(nwbfile_out, metadata, conversion_options)

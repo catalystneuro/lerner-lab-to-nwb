@@ -140,27 +140,13 @@ def dataset_to_nwb(
             for start_date, start_time, msn, file, subject, box_number in zip(
                 start_dates, start_times, msns, file_paths, subjects, box_numbers
             ):
-                if (
-                    (
-                        start_date == "09/20/19"
-                        and start_time == "09:42:54"
-                        and subject_id == "139.298"
-                        and msn == "RI 60 RIGHT STIM"
-                    )
-                    or (
-                        start_date == "07/28/20"
-                        and start_time == "13:21:15"
-                        and subject_id == "272.396"
-                        and msn == "Probe Test Habit Training TTL"
-                    )
-                    or (
-                        start_date == "07/31/20"
-                        and start_time == "12:03:31"
-                        and subject_id == "346.394"
-                        and msn == "FOOD_RI 60 RIGHT TTL"
-                    )
+                if session_should_be_skipped(
+                    start_date=start_date,
+                    start_time=start_time,
+                    subject_id=subject_id,
+                    msn=msn,
                 ):
-                    continue  # these sessions are the wrong subject TODO: Implement Lerner Lab feedback
+                    continue
                 session_conditions = {
                     "Start Date": start_date,
                     "Start Time": start_time,
@@ -192,15 +178,11 @@ def dataset_to_nwb(
                 nwbfile_paths.add(nwbfile_path)
                 session_to_nwb_args_per_session.append(session_to_nwb_args)
 
-    # Convert all sessions and handle missing MSNs and missing Fi1d's
-    missing_msn_errors = set()
+    # Convert all sessions and handle missing Fi1d's
     missing_fi1d_sessions = []
     for session_to_nwb_args in tqdm(session_to_nwb_args_per_session):
         try:
             session_to_nwb(**session_to_nwb_args)
-        except KeyError as e:
-            missing_msn_errors.add(str(e))
-            continue
         except AttributeError as e:
             if str(e) == "'StructType' object has no attribute 'Fi1d'":
                 missing_fi1d_sessions.append(
@@ -217,14 +199,71 @@ def dataset_to_nwb(
                 f"Could not convert {session_to_nwb_args['experimental_group']}/{session_to_nwb_args['subject_id']}/{session_to_nwb_args['session_conditions']['Start Date']} {session_to_nwb_args['session_conditions']['Start Time']}"
             )
             raise Exception(e)
-    if missing_msn_errors:
-        print("Missing MSN errors:")
-        for error in missing_msn_errors:
-            print(error)
     if missing_fi1d_sessions:
         print("Missing Fi1d Sessions:")
         for session in missing_fi1d_sessions:
             print(session)
+
+
+def session_should_be_skipped(*, start_date, start_time, subject_id, msn):
+    """Return True if the session should be skipped, False otherwise.
+
+    Sessions should be skipped if their msn is irrelevant to the dataset or
+    if they have subject_ids that don't match the file structure.
+
+    Parameters
+    ----------
+    start_date : str
+        The start date of the session.
+    start_time : str
+        The start time of the session.
+    subject_id : str
+        The subject ID of the session.
+    msn : str
+        The MSN of the session.
+
+    Returns
+    -------
+    bool
+        True if the session should be skipped, False otherwise.
+    """
+    msns_to_skip = {
+        "RR10_Right_AHJS",
+        "Magazine Training 1 hr",
+        "FOOD_Magazine Training 1 hr",
+        "RI_60_Left_Probability_AH_050619",
+        "RI_60_Right_Probability_AH_050619",
+        "RR20_Right_AHJS",
+        "RR20_Left",
+        "Extinction - 1 HR",
+        "RR10_Left_AHJS",
+        "Probe Test Habit Training CC",
+        "FOOD_FR1 Hapit Training TTL",
+    }
+    if msn in msns_to_skip:
+        return True
+    if (
+        (
+            start_date == "09/20/19"
+            and start_time == "09:42:54"
+            and subject_id == "139.298"
+            and msn == "RI 60 RIGHT STIM"
+        )
+        or (
+            start_date == "07/28/20"
+            and start_time == "13:21:15"
+            and subject_id == "272.396"
+            and msn == "Probe Test Habit Training TTL"
+        )
+        or (
+            start_date == "07/31/20"
+            and start_time == "12:03:31"
+            and subject_id == "346.394"
+            and msn == "FOOD_RI 60 RIGHT TTL"
+        )
+    ):
+        return True
+    return False
 
 
 def get_csv_session_dates(subject_dir):
