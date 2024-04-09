@@ -18,7 +18,8 @@ def session_to_nwb(
     session_conditions: dict,
     start_variable: str,
     experiment_type: Literal["FP", "Opto"],
-    experimental_group: Literal["DPR", "PR", "PS", "RR20"],
+    experimental_group: Literal["DPR", "PR", "PS", "RR20", "DMS-Inhibitory", "DMS-Excitatory", "DLS-Excitatory"],
+    optogenetic_treatment: Optional[Literal["ChR2", "EYFP", "Scrambled", "Halo"]] = None,
     fiber_photometry_folder_path: Optional[Union[str, Path]] = None,
     stub_test: bool = False,
     verbose: bool = True,
@@ -44,8 +45,10 @@ def session_to_nwb(
         The name of the variable that starts the session (ex. 'Start Date').
     experiment_type : Literal["FP", "Opto"]
         The type of experiment.
-    experimental_group : Literal["DPR", "PR", "PS", "RR20"]
+    experimental_group : Literal["DPR", "PR", "PS", "RR20", "DMS-Inhibitory", "DMS-Excitatory", "DLS-Excitatory"]
         The experimental group.
+    optogenetic_treatment : Optional[Literal["ChR2", "EYFP", "Scrambled", "Halo"]], optional
+        The optogenetic treatment, by default None for FP sessions.
     stub_test : bool, optional
         Whether to run a stub test, by default False
     verbose : bool, optional
@@ -58,9 +61,17 @@ def session_to_nwb(
         output_dir_path = output_dir_path / "nwb_stub"
     output_dir_path.mkdir(parents=True, exist_ok=True)
 
-    nwbfile_path = (
-        output_dir_path / f"{experiment_type}_{experimental_group}_{subject_id}_{start_datetime.isoformat()}.nwb"
-    )
+    if experiment_type == "FP":
+        nwbfile_path = (
+            output_dir_path / f"{experiment_type}_{experimental_group}_{subject_id}_{start_datetime.isoformat()}.nwb"
+        )
+    elif experiment_type == "Opto":
+        nwbfile_path = (
+            output_dir_path
+            / f"{experiment_type}_{experimental_group}_{optogenetic_treatment}_{subject_id}_{start_datetime.isoformat()}.nwb"
+        )
+    else:
+        raise ValueError(f"Invalid experiment type: {experiment_type}")
     source_data = {}
     conversion_options = {}
 
@@ -89,6 +100,18 @@ def session_to_nwb(
             )
         )
         conversion_options.update(dict(FiberPhotometry={}))
+
+    # Add Optogenetics
+    if experiment_type == "Opto":
+        source_data.update(
+            dict(
+                Optogenetic={
+                    "file_path": str(behavior_file_path),
+                    "verbose": verbose,
+                }
+            )
+        )
+        conversion_options.update(dict(Optogenetic={}))
 
     converter = Seiler2024NWBConverter(source_data=source_data, verbose=verbose)
     metadata = converter.get_metadata()
@@ -349,20 +372,52 @@ if __name__ == "__main__":
     #     stub_test=stub_test,
     # )
 
-    # Behavior session from csv file
-    experiment_type = "FP"
-    experimental_group = "DPR"
-    subject_id = "87.239"
-    start_datetime = datetime(2019, 3, 19, 0, 0, 0)
-    session_conditions = {}
-    start_variable = ""
+    # # Behavior session from csv file
+    # experiment_type = "FP"
+    # experimental_group = "DPR"
+    # subject_id = "87.239"
+    # start_datetime = datetime(2019, 3, 19, 0, 0, 0)
+    # session_conditions = {}
+    # start_variable = ""
+    # behavior_file_path = (
+    #     data_dir_path
+    #     / f"{experiment_type} Experiments"
+    #     / "Behavior"
+    #     / f"{experimental_group}"
+    #     / f"{subject_id}"
+    #     / f"{subject_id}_{start_datetime.strftime('%m-%d-%y')}.csv"
+    # )
+    # session_to_nwb(
+    #     data_dir_path=data_dir_path,
+    #     output_dir_path=output_dir_path,
+    #     behavior_file_path=behavior_file_path,
+    #     subject_id=subject_id,
+    #     session_conditions=session_conditions,
+    #     start_variable=start_variable,
+    #     start_datetime=start_datetime,
+    #     experiment_type=experiment_type,
+    #     experimental_group=experimental_group,
+    #     stub_test=stub_test,
+    # )
+
+    # Example Opto session
+    experiment_type = "Opto"
+    experimental_group = "DMS-Inhibitory"
+    optogenetic_treatment = "Halo"
+    subject_id = "112.415"
+    start_datetime = datetime(2020, 10, 21, 13, 8, 39)
+    session_conditions = {
+        "Start Date": start_datetime.strftime("%m/%d/%y"),
+        "Start Time": start_datetime.strftime("%H:%M:%S"),
+    }
+    start_variable = "Start Date"
     behavior_file_path = (
         data_dir_path
         / f"{experiment_type} Experiments"
-        / "Behavior"
-        / f"{experimental_group}"
+        / f"{experimental_group.replace('-', ' ')}"
+        / f"Group 1"
+        / f"{optogenetic_treatment}"
         / f"{subject_id}"
-        / f"{subject_id}_{start_datetime.strftime('%m-%d-%y')}.csv"
     )
     session_to_nwb(
         data_dir_path=data_dir_path,
