@@ -6,9 +6,11 @@ from neuroconv.basedatainterface import BaseDataInterface
 from neuroconv.utils import DeepDict
 from neuroconv.tools import nwb_helpers
 import numpy as np
+import pandas as pd
 from ndx_events import Events
 from pynwb.behavior import BehavioralEpochs, IntervalSeries
 from hdmf.backends.hdf5.h5_utils import H5DataIO
+from pathlib import Path
 
 from .medpc import read_medpc_file
 
@@ -24,7 +26,7 @@ class Seiler2024BehaviorInterface(BaseDataInterface):
         Parameters
         ----------
         file_path : str
-            Path to the MedPC file.
+            Path to the MedPC file. Or path to the CSV file.
         session_conditions : dict
             The conditions that define the session. The keys are the names of the single-line variables (ex. 'Start Date')
             and the values are the values of those variables for the desired session (ex. '11/09/18').
@@ -33,10 +35,12 @@ class Seiler2024BehaviorInterface(BaseDataInterface):
         verbose : bool, optional
             Whether to print verbose output, by default True
         """
+        from_csv = file_path.endswith(".csv")
         super().__init__(
             file_path=file_path,
             session_conditions=session_conditions,
             start_variable=start_variable,
+            from_csv=from_csv,
             verbose=verbose,
         )
 
@@ -87,30 +91,42 @@ class Seiler2024BehaviorInterface(BaseDataInterface):
             "RI 30 RIGHT_STIM": "RI30",
             "RI 60 RIGHT STIM": "RI60",
         }
-        session_dict = read_medpc_file(
-            file_path=self.source_data["file_path"],
-            medpc_name_to_dict_name=medpc_name_to_dict_name,
-            dict_name_to_type=dict_name_to_type,
-            session_conditions=self.source_data["session_conditions"],
-            start_variable=self.source_data["start_variable"],
-        )
-        session_start_time = datetime.combine(
-            session_dict["start_date"], session_dict["start_time"], tzinfo=timezone("US/Central")
-        )
-        training_stage = msn_to_training_stage[session_dict["MSN"]]
+        if self.source_data["from_csv"]:
+            start_date = datetime.strptime(Path(self.source_data["file_path"]).stem.split("_")[1], "%m-%d-%y")
+            start_time = time(0, 0, 0)
+            training_stage = "Unknown"
+            subject = Path(self.source_data["file_path"]).stem.split("_")[0]
+            msn = "Unknown"
+            box = "Unknown"
+        else:
+            session_dict = read_medpc_file(
+                file_path=self.source_data["file_path"],
+                medpc_name_to_dict_name=medpc_name_to_dict_name,
+                dict_name_to_type=dict_name_to_type,
+                session_conditions=self.source_data["session_conditions"],
+                start_variable=self.source_data["start_variable"],
+            )
+            start_date = session_dict["start_date"]
+            start_time = session_dict["start_time"]
+            training_stage = msn_to_training_stage[session_dict["MSN"]]
+            subject = session_dict["subject"]
+            msn = session_dict["MSN"]
+            box = session_dict["box"]
+
+        session_start_time = datetime.combine(start_date, start_time, tzinfo=timezone("US/Central"))
         session_id = session_start_time.isoformat() + "-" + training_stage
 
         metadata["NWBFile"]["session_start_time"] = session_start_time
-        metadata["NWBFile"]["identifier"] = session_dict["subject"] + "-" + session_id
+        metadata["NWBFile"]["identifier"] = subject + "-" + session_id
         metadata["NWBFile"]["session_id"] = session_id
 
         metadata["Subject"] = {}
-        metadata["Subject"]["subject_id"] = session_dict["subject"]
+        metadata["Subject"]["subject_id"] = subject
         metadata["Subject"]["sex"] = "U"  # TODO: Grab sex info from sheets
 
         metadata["Behavior"] = {}
-        metadata["Behavior"]["box"] = session_dict["box"]
-        metadata["Behavior"]["msn"] = session_dict["MSN"]
+        metadata["Behavior"]["box"] = box
+        metadata["Behavior"]["msn"] = msn
 
         return metadata
 
@@ -125,8 +141,9 @@ class Seiler2024BehaviorInterface(BaseDataInterface):
         }
         return metadata_schema
 
-    def add_to_nwbfile(self, nwbfile: NWBFile, metadata: dict):
-        if self.source_data["session_dict"] is None:
+    def add_to_nwbfile(self, nwbfile: NWBFile, metadata: dict) -> None:
+        from_csv = self.source_data["from_csv"]
+        if self.source_data["session_dict"] is None and not from_csv:
             msn = metadata["Behavior"]["msn"]
             medpc_name_to_dict_name = metadata["Behavior"]["msn_to_medpc_name_to_dict_name"][msn]
             dict_name_to_type = {dict_name: np.ndarray for dict_name in medpc_name_to_dict_name.values()}
@@ -137,6 +154,19 @@ class Seiler2024BehaviorInterface(BaseDataInterface):
                 session_conditions=self.source_data["session_conditions"],
                 start_variable=self.source_data["start_variable"],
             )
+        elif self.source_data["session_dict"] is None and from_csv:
+            csv_name_to_dict_name = {
+                "portEntryTs": "port_entry_times",
+                "DurationOfPE": "duration_of_port_entry",
+                "LeftNoseTs": "left_nose_poke_times",
+                "RightNoseTs": "right_nose_poke_times",
+                "RightRewardTs": "right_reward_times",
+                "LeftRewardTs": "left_reward_times",
+            }
+            session_df = pd.read_csv(self.source_data["file_path"])
+            session_dict = {}
+            for csv_name, dict_name in csv_name_to_dict_name.items():
+                session_dict[dict_name] = np.trim_zeros(session_df[csv_name].dropna().values, trim="b")
         else:
             session_dict = self.source_data["session_dict"]
 
