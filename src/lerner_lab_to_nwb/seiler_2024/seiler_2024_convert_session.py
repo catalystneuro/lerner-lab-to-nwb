@@ -404,7 +404,7 @@ if __name__ == "__main__":
     #     stub_test=stub_test,
     # )
 
-    # Example Opto session
+    # Example DMS-Inhibitory Opto session
     experiment_type = "Opto"
     experimental_group = "DMS-Inhibitory"
     optogenetic_treatment = "NpHR"
@@ -421,6 +421,70 @@ if __name__ == "__main__":
         / f"{experimental_group.replace('-', ' ')}"
         / f"Group 1"
         / f"Halo"
+        / f"{subject_id}"
+    )
+    session_to_nwb(
+        data_dir_path=data_dir_path,
+        output_dir_path=output_dir_path,
+        behavior_file_path=behavior_file_path,
+        subject_id=subject_id,
+        session_conditions=session_conditions,
+        start_variable=start_variable,
+        start_datetime=start_datetime,
+        experiment_type=experiment_type,
+        experimental_group=experimental_group,
+        optogenetic_treatment=optogenetic_treatment,
+        stub_test=stub_test,
+    )
+
+    # Example DMS-Excitatory Opto session
+    experiment_type = "Opto"
+    experimental_group = "DMS-Excitatory"
+    optogenetic_treatment = "ChR2"
+    subject_id = "119.416"
+    start_datetime = datetime(2020, 10, 20, 13, 0, 57)
+    session_conditions = {
+        "Start Date": start_datetime.strftime("%m/%d/%y"),
+        "Start Time": start_datetime.strftime("%H:%M:%S"),
+    }
+    start_variable = "Start Date"
+    behavior_file_path = (
+        data_dir_path
+        / f"{experiment_type} Experiments"
+        / f"{experimental_group.replace('-', ' ')}"
+        / f"{optogenetic_treatment}"
+        / f"{subject_id}"
+    )
+    session_to_nwb(
+        data_dir_path=data_dir_path,
+        output_dir_path=output_dir_path,
+        behavior_file_path=behavior_file_path,
+        subject_id=subject_id,
+        session_conditions=session_conditions,
+        start_variable=start_variable,
+        start_datetime=start_datetime,
+        experiment_type=experiment_type,
+        experimental_group=experimental_group,
+        optogenetic_treatment=optogenetic_treatment,
+        stub_test=stub_test,
+    )
+
+    # Example DLS-Excitatory Opto session
+    experiment_type = "Opto"
+    experimental_group = "DLS-Excitatory"
+    optogenetic_treatment = "ChR2"
+    subject_id = "079.402"
+    start_datetime = datetime(2020, 6, 26, 13, 19, 27)
+    session_conditions = {
+        "Start Date": start_datetime.strftime("%m/%d/%y"),
+        "Start Time": start_datetime.strftime("%H:%M:%S"),
+    }
+    start_variable = "Start Date"
+    behavior_file_path = (
+        data_dir_path
+        / f"{experiment_type} Experiments"
+        / f"{experimental_group.replace('-', ' ')}"
+        / f"{optogenetic_treatment}"
         / f"{subject_id}"
     )
     session_to_nwb(

@@ -142,3 +142,4 @@ Many MSNs (ex. 'FOOD_FR1 TTL Left', 'FOOD_FR1 TTL Right', and 'FOOD_RI 30 LEFT')
 ### Questions
 - need to ask for more specific info about the device (data sheet)
 - Need pulse width for excitatory optogenetics
+- DMS-Inhibitory Group 2 is missing
