@@ -107,6 +107,9 @@ def session_to_nwb(
             dict(
                 Optogenetic={
                     "file_path": str(behavior_file_path),
+                    "session_conditions": session_conditions,
+                    "start_variable": start_variable,
+                    "experimental_group": experimental_group,
                     "verbose": verbose,
                 }
             )
@@ -429,5 +432,6 @@ if __name__ == "__main__":
         start_datetime=start_datetime,
         experiment_type=experiment_type,
         experimental_group=experimental_group,
+        optogenetic_treatment=optogenetic_treatment,
         stub_test=stub_test,
     )
