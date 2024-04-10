@@ -19,7 +19,7 @@ def session_to_nwb(
     start_variable: str,
     experiment_type: Literal["FP", "Opto"],
     experimental_group: Literal["DPR", "PR", "PS", "RR20", "DMS-Inhibitory", "DMS-Excitatory", "DLS-Excitatory"],
-    optogenetic_treatment: Optional[Literal["ChR2", "EYFP", "Scrambled", "Halo"]] = None,
+    optogenetic_treatment: Optional[Literal["ChR2", "EYFP", "ChR2Scrambled", "NpHR", "NpHRScrambled"]] = None,
     fiber_photometry_folder_path: Optional[Union[str, Path]] = None,
     stub_test: bool = False,
     verbose: bool = True,
@@ -47,7 +47,7 @@ def session_to_nwb(
         The type of experiment.
     experimental_group : Literal["DPR", "PR", "PS", "RR20", "DMS-Inhibitory", "DMS-Excitatory", "DLS-Excitatory"]
         The experimental group.
-    optogenetic_treatment : Optional[Literal["ChR2", "EYFP", "Scrambled", "Halo"]], optional
+    optogenetic_treatment : Optional[Literal["ChR2", "EYFP", "ChR2Scrambled", "NpHR", "NpHRScrambled"]], optional
         The optogenetic treatment, by default None for FP sessions.
     stub_test : bool, optional
         Whether to run a stub test, by default False
@@ -110,6 +110,7 @@ def session_to_nwb(
                     "session_conditions": session_conditions,
                     "start_variable": start_variable,
                     "experimental_group": experimental_group,
+                    "optogenetic_treatment": optogenetic_treatment,
                     "verbose": verbose,
                 }
             )
@@ -406,7 +407,7 @@ if __name__ == "__main__":
     # Example Opto session
     experiment_type = "Opto"
     experimental_group = "DMS-Inhibitory"
-    optogenetic_treatment = "Halo"
+    optogenetic_treatment = "NpHR"
     subject_id = "112.415"
     start_datetime = datetime(2020, 10, 21, 13, 8, 39)
     session_conditions = {
@@ -419,7 +420,7 @@ if __name__ == "__main__":
         / f"{experiment_type} Experiments"
         / f"{experimental_group.replace('-', ' ')}"
         / f"Group 1"
-        / f"{optogenetic_treatment}"
+        / f"Halo"
         / f"{subject_id}"
     )
     session_to_nwb(
