@@ -77,18 +77,17 @@ class Seiler2024OptogeneticInterface(BaseDataInterface):
             session_conditions=self.source_data["session_conditions"],
             start_variable=self.source_data["start_variable"],
         )
-        if "optogenetic_stimulation_times" in session_dict:
+        if "optogenetic_stimulation_times" in session_dict:  # stim times are recorded for scrambled trials
             session_dict["stim_times"] = session_dict.pop("optogenetic_stimulation_times")
-        else:
-            assert not (
-                len(session_dict["left_reward_times"]) and len(session_dict["right_reward_times"])
-            ), "Both left and right reward times were found in medpc file."
+        else:  # otherwise, stim is delivered on either left or right reward -- usually interleaved
+            stim_times = []
             if len(session_dict["left_reward_times"]) > 0:
-                session_dict["stim_times"] = session_dict.pop("left_reward_times")
-            elif len(session_dict["right_reward_times"]) > 0:
-                session_dict["stim_times"] = session_dict.pop("right_reward_times")
-            else:
+                stim_times.extend(session_dict.pop("left_reward_times"))
+            if len(session_dict["right_reward_times"]) > 0:
+                stim_times.extend(session_dict.pop("right_reward_times"))
+            if not stim_times:
                 raise ValueError("No stim times found in medpc file.")
+            session_dict["stim_times"] = np.sort(stim_times)
         stim_times = session_dict["stim_times"]
 
         # Create optogenetic series and add to nwbfile

@@ -500,3 +500,36 @@ if __name__ == "__main__":
         optogenetic_treatment=optogenetic_treatment,
         stub_test=stub_test,
     )
+
+    # Could not convert DMS-Excitatory/2020-09-23_12h36m_Subject 281.402/09/23/20 12:36:30
+    # Opto session with both left and right rewards
+    experiment_type = "Opto"
+    experimental_group = "DMS-Excitatory"
+    optogenetic_treatment = "ChR2"
+    subject_id = "281.402"
+    start_datetime = datetime(2020, 9, 23, 12, 36, 30)
+    session_conditions = {
+        "Start Date": start_datetime.strftime("%m/%d/%y"),
+        "Start Time": start_datetime.strftime("%H:%M:%S"),
+    }
+    start_variable = "Start Date"
+    behavior_file_path = (
+        data_dir_path
+        / f"{experiment_type} Experiments"
+        / f"{experimental_group.replace('-', ' ')}"
+        / f"{optogenetic_treatment}"
+        / "2020-09-23_12h36m_Subject 281.402"
+    )
+    session_to_nwb(
+        data_dir_path=data_dir_path,
+        output_dir_path=output_dir_path,
+        behavior_file_path=behavior_file_path,
+        subject_id=subject_id,
+        session_conditions=session_conditions,
+        start_variable=start_variable,
+        start_datetime=start_datetime,
+        experiment_type=experiment_type,
+        experimental_group=experimental_group,
+        optogenetic_treatment=optogenetic_treatment,
+        stub_test=stub_test,
+    )
