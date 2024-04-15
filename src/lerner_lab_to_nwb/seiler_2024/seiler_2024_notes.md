@@ -143,3 +143,6 @@ Many MSNs (ex. 'FOOD_FR1 TTL Left', 'FOOD_FR1 TTL Right', and 'FOOD_RI 30 LEFT')
 - need to ask for more specific info about the device (data sheet)
 - Need pulse width for excitatory optogenetics
 - DMS-Inhibitory Group 2 is missing
+- DLS-Excitatory has a bunch of files organized by date not belonging to any optogenetic treatment group folder
+    (ChR2, EYFP, Scrambled).  Which treatment did these sessions receive?
+-
