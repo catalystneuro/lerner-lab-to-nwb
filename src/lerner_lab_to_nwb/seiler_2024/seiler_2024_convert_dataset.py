@@ -330,8 +330,24 @@ def get_opto_header_variables(subject_path, start_variable):
         file_paths = [medpc_file_path] * len(start_dates)
         subjects = [None] * len(start_dates)
         box_numbers = [None] * len(start_dates)
-    else:
-        return [], [], [], [], [], []
+    elif subject_path.is_dir():
+        start_dates, start_times, msns, file_paths = [], [], [], []
+        medpc_files = [
+            file
+            for file in subject_path.iterdir()
+            if not (file.name.endswith(".csv") or file.name.endswith(".CSV") or file.name.startswith("."))
+        ]
+        for file in medpc_files:
+            medpc_variables = get_medpc_variables(file_path=file, variable_names=["Start Date", "Start Time", "MSN"])
+            for start_date, start_time, msn in zip(
+                medpc_variables["Start Date"], medpc_variables["Start Time"], medpc_variables["MSN"]
+            ):
+                start_dates.append(start_date)
+                start_times.append(start_time)
+                msns.append(msn)
+                file_paths.append(file)
+        subjects = [None] * len(start_dates)
+        box_numbers = [None] * len(start_dates)
 
     return start_dates, start_times, msns, file_paths, subjects, box_numbers
 
