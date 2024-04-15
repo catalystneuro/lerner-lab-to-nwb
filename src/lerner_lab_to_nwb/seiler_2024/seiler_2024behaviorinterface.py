@@ -90,6 +90,7 @@ class Seiler2024BehaviorInterface(BaseDataInterface):
             "Probe Test Habit Training TTL": "OmissionProbe",  # TODO: Confirm with Lerner Lab
             "RI 30 RIGHT_STIM": "RI30",
             "RI 60 RIGHT STIM": "RI60",
+            "RI 60 LEFT_STIM": "RI60",
         }
         if self.source_data["from_csv"]:
             start_date = datetime.strptime(Path(self.source_data["file_path"]).stem.split("_")[1], "%m-%d-%y")

@@ -167,6 +167,13 @@ Behavior:
       D: right_reward_times
       E: duration_of_port_entry
       G: port_entry_times
+    RI 60 LEFT_STIM:
+      A: left_nose_poke_times
+      B: left_reward_times
+      C: right_nose_poke_times
+      D: right_reward_times
+      E: duration_of_port_entry
+      G: port_entry_times
     RI30 Left Scrambled:
       A: left_nose_poke_times
       B: left_reward_times
