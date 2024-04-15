@@ -30,6 +30,7 @@ def dataset_to_nwb(
     session_to_nwb_args_per_session = opto_to_nwb(
         data_dir_path=data_dir_path,
         output_dir_path=output_dir_path,
+        start_variable=start_variable,
         stub_test=stub_test,
         verbose=verbose,
     )
@@ -226,7 +227,7 @@ def fp_to_nwb(
 
 
 def opto_to_nwb(
-    data_dir_path: Union[str, Path], output_dir_path: Union[str, Path], stub_test: bool = False, verbose: bool = True
+    *, data_dir_path: Path, output_dir_path: Path, start_variable: str, stub_test: bool = False, verbose: bool = True
 ):
     experiment_type = "Opto"
     experimental_groups = ["DLS-Excitatory", "DMS-Excitatory", "DMS-Inhibitory"]
@@ -248,7 +249,6 @@ def opto_to_nwb(
         "DMS-Inhibitory": ["Group 1"],  # TODO: Get group 2 data from Lerner Lab
     }
     opto_path = data_dir_path / f"{experiment_type} Experiments"
-    start_variable = "Start Date"
     session_to_nwb_args_per_session: list[dict] = []  # Each dict contains the args for session_to_nwb for a session
     nwbfile_paths = set()  # Each path is the path to the nwb file created for a session
 
@@ -269,7 +269,9 @@ def opto_to_nwb(
                     )
                 ]
                 for subject_path in subject_paths:
-                    subject_id = subject_path.name
+                    subject_id = (
+                        subject_path.name.split(" ")[1] if "Subject" in subject_path.name else subject_path.name
+                    )
                     header_variables = get_opto_header_variables(subject_path, start_variable)
                     start_dates, start_times, msns, file_paths, subjects, box_numbers = header_variables
                     for start_date, start_time, msn, file, subject, box_number in zip(
