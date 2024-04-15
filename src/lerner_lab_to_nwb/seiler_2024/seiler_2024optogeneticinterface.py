@@ -6,6 +6,9 @@ from neuroconv.basedatainterface import BaseDataInterface
 from neuroconv.utils import DeepDict
 from typing import Literal
 from hdmf.backends.hdf5.h5_utils import H5DataIO
+from datetime import datetime, time
+from pathlib import Path
+import pandas as pd
 
 from .medpc import read_medpc_file
 
@@ -42,12 +45,14 @@ class Seiler2024OptogeneticInterface(BaseDataInterface):
         verbose : bool, optional
             Whether to print verbose output, by default True
         """
+        from_csv = file_path.endswith(".csv")
         super().__init__(
             file_path=file_path,
             session_conditions=session_conditions,
             start_variable=start_variable,
             experimental_group=experimental_group,
             optogenetic_treatment=optogenetic_treatment,
+            from_csv=from_csv,
             verbose=verbose,
         )
 
@@ -60,23 +65,35 @@ class Seiler2024OptogeneticInterface(BaseDataInterface):
         return metadata_schema
 
     def add_to_nwbfile(self, nwbfile: NWBFile, metadata: dict):
-        # Read stim times from medpc file
-        msn = metadata["Behavior"]["msn"]
-        medpc_name_to_dict_name = metadata["Behavior"]["msn_to_medpc_name_to_dict_name"][msn]
-        opto_dict_names = {"left_reward_times", "right_reward_times", "optogenetic_stimulation_times"}
-        medpc_name_to_dict_name = {
-            medpc_name: dict_name
-            for medpc_name, dict_name in medpc_name_to_dict_name.items()
-            if dict_name in opto_dict_names
-        }
-        dict_name_to_type = {dict_name: np.ndarray for dict_name in medpc_name_to_dict_name.values()}
-        session_dict = read_medpc_file(
-            file_path=self.source_data["file_path"],
-            medpc_name_to_dict_name=medpc_name_to_dict_name,
-            dict_name_to_type=dict_name_to_type,
-            session_conditions=self.source_data["session_conditions"],
-            start_variable=self.source_data["start_variable"],
-        )
+        # Read stim times from medpc file or csv
+        if self.source_data["from_csv"]:
+            csv_name_to_dict_name = {
+                "RightRewardTs": "right_reward_times",
+                "LeftRewardTs": "left_reward_times",
+            }
+            session_df = pd.read_csv(self.source_data["file_path"])
+            session_dict = {}
+            for csv_name, dict_name in csv_name_to_dict_name.items():
+                session_dict[dict_name] = np.trim_zeros(session_df[csv_name].dropna().values, trim="b")
+            if "Z" in session_df.columns:
+                session_dict["optogenetic_stimulation_times"] = np.trim_zeros(session_df["Z"].dropna().values, trim="b")
+        else:
+            msn = metadata["Behavior"]["msn"]
+            medpc_name_to_dict_name = metadata["Behavior"]["msn_to_medpc_name_to_dict_name"][msn]
+            opto_dict_names = {"left_reward_times", "right_reward_times", "optogenetic_stimulation_times"}
+            medpc_name_to_dict_name = {
+                medpc_name: dict_name
+                for medpc_name, dict_name in medpc_name_to_dict_name.items()
+                if dict_name in opto_dict_names
+            }
+            dict_name_to_type = {dict_name: np.ndarray for dict_name in medpc_name_to_dict_name.values()}
+            session_dict = read_medpc_file(
+                file_path=self.source_data["file_path"],
+                medpc_name_to_dict_name=medpc_name_to_dict_name,
+                dict_name_to_type=dict_name_to_type,
+                session_conditions=self.source_data["session_conditions"],
+                start_variable=self.source_data["start_variable"],
+            )
         if "optogenetic_stimulation_times" in session_dict:  # stim times are recorded for scrambled trials
             session_dict["stim_times"] = session_dict.pop("optogenetic_stimulation_times")
         else:  # otherwise, stim is delivered on either left or right reward -- usually interleaved
