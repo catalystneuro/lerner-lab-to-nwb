@@ -16,10 +16,49 @@ def dataset_to_nwb(
     data_dir_path: Union[str, Path], output_dir_path: Union[str, Path], stub_test: bool = False, verbose: bool = True
 ):
     """Convert the entire dataset to NWB."""
-    # Setup
     start_variable = "Start Date"
     data_dir_path = Path(data_dir_path)
     output_dir_path = Path(output_dir_path)
+    session_to_nwb_args_per_session = fp_to_nwb(
+        data_dir_path=data_dir_path,
+        output_dir_path=output_dir_path,
+        start_variable=start_variable,
+        stub_test=stub_test,
+        verbose=verbose,
+    )
+
+    # Convert all sessions and handle missing Fi1d's
+    return
+    missing_fi1d_sessions = []
+    for session_to_nwb_args in tqdm(session_to_nwb_args_per_session):
+        try:
+            session_to_nwb(**session_to_nwb_args)
+        except AttributeError as e:
+            if str(e) == "'StructType' object has no attribute 'Fi1d'":
+                missing_fi1d_sessions.append(
+                    str(session_to_nwb_args["fiber_photometry_folder_path"]).split("Photometry/")[1]
+                )
+                continue
+            else:
+                print(
+                    f"Could not convert {session_to_nwb_args['experimental_group']}/{session_to_nwb_args['subject_id']}/{session_to_nwb_args['session_conditions']['Start Date']} {session_to_nwb_args['session_conditions']['Start Time']}"
+                )
+                raise AttributeError(e)
+        except Exception as e:
+            print(
+                f"Could not convert {session_to_nwb_args['experimental_group']}/{session_to_nwb_args['subject_id']}/{session_to_nwb_args['session_conditions']['Start Date']} {session_to_nwb_args['session_conditions']['Start Time']}"
+            )
+            raise Exception(e)
+    if missing_fi1d_sessions:
+        print("Missing Fi1d Sessions:")
+        for session in missing_fi1d_sessions:
+            print(session)
+
+
+def fp_to_nwb(
+    *, data_dir_path: Path, output_dir_path: Path, start_variable: str, stub_test: bool = False, verbose: bool = True
+):
+    # Setup
     experiment_type = "FP"
     experimental_groups = ["DPR", "PR", "PS", "RR20"]
     experimental_group_to_long_name = {
@@ -177,32 +216,7 @@ def dataset_to_nwb(
                     continue
                 nwbfile_paths.add(nwbfile_path)
                 session_to_nwb_args_per_session.append(session_to_nwb_args)
-
-    # Convert all sessions and handle missing Fi1d's
-    missing_fi1d_sessions = []
-    for session_to_nwb_args in tqdm(session_to_nwb_args_per_session):
-        try:
-            session_to_nwb(**session_to_nwb_args)
-        except AttributeError as e:
-            if str(e) == "'StructType' object has no attribute 'Fi1d'":
-                missing_fi1d_sessions.append(
-                    str(session_to_nwb_args["fiber_photometry_folder_path"]).split("Photometry/")[1]
-                )
-                continue
-            else:
-                print(
-                    f"Could not convert {session_to_nwb_args['experimental_group']}/{session_to_nwb_args['subject_id']}/{session_to_nwb_args['session_conditions']['Start Date']} {session_to_nwb_args['session_conditions']['Start Time']}"
-                )
-                raise AttributeError(e)
-        except Exception as e:
-            print(
-                f"Could not convert {session_to_nwb_args['experimental_group']}/{session_to_nwb_args['subject_id']}/{session_to_nwb_args['session_conditions']['Start Date']} {session_to_nwb_args['session_conditions']['Start Time']}"
-            )
-            raise Exception(e)
-    if missing_fi1d_sessions:
-        print("Missing Fi1d Sessions:")
-        for session in missing_fi1d_sessions:
-            print(session)
+    return session_to_nwb_args_per_session
 
 
 def session_should_be_skipped(*, start_date, start_time, subject_id, msn):
