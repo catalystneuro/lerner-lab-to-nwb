@@ -61,17 +61,6 @@ def session_to_nwb(
         output_dir_path = output_dir_path / "nwb_stub"
     output_dir_path.mkdir(parents=True, exist_ok=True)
 
-    if experiment_type == "FP":
-        nwbfile_path = (
-            output_dir_path / f"{experiment_type}_{experimental_group}_{subject_id}_{start_datetime.isoformat()}.nwb"
-        )
-    elif experiment_type == "Opto":
-        nwbfile_path = (
-            output_dir_path
-            / f"{experiment_type}_{experimental_group}_{optogenetic_treatment}_{subject_id}_{start_datetime.isoformat()}.nwb"
-        )
-    else:
-        raise ValueError(f"Invalid experiment type: {experiment_type}")
     source_data = {}
     conversion_options = {}
 
@@ -124,6 +113,19 @@ def session_to_nwb(
     editable_metadata_path = Path(__file__).parent / "seiler_2024_metadata.yaml"
     editable_metadata = load_dict_from_file(editable_metadata_path)
     metadata = dict_deep_update(metadata, editable_metadata)
+
+    start_datetime = metadata["NWBFile"]["session_start_time"]
+    if experiment_type == "FP":
+        nwbfile_path = (
+            output_dir_path / f"{experiment_type}_{experimental_group}_{subject_id}_{start_datetime.isoformat()}.nwb"
+        )
+    elif experiment_type == "Opto":
+        nwbfile_path = (
+            output_dir_path
+            / f"{experiment_type}_{experimental_group}_{optogenetic_treatment}_{subject_id}_{start_datetime.isoformat()}.nwb"
+        )
+    else:
+        raise ValueError(f"Invalid experiment type: {experiment_type}")
 
     # Run conversion
     converter.run_conversion(metadata=metadata, nwbfile_path=nwbfile_path, conversion_options=conversion_options)
