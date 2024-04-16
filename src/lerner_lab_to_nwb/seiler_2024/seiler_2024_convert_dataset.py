@@ -15,25 +15,37 @@ from lerner_lab_to_nwb.seiler_2024.medpc import read_medpc_file
 def dataset_to_nwb(
     data_dir_path: Union[str, Path], output_dir_path: Union[str, Path], stub_test: bool = False, verbose: bool = True
 ):
-    """Convert the entire dataset to NWB."""
+    """Convert the entire dataset to NWB.
+
+    Parameters
+    ----------
+    data_dir_path : Union[str, Path]
+        The path to the directory containing the raw data.
+    output_dir_path : Union[str, Path]
+        The path to the directory where the NWB files will be saved.
+    stub_test : bool, optional
+        Whether to run a stub test, by default False
+    verbose : bool, optional
+        Whether to print verbose output, by default True
+    """
     start_variable = "Start Date"
     data_dir_path = Path(data_dir_path)
     output_dir_path = Path(output_dir_path)
-    # session_to_nwb_args_per_session = fp_to_nwb(
-    #     data_dir_path=data_dir_path,
-    #     output_dir_path=output_dir_path,
-    #     start_variable=start_variable,
-    #     stub_test=stub_test,
-    #     verbose=verbose,
-    # )
-
-    session_to_nwb_args_per_session = opto_to_nwb(
+    fp_session_to_nwb_args_per_session = fp_to_nwb(
         data_dir_path=data_dir_path,
         output_dir_path=output_dir_path,
         start_variable=start_variable,
         stub_test=stub_test,
         verbose=verbose,
     )
+    opto_session_to_nwb_args_per_session = opto_to_nwb(
+        data_dir_path=data_dir_path,
+        output_dir_path=output_dir_path,
+        start_variable=start_variable,
+        stub_test=stub_test,
+        verbose=verbose,
+    )
+    session_to_nwb_args_per_session = fp_session_to_nwb_args_per_session + opto_session_to_nwb_args_per_session
 
     # Convert all sessions and handle missing Fi1d's
     missing_fi1d_sessions = []
@@ -72,6 +84,26 @@ def dataset_to_nwb(
 def fp_to_nwb(
     *, data_dir_path: Path, output_dir_path: Path, start_variable: str, stub_test: bool = False, verbose: bool = True
 ):
+    """Convert the Fiber Photometry portion of the dataset to NWB.
+
+    Parameters
+    ----------
+    data_dir_path : Path
+        The path to the directory containing the raw data.
+    output_dir_path : Path
+        The path to the directory where the NWB files will be saved.
+    start_variable : str
+        The variable to use as the start variable for the session.
+    stub_test : bool, optional
+        Whether to run a stub test, by default False
+    verbose : bool, optional
+        Whether to print verbose output, by default True
+
+    Returns
+    -------
+    list[dict]
+        A list of dictionaries containing the arguments for session_to_nwb for each session.
+    """
     # Setup
     experiment_type = "FP"
     experimental_groups = ["DPR", "PR", "PS", "RR20"]
@@ -110,7 +142,7 @@ def fp_to_nwb(
                 photometry_start_date = datetime.strptime(photometry_start_date, "%y%m%d").strftime("%m/%d/%y")
 
                 subject_dir = behavior_path / experimental_group / photometry_subject_id
-                header_variables = get_header_variables(
+                header_variables = get_fp_header_variables(
                     subject_dir, photometry_subject_id, raw_file_to_info, start_variable
                 )
                 start_dates, start_times, msns, file_paths, subjects, box_numbers = header_variables
@@ -188,7 +220,7 @@ def fp_to_nwb(
         subject_dirs = [subject_dir for subject_dir in experimental_group_path.iterdir() if subject_dir.is_dir()]
         for subject_dir in subject_dirs:
             subject_id = subject_dir.name
-            header_variables = get_header_variables(subject_dir, subject_id, raw_file_to_info, start_variable)
+            header_variables = get_fp_header_variables(subject_dir, subject_id, raw_file_to_info, start_variable)
             start_dates, start_times, msns, file_paths, subjects, box_numbers = header_variables
             for start_date, start_time, msn, file, subject, box_number in zip(
                 start_dates, start_times, msns, file_paths, subjects, box_numbers
@@ -236,6 +268,26 @@ def fp_to_nwb(
 def opto_to_nwb(
     *, data_dir_path: Path, output_dir_path: Path, start_variable: str, stub_test: bool = False, verbose: bool = True
 ):
+    """Convert the Optogenetic portion of the dataset to NWB.
+
+    Parameters
+    ----------
+    data_dir_path : Path
+        The path to the directory containing the raw data.
+    output_dir_path : Path
+        The path to the directory where the NWB files will be saved.
+    start_variable : str
+        The variable to use as the start variable for the session.
+    stub_test : bool, optional
+        Whether to run a stub test, by default False
+    verbose : bool, optional
+        Whether to print verbose output, by default True
+
+    Returns
+    -------
+    list[dict]
+        A list of dictionaries containing the arguments for session_to_nwb for each session.
+    """
     experiment_type = "Opto"
     experimental_groups = ["DLS-Excitatory", "DMS-Excitatory", "DMS-Inhibitory"]
     experimental_group_to_optogenetic_treatments = {
@@ -272,14 +324,14 @@ def opto_to_nwb(
                     if not (
                         path.name.startswith(".")
                         or path.name.endswith(".csv")
-                        or path.name.endswith(".CSV")  # TODO: add support for CSV files
+                        or path.name.endswith(".CSV")  # TODO: add support for session-aggregated CSV files
                     )
                 ]
                 for subject_path in subject_paths:
                     subject_id = (
                         subject_path.name.split(" ")[1] if "Subject" in subject_path.name else subject_path.name
                     )
-                    header_variables = get_opto_header_variables(subject_path, start_variable)
+                    header_variables = get_opto_header_variables(subject_path)
                     start_dates, start_times, msns, file_paths, subjects, box_numbers = header_variables
                     for start_date, start_time, msn, file, subject, box_number in zip(
                         start_dates, start_times, msns, file_paths, subjects, box_numbers
@@ -325,7 +377,19 @@ def opto_to_nwb(
     return session_to_nwb_args_per_session
 
 
-def get_opto_header_variables(subject_path, start_variable):
+def get_opto_header_variables(subject_path):
+    """Get the header variables for the Optogenetic portion of the dataset.
+
+    Parameters
+    ----------
+    subject_path : Path
+        The path to the subject directory.
+
+    Returns
+    -------
+    tuple
+        A tuple containing the start dates, start times, MSNs, file paths, subjects, and box numbers.
+    """
     if subject_path.is_file():
         medpc_file_path = subject_path
         medpc_variables = get_medpc_variables(
@@ -440,7 +504,25 @@ def get_csv_session_dates(subject_dir):
     return csv_session_dates
 
 
-def get_header_variables(subject_dir, subject_id, raw_file_to_info, start_variable):
+def get_fp_header_variables(subject_dir, subject_id, raw_file_to_info, start_variable):
+    """Get the header variables for the Fiber Photometry portion of the dataset.
+
+    Parameters
+    ----------
+    subject_dir : Path
+        The path to the subject directory.
+    subject_id : str
+        The subject ID.
+    raw_file_to_info : dict
+        A dictionary mapping raw files to their information.
+    start_variable : str
+        The variable to use as the start variable for the session.
+
+    Returns
+    -------
+    tuple
+        A tuple containing the start dates, start times, MSNs, file paths, subjects, and box numbers.
+    """
     medpc_file_path = subject_dir / f"{subject_id}"
     if medpc_file_path.exists():  # Medpc file with all the sessions for the subject is located in the subject directory
         medpc_variables = get_medpc_variables(
