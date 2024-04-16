@@ -37,6 +37,7 @@ def dataset_to_nwb(
 
     # Convert all sessions and handle missing Fi1d's
     missing_fi1d_sessions = []
+    missing_msn_errors = set()
     for session_to_nwb_args in tqdm(session_to_nwb_args_per_session):
         try:
             session_to_nwb(**session_to_nwb_args)
@@ -51,6 +52,8 @@ def dataset_to_nwb(
                     f"Could not convert {session_to_nwb_args['experimental_group']}/{session_to_nwb_args['subject_id']}/{session_to_nwb_args['session_conditions']['Start Date']} {session_to_nwb_args['session_conditions']['Start Time']}"
                 )
                 raise AttributeError(e)
+        except KeyError as e:
+            missing_msn_errors.add(str(e))
         except Exception as e:
             print(
                 f"Could not convert {session_to_nwb_args['experimental_group']}/{session_to_nwb_args['subject_id']}/{session_to_nwb_args['session_conditions']['Start Date']} {session_to_nwb_args['session_conditions']['Start Time']}"
@@ -60,6 +63,10 @@ def dataset_to_nwb(
         print("Missing Fi1d Sessions:")
         for session in missing_fi1d_sessions:
             print(session)
+    if missing_msn_errors:
+        print("Missing MSN errors:")
+        for error in missing_msn_errors:
+            print(error)
 
 
 def fp_to_nwb(

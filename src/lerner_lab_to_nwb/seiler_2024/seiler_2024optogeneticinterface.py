@@ -102,8 +102,10 @@ class Seiler2024OptogeneticInterface(BaseDataInterface):
                 stim_times.extend(session_dict.pop("left_reward_times"))
             if len(session_dict["right_reward_times"]) > 0:
                 stim_times.extend(session_dict.pop("right_reward_times"))
-            if not stim_times:
-                raise ValueError("No stim times found in medpc file.")
+            if not stim_times:  # sessions without reward/stim times are skipped with a warning
+                if self.verbose:
+                    print(f"No optogenetic stimulation times found for {metadata['NWBFile']['session_id']}")
+                return
             session_dict["stim_times"] = np.sort(stim_times)
         stim_times = session_dict["stim_times"]
 
