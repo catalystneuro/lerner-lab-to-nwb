@@ -356,14 +356,14 @@ def get_opto_header_variables(subject_path, start_variable):
                 start_times.append(start_time)
                 msns.append(msn)
                 file_paths.append(file)
-        # for file in csv_files:
-        #     start_date = file.stem.split("_")[1].replace("-", "/")
-        #     start_time = "00:00:00"
-        #     msn = "Unknown"
-        #     start_dates.append(start_date)
-        #     start_times.append(start_time)
-        #     msns.append(msn)
-        #     file_paths.append(file)
+        for file in csv_files:
+            start_date = file.stem.split("_")[1].replace("-", "/")
+            start_time = "00:00:00"
+            msn = "Unknown"
+            start_dates.append(start_date)
+            start_times.append(start_time)
+            msns.append(msn)
+            file_paths.append(file)
         subjects = [None] * len(start_dates)
         box_numbers = [None] * len(start_dates)
 

@@ -144,6 +144,8 @@ Many MSNs (ex. 'FOOD_FR1 TTL Left', 'FOOD_FR1 TTL Right', and 'FOOD_RI 30 LEFT')
 - need to ask for more specific info about the device (data sheet)
 - Need pulse width for excitatory optogenetics
 - DMS-Inhibitory Group 2 is missing
-- DLS-Excitatory has a bunch of files organized by date not belonging to any optogenetic treatment group folder
+- DLS-Excitatory has a bunch of files (medpc and csv) organized by date not belonging to any optogenetic treatment group folder
     (ChR2, EYFP, Scrambled).  Which treatment did these sessions receive?
-- RI 60 LEFT_STIM, RI 30 LEFT_STIM, and x msns show up in opto data but don't have associated files -- assumed to be the same as their right counterparts
+- DMS-Excitatory has some csv files w/ only session-aggregated info (total right rewards but not right reward times)
+    ex. ChR2/121_280.CSV -- do you have individual session info for these animals?
+- RI 60 LEFT_STIM, RI 30 LEFT_STIM, and RK_C_FR1_BOTH_1hr msns show up in opto data but don't have associated files -- assumed to be the same as their right counterparts?
