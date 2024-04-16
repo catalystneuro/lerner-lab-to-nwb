@@ -171,6 +171,7 @@ class Seiler2024BehaviorInterface(BaseDataInterface):
                 "Start Time": str,
                 "End Time": str,
                 "MSN": str,
+                "Experiment": str,
             }
             session_df = pd.read_csv(self.source_data["file_path"], dtype=session_dtypes)
             session_dict = {}
