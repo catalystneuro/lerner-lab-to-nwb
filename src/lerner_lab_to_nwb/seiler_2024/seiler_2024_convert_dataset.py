@@ -284,37 +284,37 @@ def opto_to_nwb(
                             msn=msn,
                         ):
                             continue
-                    session_conditions = {
-                        "Start Date": start_date,
-                        "Start Time": start_time,
-                    }
-                    if subject is not None:
-                        session_conditions["Subject"] = subject
-                    if box_number is not None:
-                        session_conditions["Box"] = box_number
-                    start_datetime = datetime.strptime(f"{start_date} {start_time}", "%m/%d/%y %H:%M:%S")
-                    session_to_nwb_args = dict(
-                        data_dir_path=data_dir_path,
-                        output_dir_path=output_dir_path,
-                        behavior_file_path=file,
-                        subject_id=subject_id,
-                        session_conditions=session_conditions,
-                        start_variable=start_variable,
-                        start_datetime=start_datetime,
-                        experiment_type=experiment_type,
-                        experimental_group=experimental_group,
-                        optogenetic_treatment=optogenetic_treatment,
-                        stub_test=stub_test,
-                        verbose=verbose,
-                    )
-                    nwbfile_path = (
-                        output_dir_path
-                        / f"{experiment_type}_{experimental_group}__{optogenetic_treatment}_{subject_id}_{start_datetime.isoformat()}.nwb"
-                    )
-                    if nwbfile_path in nwbfile_paths:
-                        continue
-                    nwbfile_paths.add(nwbfile_path)
-                    session_to_nwb_args_per_session.append(session_to_nwb_args)
+                        session_conditions = {
+                            "Start Date": start_date,
+                            "Start Time": start_time,
+                        }
+                        if subject is not None:
+                            session_conditions["Subject"] = subject
+                        if box_number is not None:
+                            session_conditions["Box"] = box_number
+                        start_datetime = datetime.strptime(f"{start_date} {start_time}", "%m/%d/%y %H:%M:%S")
+                        session_to_nwb_args = dict(
+                            data_dir_path=data_dir_path,
+                            output_dir_path=output_dir_path,
+                            behavior_file_path=file,
+                            subject_id=subject_id,
+                            session_conditions=session_conditions,
+                            start_variable=start_variable,
+                            start_datetime=start_datetime,
+                            experiment_type=experiment_type,
+                            experimental_group=experimental_group,
+                            optogenetic_treatment=optogenetic_treatment,
+                            stub_test=stub_test,
+                            verbose=verbose,
+                        )
+                        nwbfile_path = (
+                            output_dir_path
+                            / f"{experiment_type}_{experimental_group}__{optogenetic_treatment}_{subject_id}_{start_datetime.isoformat()}.nwb"
+                        )
+                        if nwbfile_path in nwbfile_paths:
+                            continue
+                        nwbfile_paths.add(nwbfile_path)
+                        session_to_nwb_args_per_session.append(session_to_nwb_args)
     return session_to_nwb_args_per_session
 
 
@@ -332,11 +332,14 @@ def get_opto_header_variables(subject_path, start_variable):
         box_numbers = [None] * len(start_dates)
     elif subject_path.is_dir():
         start_dates, start_times, msns, file_paths = [], [], [], []
-        medpc_files = [
-            file
-            for file in subject_path.iterdir()
-            if not (file.name.endswith(".csv") or file.name.endswith(".CSV") or file.name.startswith("."))
-        ]
+        medpc_files, csv_files = [], []
+        for file in subject_path.iterdir():
+            if file.name.startswith("."):
+                continue
+            if file.suffix == ".csv" or file.suffix == ".CSV":
+                csv_files.append(file)
+            elif not file.name.startswith("."):
+                medpc_files.append(file)
         for file in medpc_files:
             medpc_variables = get_medpc_variables(file_path=file, variable_names=["Start Date", "Start Time", "MSN"])
             for start_date, start_time, msn in zip(
@@ -346,6 +349,14 @@ def get_opto_header_variables(subject_path, start_variable):
                 start_times.append(start_time)
                 msns.append(msn)
                 file_paths.append(file)
+        # for file in csv_files:
+        #     start_date = file.stem.split("_")[1].replace("-", "/")
+        #     start_time = "00:00:00"
+        #     msn = "Unknown"
+        #     start_dates.append(start_date)
+        #     start_times.append(start_time)
+        #     msns.append(msn)
+        #     file_paths.append(file)
         subjects = [None] * len(start_dates)
         box_numbers = [None] * len(start_dates)
 

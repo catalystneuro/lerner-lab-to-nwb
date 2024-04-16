@@ -137,7 +137,7 @@ Many MSNs (ex. 'FOOD_FR1 TTL Left', 'FOOD_FR1 TTL Right', and 'FOOD_RI 30 LEFT')
 - Optogenetic pulses are either paired directly with reward times or optogenetic_stimulus_times variable in medpc file
     for "scrambled" trials.
 - timing info can be found in paper (460nm, 1 s, 20 Hz, 15 mW for excitatory and 625nm, 1 s, 15 mW for inhibitory)
--
+- Some of the opto csv sessions have start times (ex. DLS Excitatory/ChR2/290.407/290.407_09-23-20.csv) -- need to add optional parsing
 
 ### Questions
 - need to ask for more specific info about the device (data sheet)
@@ -145,4 +145,4 @@ Many MSNs (ex. 'FOOD_FR1 TTL Left', 'FOOD_FR1 TTL Right', and 'FOOD_RI 30 LEFT')
 - DMS-Inhibitory Group 2 is missing
 - DLS-Excitatory has a bunch of files organized by date not belonging to any optogenetic treatment group folder
     (ChR2, EYFP, Scrambled).  Which treatment did these sessions receive?
--
+- RI 60 LEFT_STIM, RI 30 LEFT_STIM, and x msns show up in opto data but don't have associated files -- assumed to be the same as their right counterparts
