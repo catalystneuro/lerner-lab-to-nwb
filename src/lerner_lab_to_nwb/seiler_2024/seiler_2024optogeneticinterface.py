@@ -195,4 +195,4 @@ class Seiler2024OptogeneticInterface(BaseDataInterface):
                 pulse_offset_time = pulse_onset_time + pulse_width
                 timestamps.append(pulse_offset_time)
                 data.append(0)
-        return np.array(timestamps), np.array(data)
+        return np.array(timestamps, dtype=np.float64), np.array(data, dtype=np.float64)
