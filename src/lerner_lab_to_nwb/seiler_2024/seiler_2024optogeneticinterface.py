@@ -71,7 +71,14 @@ class Seiler2024OptogeneticInterface(BaseDataInterface):
                 "RightRewardTs": "right_reward_times",
                 "LeftRewardTs": "left_reward_times",
             }
-            session_df = pd.read_csv(self.source_data["file_path"])
+            session_dtypes = {
+                "Start Date": str,
+                "End Date": str,
+                "Start Time": str,
+                "End Time": str,
+                "MSN": str,
+            }
+            session_df = pd.read_csv(self.source_data["file_path"], dtype=session_dtypes)
             session_dict = {}
             for csv_name, dict_name in csv_name_to_dict_name.items():
                 session_dict[dict_name] = np.trim_zeros(session_df[csv_name].dropna().values, trim="b")

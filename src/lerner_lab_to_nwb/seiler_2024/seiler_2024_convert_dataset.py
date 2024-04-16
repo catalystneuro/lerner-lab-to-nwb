@@ -6,6 +6,7 @@ from datetime import datetime
 import shutil
 import pandas as pd
 import numpy as np
+import warnings
 
 from lerner_lab_to_nwb.seiler_2024.seiler_2024_convert_session import session_to_nwb
 from lerner_lab_to_nwb.seiler_2024.medpc import get_medpc_variables
@@ -40,7 +41,9 @@ def dataset_to_nwb(
     missing_msn_errors = set()
     for session_to_nwb_args in tqdm(session_to_nwb_args_per_session):
         try:
-            session_to_nwb(**session_to_nwb_args)
+            with warnings.catch_warnings() as w:
+                warnings.filterwarnings("error", category=pd.errors.DtypeWarning)
+                session_to_nwb(**session_to_nwb_args)
         except AttributeError as e:
             if str(e) == "'StructType' object has no attribute 'Fi1d'":
                 missing_fi1d_sessions.append(
