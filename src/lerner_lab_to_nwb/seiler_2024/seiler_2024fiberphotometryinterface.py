@@ -42,12 +42,15 @@ class Seiler2024FiberPhotometryInterface(BaseDataInterface):
         metadata_schema = super().get_metadata_schema()
         return metadata_schema
 
-    def add_to_nwbfile(self, nwbfile: NWBFile, metadata: dict, t2: Optional[float] = None):
+    def add_to_nwbfile(self, nwbfile: NWBFile, metadata: dict, t2: Optional[float] = None, flip_ttls_lr: bool = False):
         # Load Data
         folder_path = Path(self.source_data["folder_path"])
         assert folder_path.is_dir(), f"Folder path {folder_path} does not exist."
         with open(os.devnull, "w") as f, redirect_stdout(f):
-            tdt_photometry = read_block(str(folder_path), t2=t2)
+            if t2 is None:
+                tdt_photometry = read_block(str(folder_path))
+            else:
+                tdt_photometry = read_block(str(folder_path), t2=t2)
 
         # Commanded Voltages
         multi_commanded_voltage = MultiCommandedVoltage()

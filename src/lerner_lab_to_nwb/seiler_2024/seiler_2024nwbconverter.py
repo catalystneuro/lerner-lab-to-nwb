@@ -57,27 +57,38 @@ class Seiler2024NWBConverter(NWBConverter):
         # Read Fiber Photometry Data
         t2 = conversion_options["FiberPhotometry"]["t2"] if "t2" in conversion_options["FiberPhotometry"] else None
         with open(os.devnull, "w") as f, redirect_stdout(f):
-            tdt_photometry = read_block(
-                self.data_interface_objects["FiberPhotometry"].source_data["folder_path"], t2=t2
-            )
+            if t2 is None:
+                tdt_photometry = read_block(self.data_interface_objects["FiberPhotometry"].source_data["folder_path"])
+            else:
+                tdt_photometry = read_block(
+                    self.data_interface_objects["FiberPhotometry"].source_data["folder_path"], t2=t2
+                )
 
         # Aggregate TTLs and Behavior Timestamps
-        if "RIGHT" in msn or "Right" in msn or "right" in msn:
-            ttl_names_to_behavior_names = {
-                "LNPS": "left_nose_poke_times",
-                "RNRW": "right_reward_times",
-                "RNnR": "right_nose_poke_times",
-                "PrtN": "port_entry_times",
-                "Sock": "footshock_times",
-            }
-        elif "LEFT" in msn or "Left" in msn or "left" in msn:
-            ttl_names_to_behavior_names = {
-                "RNPS": "right_nose_poke_times",
-                "LNRW": "left_reward_times",
-                "LNnR": "left_nose_poke_times",
-                "PrtN": "port_entry_times",
-                "Sock": "footshock_times",
-            }
+        right_ttl_names_to_behavior_names = {
+            "LNPS": "left_nose_poke_times",
+            "RNRW": "right_reward_times",
+            "RNnR": "right_nose_poke_times",
+            "PrtN": "port_entry_times",
+            "Sock": "footshock_times",
+        }
+        left_ttl_names_to_behavior_names = {
+            "RNPS": "right_nose_poke_times",
+            "LNRW": "left_reward_times",
+            "LNnR": "left_nose_poke_times",
+            "PrtN": "port_entry_times",
+            "Sock": "footshock_times",
+        }
+        msn_is_right = "RIGHT" in msn or "Right" in msn or "right" in msn
+        msn_is_left = "LEFT" in msn or "Left" in msn or "left" in msn
+        if not conversion_options["FiberPhotometry"]["flip_ttls_lr"] and msn_is_right:
+            ttl_names_to_behavior_names = right_ttl_names_to_behavior_names
+        elif not conversion_options["FiberPhotometry"]["flip_ttls_lr"] and msn_is_left:
+            ttl_names_to_behavior_names = left_ttl_names_to_behavior_names
+        elif conversion_options["FiberPhotometry"]["flip_ttls_lr"] and msn_is_right:
+            ttl_names_to_behavior_names = left_ttl_names_to_behavior_names
+        elif conversion_options["FiberPhotometry"]["flip_ttls_lr"] and msn_is_left:
+            ttl_names_to_behavior_names = right_ttl_names_to_behavior_names
         else:
             raise ValueError(f"MSN ({msn}) does not indicate appropriate TTLs for alignment.")
         for ttl_name, behavior_name in ttl_names_to_behavior_names.items():
