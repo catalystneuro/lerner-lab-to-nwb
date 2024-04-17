@@ -25,7 +25,7 @@ class Seiler2024NWBConverter(NWBConverter):
         Optogenetic=Seiler2024OptogeneticInterface,
     )
 
-    def temporally_align_data_interfaces(self, metadata: dict):
+    def temporally_align_data_interfaces(self, metadata: dict, conversion_options: dict):
         """Align the FiberPhotometry and Behavior data interfaces in time.
 
         This method uses TTLs from the FiberPhotometry data that correspond to behavior events to generate aligned
@@ -35,6 +35,8 @@ class Seiler2024NWBConverter(NWBConverter):
         ----------
         metadata : dict
             The metadata for the session.
+        conversion_options : dict
+            The conversion options for the session.
         """
         if not "FiberPhotometry" in self.data_interface_objects.keys():
             self.data_interface_objects["Behavior"].source_data["session_dict"] = None
@@ -53,8 +55,11 @@ class Seiler2024NWBConverter(NWBConverter):
         )
 
         # Read Fiber Photometry Data
+        t2 = conversion_options["FiberPhotometry"]["t2"] if "t2" in conversion_options["FiberPhotometry"] else None
         with open(os.devnull, "w") as f, redirect_stdout(f):
-            tdt_photometry = read_block(self.data_interface_objects["FiberPhotometry"].source_data["folder_path"])
+            tdt_photometry = read_block(
+                self.data_interface_objects["FiberPhotometry"].source_data["folder_path"], t2=t2
+            )
 
         # Aggregate TTLs and Behavior Timestamps
         if "RIGHT" in msn or "Right" in msn or "right" in msn:
@@ -109,7 +114,7 @@ class Seiler2024NWBConverter(NWBConverter):
 
         self.validate_conversion_options(conversion_options=conversion_options)
 
-        self.temporally_align_data_interfaces(metadata=metadata)
+        self.temporally_align_data_interfaces(metadata=metadata, conversion_options=conversion_options)
 
         with make_or_load_nwbfile(
             nwbfile_path=nwbfile_path,

@@ -19,6 +19,7 @@ from hdmf.backends.hdf5.h5_utils import H5DataIO
 from tdt import read_block
 import os
 from contextlib import redirect_stdout
+from typing import Optional
 
 
 class Seiler2024FiberPhotometryInterface(BaseDataInterface):
@@ -41,12 +42,12 @@ class Seiler2024FiberPhotometryInterface(BaseDataInterface):
         metadata_schema = super().get_metadata_schema()
         return metadata_schema
 
-    def add_to_nwbfile(self, nwbfile: NWBFile, metadata: dict):
+    def add_to_nwbfile(self, nwbfile: NWBFile, metadata: dict, t2: Optional[float] = None):
         # Load Data
         folder_path = Path(self.source_data["folder_path"])
         assert folder_path.is_dir(), f"Folder path {folder_path} does not exist."
         with open(os.devnull, "w") as f, redirect_stdout(f):
-            tdt_photometry = read_block(str(folder_path))
+            tdt_photometry = read_block(str(folder_path), t2=t2)
 
         # Commanded Voltages
         multi_commanded_voltage = MultiCommandedVoltage()

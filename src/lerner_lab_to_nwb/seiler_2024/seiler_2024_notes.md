@@ -79,7 +79,10 @@ Many MSNs (ex. 'FOOD_FR1 TTL Left', 'FOOD_FR1 TTL Right', and 'FOOD_RI 30 LEFT')
     - The RR20 folder only has .mat files rather than tdt synapse output folders -- pls provide?
     - Several sessions don't have fi1d -- see printout
     - Delayed Punishment Resistant/Late/Photo_334_394-200721-131257 throws an error from tdt.read_block, but loads fine if t2 <= 824
+        - Solution: just load with t2<=824
+        - This session also is missing RNPS TTL
     - Punishment Sensitive/Late RI60/Photo_139_298-190912-095034 throws an error from tdt.read_block, but loads fine if t2 <= 2267
+        - Solution: just load with t2<=2267
     - Punishment Sensitive/Early RI60/Photo_140_306-190809-121107 has msn FOOD_RI 60 LEFT TTL, but epocs
     PrtN, RNnR, PrtR, LNPS, RNRW -- why is this mismatched with the expected epocs?
     - Some of the animals/days have 2 photometry sessions but only 1 behavior session

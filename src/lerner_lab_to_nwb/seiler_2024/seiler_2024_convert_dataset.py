@@ -168,7 +168,6 @@ def fp_to_nwb(
                     (photometry_subject_id == "88.239" and photometry_start_date == "02/19/19")
                     or (photometry_subject_id == "271.396" and photometry_start_date == "07/07/20")
                     or (photometry_subject_id == "332.393" and photometry_start_date == "07/28/20")
-                    or (photometry_subject_id == "334.394" and photometry_start_date == "07/21/20")
                     or (photometry_subject_id == "140.306" and photometry_start_date == "08/09/19")
                     or (photometry_subject_id == "139.298" and photometry_start_date == "09/12/19")
                 ):  # TODO: Ask Lerner Lab about these sessions
