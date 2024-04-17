@@ -138,6 +138,7 @@ Many MSNs (ex. 'FOOD_FR1 TTL Left', 'FOOD_FR1 TTL Right', and 'FOOD_RI 30 LEFT')
     Punishment Sensitive/Late RI60/Photo_271_396-200722-121638
     Punishment Sensitive/Late RI60/Photo_347_393-200723-113530
     Punishment Sensitive/Late RI60/Photo_348_393-200730-113125
+    - Missing Fi1d Solution: add Fi1r as an optional field
 
 ## Optogenetics
 ### Notes
