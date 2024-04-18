@@ -80,7 +80,7 @@ class Seiler2024NWBConverter(NWBConverter):
             "Sock": "footshock_times",
         }
         msn_is_right = "RIGHT" in msn or "Right" in msn or "right" in msn
-        msn_is_left = "LEFT" in msn or "Left" in msn or "left" in msn
+        msn_is_left = "LEFT" in msn or "Left" in msn or "left" in msn or msn == "Probe Test Habit Training TTL"
         if not conversion_options["FiberPhotometry"]["flip_ttls_lr"] and msn_is_right:
             ttl_names_to_behavior_names = right_ttl_names_to_behavior_names
         elif not conversion_options["FiberPhotometry"]["flip_ttls_lr"] and msn_is_left:
