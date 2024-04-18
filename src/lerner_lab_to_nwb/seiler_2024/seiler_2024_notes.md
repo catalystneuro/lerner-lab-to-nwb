@@ -70,11 +70,15 @@ Many MSNs (ex. 'FOOD_FR1 TTL Left', 'FOOD_FR1 TTL Right', and 'FOOD_RI 30 LEFT')
 - Folders are named 'Photo_<subject_id>-YYMMDD-HHMMSS' --> match with same day behavior session
 - some folders have subject_id with multiple session folders for each subject
 - For DPR/334.394/07/02/20, no right nosepokes were made --> photometry object doesn't have a RNPS object
+- Delayed Punishment Resistant/Early/Photo_64_205-181017-094913 is duplicated at Delayed Punishment Resistant/Late/64.205/Photo_64_205-181017-094913
+    --> skipping the second one
 - Questions for Lerner Lab:
     - The TTL for 'unrewarded right nose pokes' (RNnR), corresponds to the nose pokes variable in medpc, which supposedly
     records *all* nosepokes. Which is correct?
     - Mistaken session 88.239?
     - PS/271.396_07/07/20 has two behavioral sessions but only 1 fp session folder
+        - Answer: For 271.396 on 07/07/20, I initially ran the animal on RI60_RIGHT for 15ish minutes before realizing it was a mistake and switching it to RI60 LEFT, hence the 2 MED entries.
+        - Solution: Ignore 15min RI60_Right and keep RI60_Left
     - PS/332.393_07/28/20 has 2 fp sessions but no matching behavior session
     - The RR20 folder only has .mat files rather than tdt synapse output folders -- pls provide?
     - Several sessions don't have fi1d -- see printout
