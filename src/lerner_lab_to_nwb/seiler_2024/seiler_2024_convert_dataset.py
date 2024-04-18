@@ -47,6 +47,8 @@ def dataset_to_nwb(
     # )
     # session_to_nwb_args_per_session = fp_session_to_nwb_args_per_session + opto_session_to_nwb_args_per_session
     session_to_nwb_args_per_session = fp_session_to_nwb_args_per_session
+    # print(len(session_to_nwb_args_per_session))
+    # return
 
     # Convert all sessions and handle missing Fi1d's
     missing_fi1d_sessions = []
@@ -122,10 +124,7 @@ def fp_to_nwb(
         "Photo_64_205-181017-094913",
         "Photo_81_236-190117-102128",
         "Photo_87_239-190228-111317",
-        "Photo_64_205-181017-094913",
-        "Photo_81_236-190117-102128",
         "Photo_81_236-190207-101451",
-        "Photo_87_239-190228-111317",
         "Photo_87_239-190321-110120",
         "Photo_88_239-190311-112034",
         "Photo_333_393-200729-115506",
@@ -220,10 +219,28 @@ def fp_to_nwb(
                         matching_subjects.append(subject)
                         matching_box_numbers.append(box_number)
                 if (
-                    photometry_subject_id == "332.393"
-                    and photometry_start_date == "07/28/20"
-                    or photometry_subject_id == "334.394"
-                    and photometry_start_date == "07/21/20"
+                    (photometry_subject_id == "332.393" and photometry_start_date == "07/28/20")
+                    or (photometry_subject_id == "334.394" and photometry_start_date == "07/21/20")
+                    or (
+                        photometry_subject_id == "64.205"
+                        and photometry_start_date == "10/17/18"
+                        and experimental_subgroup.name == "Late"
+                    )
+                    or (
+                        photometry_subject_id == "81.236"
+                        and photometry_start_date == "01/17/19"
+                        and experimental_subgroup.name == "Late"
+                    )
+                    or (
+                        photometry_subject_id == "87.239"
+                        and photometry_start_date == "02/28/19"
+                        and experimental_subgroup.name == "Late"
+                    )
+                    or (
+                        photometry_subject_id == "88.239"
+                        and photometry_start_date == "02/19/19"
+                        and experimental_subgroup.name == "Late"
+                    )
                 ):
                     continue
                 assert (
