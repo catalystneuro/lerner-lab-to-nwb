@@ -72,9 +72,12 @@ Many MSNs (ex. 'FOOD_FR1 TTL Left', 'FOOD_FR1 TTL Right', and 'FOOD_RI 30 LEFT')
 - For DPR/334.394/07/02/20, no right nosepokes were made --> photometry object doesn't have a RNPS object
     - Solution: only extract ttls if the corresponding behavior array is non-empty
 - Delayed Punishment Resistant/Early/Photo_64_205-181017-094913 is duplicated at Delayed Punishment Resistant/Late/64.205/Photo_64_205-181017-094913
-    - Same for Photo_81_236-190117-102128, Photo_87_239-190228-111317, Photo_88_239-190219-140027,
-    --> skipping the second one
+    - Same for Photo_81_236-190117-102128, Photo_87_239-190228-111317, Photo_88_239-190219-140027
+    - --> skipping the second one
 - Punishment Resistant/Early RI60/Photo_80_236-190121-093425 is duplicated at Punishment Resistant/Late RI60/80.236/Photo_80_236-190121-093425
+    - --> skipping second one
+- Punishment Sensitive/Early RI60/Photo_75_214-181029-124815 is duplicated at Punishment Sensitive/Late RI60/Photo_75_214-181029-124815
+    - same for Photo_93_246-190222-130128
     - --> skipping second one
 - Questions for Lerner Lab:
     - The TTL for 'unrewarded right nose pokes' (RNnR), corresponds to the nose pokes variable in medpc, which supposedly

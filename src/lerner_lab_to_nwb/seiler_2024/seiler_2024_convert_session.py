@@ -138,12 +138,13 @@ def session_to_nwb(
     start_datetime = metadata["NWBFile"]["session_start_time"]
     if experiment_type == "FP":
         nwbfile_path = (
-            output_dir_path / f"{experiment_type}_{experimental_group}_{subject_id}_{start_datetime.isoformat()}.nwb"
+            output_dir_path
+            / f"{experiment_type}_{experimental_group}_{subject_id}_{start_datetime.isoformat().replace(':', '-')}.nwb"
         )
     elif experiment_type == "Opto":
         nwbfile_path = (
             output_dir_path
-            / f"{experiment_type}_{experimental_group}_{optogenetic_treatment}_{subject_id}_{start_datetime.isoformat()}.nwb"
+            / f"{experiment_type}_{experimental_group}_{optogenetic_treatment}_{subject_id}_{start_datetime.isoformat().replace(':', '-')}.nwb"
         )
     else:
         raise ValueError(f"Invalid experiment type: {experiment_type}")

@@ -69,12 +69,12 @@ def dataset_to_nwb(
             if experiment_type == "FP":
                 exception_file_path = (
                     output_dir_path
-                    / f"ERROR_{experiment_type}_{experimental_group}_{subject_id}_{start_datetime.isoformat()}.txt"
+                    / f"ERROR_{experiment_type}_{experimental_group}_{subject_id}_{start_datetime.isoformat().replace(':', '-')}.txt"
                 )
             elif experiment_type == "Opto":
                 exception_file_path = (
                     output_dir_path
-                    / f"ERROR_{experiment_type}_{experimental_group}_{optogenetic_treatment}_{subject_id}_{start_datetime.isoformat()}.txt"
+                    / f"ERROR_{experiment_type}_{experimental_group}_{optogenetic_treatment}_{subject_id}_{start_datetime.isoformat().replace(':', '-')}.txt"
                 )
             futures.append(
                 executor.submit(
@@ -136,7 +136,7 @@ def fp_to_nwb(
         "DPR": "Delayed Punishment Resistant",
         "PR": "Punishment Resistant",
         "PS": "Punishment Sensitive",
-        "RR20": "RR20",
+        # "RR20": "RR20",
     }
     behavior_path = data_dir_path / f"{experiment_type} Experiments" / "Behavior"
     photometry_path = data_dir_path / f"{experiment_type} Experiments" / "Photometry"
@@ -185,6 +185,9 @@ def fp_to_nwb(
         "Photo_348_393-200730-113125",
         "Photo_139_298-190912-095034",
         "Photo_88_239-190219-140027",
+        "Photo_89_247-190308-095258",
+        "Photo_140_306-190809-121107",
+        "Photo_271_396-200707-125117",
     }
     raw_file_to_info = get_raw_info(behavior_path)
 
@@ -243,7 +246,10 @@ def fp_to_nwb(
                         matching_subjects.append(subject)
                         matching_box_numbers.append(box_number)
                 if (
-                    (photometry_subject_id == "332.393" and photometry_start_date == "07/28/20")
+                    (
+                        photometry_subject_id == "334.394" and photometry_start_date == "07/21/20"
+                    )  # TODO: Ask Lerner Lab about this session
+                    or (photometry_subject_id == "332.393" and photometry_start_date == "07/28/20")
                     or (
                         photometry_subject_id == "64.205"
                         and photometry_start_date == "10/17/18"
@@ -267,6 +273,16 @@ def fp_to_nwb(
                     or (
                         photometry_subject_id == "80.236"
                         and photometry_start_date == "01/21/19"
+                        and experimental_subgroup.name == "Late RI60"
+                    )
+                    or (
+                        photometry_subject_id == "75.214"
+                        and photometry_start_date == "10/29/18"
+                        and experimental_subgroup.name == "Late RI60"
+                    )
+                    or (
+                        photometry_subject_id == "93.246"
+                        and photometry_start_date == "02/22/19"
                         and experimental_subgroup.name == "Late RI60"
                     )
                 ):
@@ -318,6 +334,8 @@ def fp_to_nwb(
                     session_to_nwb_args["second_fiber_photometry_folder_path"] = (
                         fiber_photometry_folder_path.parent / "Photo_332_393-200728-123314"
                     )
+                if fiber_photometry_folder_path.name == "Photo_332_393-200728-123314":
+                    continue
                 if photometry_subject_id == "140.306" and photometry_start_date == "08/09/19":
                     session_to_nwb_args["flip_ttls_lr"] = True
 
