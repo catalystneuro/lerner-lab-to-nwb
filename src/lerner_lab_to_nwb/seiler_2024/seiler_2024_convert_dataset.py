@@ -241,6 +241,12 @@ def fp_to_nwb(
                         and photometry_start_date == "02/19/19"
                         and experimental_subgroup.name == "Late"
                     )
+                    # Punishment Resistant/Early RI60/Photo_80_236-190121-093425 is duplicated at Punishment Resistant/Late RI60/80.236/Photo_80_236-190121-093425
+                    or (
+                        photometry_subject_id == "80.236"
+                        and photometry_start_date == "01/21/19"
+                        and experimental_subgroup.name == "Late RI60"
+                    )
                 ):
                     continue
                 assert (

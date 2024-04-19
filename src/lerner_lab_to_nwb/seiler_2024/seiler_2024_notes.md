@@ -73,6 +73,8 @@ Many MSNs (ex. 'FOOD_FR1 TTL Left', 'FOOD_FR1 TTL Right', and 'FOOD_RI 30 LEFT')
 - Delayed Punishment Resistant/Early/Photo_64_205-181017-094913 is duplicated at Delayed Punishment Resistant/Late/64.205/Photo_64_205-181017-094913
     - Same for Photo_81_236-190117-102128, Photo_87_239-190228-111317, Photo_88_239-190219-140027,
     --> skipping the second one
+- Punishment Resistant/Early RI60/Photo_80_236-190121-093425 is duplicated at Punishment Resistant/Late RI60/80.236/Photo_80_236-190121-093425
+    - --> skipping second one
 - Questions for Lerner Lab:
     - The TTL for 'unrewarded right nose pokes' (RNnR), corresponds to the nose pokes variable in medpc, which supposedly
     records *all* nosepokes. Which is correct?
@@ -85,7 +87,7 @@ Many MSNs (ex. 'FOOD_FR1 TTL Left', 'FOOD_FR1 TTL Right', and 'FOOD_RI 30 LEFT')
     - Several sessions don't have fi1d -- see printout
     - Delayed Punishment Resistant/Late/Photo_334_394-200721-131257 throws an error from tdt.read_block, but loads fine if t2 <= 824
         - Solution: just load with t2<=824
-        - This session also is missing RNPS TTL
+        - This session also is missing RNPS TTL but has 3 nose poke times in the medpc file --> ask lab
     - Punishment Sensitive/Late RI60/Photo_139_298-190912-095034 throws an error from tdt.read_block, but loads fine if t2 <= 2267
         - Solution: just load with t2<=2267
         - This session is also Fi1r-only
