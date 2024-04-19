@@ -7,6 +7,8 @@ import shutil
 import pandas as pd
 import numpy as np
 from concurrent.futures import ProcessPoolExecutor, as_completed
+from pprint import pformat
+import traceback
 
 from lerner_lab_to_nwb.seiler_2024.seiler_2024_convert_session import session_to_nwb
 from lerner_lab_to_nwb.seiler_2024.medpc import get_medpc_variables
@@ -14,7 +16,12 @@ from lerner_lab_to_nwb.seiler_2024.medpc import read_medpc_file
 
 
 def dataset_to_nwb(
-    data_dir_path: Union[str, Path], output_dir_path: Union[str, Path], stub_test: bool = False, verbose: bool = True
+    *,
+    data_dir_path: Union[str, Path],
+    output_dir_path: Union[str, Path],
+    max_workers: int = 1,
+    stub_test: bool = False,
+    verbose: bool = True,
 ):
     """Convert the entire dataset to NWB.
 
@@ -51,44 +58,52 @@ def dataset_to_nwb(
     # print(len(session_to_nwb_args_per_session))
     # return
 
-    # Convert all sessions and handle missing Fi1d's
-    # missing_fi1d_sessions = []
-    # missing_msn_errors = set()
-    # for session_to_nwb_args in tqdm(session_to_nwb_args_per_session):
-    #     try:
-    #         session_to_nwb(**session_to_nwb_args)
-    #     except AttributeError as e:
-    #         if str(e) == "'StructType' object has no attribute 'Fi1d'":
-    #             missing_fi1d_sessions.append(
-    #                 str(session_to_nwb_args["fiber_photometry_folder_path"]).split("Photometry/")[1]
-    #             )
-    #             continue
-    #         else:
-    #             print(
-    #                 f"Could not convert {session_to_nwb_args['experimental_group']}/{session_to_nwb_args['subject_id']}/{session_to_nwb_args['session_conditions']['Start Date']} {session_to_nwb_args['session_conditions']['Start Time']}"
-    #             )
-    #             raise AttributeError(e)
-    #     except KeyError as e:
-    #         missing_msn_errors.add(str(e))
-    #     except Exception as e:
-    #         print(
-    #             f"Could not convert {session_to_nwb_args['experimental_group']}/{session_to_nwb_args['subject_id']}/{session_to_nwb_args['session_conditions']['Start Date']} {session_to_nwb_args['session_conditions']['Start Time']}"
-    #         )
-    #         raise Exception(e)
-    # if missing_fi1d_sessions:
-    #     print("Missing Fi1d Sessions:")
-    #     for session in missing_fi1d_sessions:
-    #         print(session)
-    # if missing_msn_errors:
-    #     print("Missing MSN errors:")
-    #     for error in missing_msn_errors:
-    #         print(error)
     futures = []
-    with ProcessPoolExecutor(max_workers=4) as executor:
-        for session_to_nwb_args in session_to_nwb_args_per_session:
-            futures.append(executor.submit(session_to_nwb, **session_to_nwb_args))
+    with ProcessPoolExecutor(max_workers=max_workers) as executor:
+        for session_to_nwb_kwargs in session_to_nwb_args_per_session:
+            experiment_type = session_to_nwb_kwargs["experiment_type"]
+            experimental_group = session_to_nwb_kwargs["experimental_group"]
+            subject_id = session_to_nwb_kwargs["subject_id"]
+            start_datetime = session_to_nwb_kwargs["start_datetime"]
+            optogenetic_treatment = session_to_nwb_kwargs.get("optogenetic_treatment", None)
+            if experiment_type == "FP":
+                exception_file_path = (
+                    output_dir_path
+                    / f"ERROR_{experiment_type}_{experimental_group}_{subject_id}_{start_datetime.isoformat()}.txt"
+                )
+            elif experiment_type == "Opto":
+                exception_file_path = (
+                    output_dir_path
+                    / f"ERROR_{experiment_type}_{experimental_group}_{optogenetic_treatment}_{subject_id}_{start_datetime.isoformat()}.txt"
+                )
+            futures.append(
+                executor.submit(
+                    safe_session_to_nwb,
+                    session_to_nwb_kwargs=session_to_nwb_kwargs,
+                    exception_file_path=exception_file_path,
+                )
+            )
         for _ in tqdm(as_completed(futures), total=len(futures)):
             pass
+
+
+def safe_session_to_nwb(*, session_to_nwb_kwargs: dict, exception_file_path: Union[Path, str]):
+    """Convert a session to NWB while handling any errors by recording error messages to the exception_file_path.
+
+    Parameters
+    ----------
+    session_to_nwb_kwargs : dict
+        The arguments for session_to_nwb.
+    exception_file_path : Path
+        The path to the file where the exception messages will be saved.
+    """
+    exception_file_path = Path(exception_file_path)
+    try:
+        session_to_nwb(**session_to_nwb_kwargs)
+    except Exception as e:
+        with open(exception_file_path, mode="w") as f:
+            f.write(f"session_to_nwb_kwargs: \n {pformat(session_to_nwb_kwargs)}\n\n")
+            f.write(traceback.format_exc())
 
 
 def fp_to_nwb(
@@ -717,4 +732,11 @@ if __name__ == "__main__":
         shutil.rmtree(
             output_dir_path, ignore_errors=True
         )  # ignore errors due to MacOS race condition (https://github.com/python/cpython/issues/81441)
-    dataset_to_nwb(data_dir_path=data_dir_path, output_dir_path=output_dir_path, stub_test=False, verbose=False)
+    max_workers = 4
+    dataset_to_nwb(
+        data_dir_path=data_dir_path,
+        output_dir_path=output_dir_path,
+        max_workers=max_workers,
+        stub_test=False,
+        verbose=False,
+    )
