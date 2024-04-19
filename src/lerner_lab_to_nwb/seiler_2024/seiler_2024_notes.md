@@ -70,6 +70,7 @@ Many MSNs (ex. 'FOOD_FR1 TTL Left', 'FOOD_FR1 TTL Right', and 'FOOD_RI 30 LEFT')
 - Folders are named 'Photo_<subject_id>-YYMMDD-HHMMSS' --> match with same day behavior session
 - some folders have subject_id with multiple session folders for each subject
 - For DPR/334.394/07/02/20, no right nosepokes were made --> photometry object doesn't have a RNPS object
+    - Solution: only extract ttls if the corresponding behavior array is non-empty
 - Delayed Punishment Resistant/Early/Photo_64_205-181017-094913 is duplicated at Delayed Punishment Resistant/Late/64.205/Photo_64_205-181017-094913
     - Same for Photo_81_236-190117-102128, Photo_87_239-190228-111317, Photo_88_239-190219-140027,
     --> skipping the second one
@@ -83,8 +84,10 @@ Many MSNs (ex. 'FOOD_FR1 TTL Left', 'FOOD_FR1 TTL Right', and 'FOOD_RI 30 LEFT')
         - Answer: For 271.396 on 07/07/20, I initially ran the animal on RI60_RIGHT for 15ish minutes before realizing it was a mistake and switching it to RI60 LEFT, hence the 2 MED entries.
         - Solution: Ignore 15min RI60_Right and keep RI60_Left
     - PS/332.393_07/28/20 has 2 fp sessions but no matching behavior session
+        - Solution: stitch them together
     - The RR20 folder only has .mat files rather than tdt synapse output folders -- pls provide?
     - Several sessions don't have fi1d -- see printout
+        - Solution: Added option for fi1r-only in photometry interface
     - Delayed Punishment Resistant/Late/Photo_334_394-200721-131257 throws an error from tdt.read_block, but loads fine if t2 <= 824
         - Solution: just load with t2<=824
         - This session also is missing RNPS TTL but has 3 nose poke times in the medpc file --> ask lab
@@ -99,53 +102,6 @@ Many MSNs (ex. 'FOOD_FR1 TTL Left', 'FOOD_FR1 TTL Right', and 'FOOD_RI 30 LEFT')
     - Some of the animals/days have 2 photometry sessions but only 1 behavior session
     (ex. Punishment Sensitive/Late RI60/Photo_139_298-190912-095034 and Photo_139_298-190912-103544) is the photometry
     for that 1 session split across the two folders?
-    - List of missing Fi1d sessions:
-    Delayed Punishment Resistant/Early/Photo_333_393-200713-121027
-    Delayed Punishment Resistant/Early/Photo_346_394-200707-141513
-    Delayed Punishment Resistant/Early/Photo_64_205-181017-094913
-    Delayed Punishment Resistant/Early/Photo_81_236-190117-102128
-    Delayed Punishment Resistant/Early/Photo_87_239-190228-111317
-    Delayed Punishment Resistant/Late/64.205/Photo_64_205-181017-094913
-    Delayed Punishment Resistant/Late/81.236/Photo_81_236-190117-102128
-    Delayed Punishment Resistant/Late/81.236/Photo_81_236-190207-101451
-    Delayed Punishment Resistant/Late/87.239/Photo_87_239-190228-111317
-    Delayed Punishment Resistant/Late/87.239/Photo_87_239-190321-110120
-    Delayed Punishment Resistant/Late/88.239/Photo_88_239-190311-112034
-    Delayed Punishment Resistant/Late/Photo_333_393-200729-115506
-    Delayed Punishment Resistant/Late/Photo_346_394-200722-132345
-    Delayed Punishment Resistant/Late/Photo_349_393-200717-123319
-    Punishment Resistant/Early RI60/Photo_111_285-190605-142759
-    Punishment Resistant/Early RI60/Photo_141_308-190809-143410
-    Punishment Resistant/Early RI60/Photo_80_236-190121-093425
-    Punishment Resistant/Late RI60/61.207/Photo_61_207-181017-105639
-    Punishment Resistant/Late RI60/63.207/Photo_63_207-181015-093910
-    Punishment Resistant/Late RI60/63.207/Photo_63_207-181030-103332
-    Punishment Resistant/Late RI60/80.236/Photo_80_236-190121-093425
-    Punishment Resistant/Late RI60/89.247/Photo_89_247-190328-125515
-    Punishment Resistant/Late RI60/Photo_028_392-200724-130323
-    Punishment Resistant/Late RI60/Photo_048_392-200728-121222
-    Punishment Sensitive/Early RI60/Photo_112_283-190620-093542
-    Punishment Sensitive/Early RI60/Photo_113_283-190605-115438
-    Punishment Sensitive/Early RI60/Photo_114_273-190607-140822
-    Punishment Sensitive/Early RI60/Photo_115_273-190611-115654
-    Punishment Sensitive/Early RI60/Photo_139_298-190809-132427
-    Punishment Sensitive/Early RI60/Photo_75_214-181029-124815
-    Punishment Sensitive/Early RI60/Photo_92_246-190227-143210
-    Punishment Sensitive/Early RI60/Photo_78_214-181031-131820
-    Punishment Sensitive/Early RI60/Photo_92_246-190227-150307
-    Punishment Sensitive/Early RI60/Photo_93_246-190222-130128
-    Punishment Sensitive/Late RI60/75.214/Photo_75_214-181029-124815
-    Punishment Sensitive/Late RI60/78.214/Photo_78_214-181031-131820
-    Punishment Sensitive/Late RI60/90.247/Photo_90_247-190328-103249
-    Punishment Sensitive/Late RI60/92.246/Photo_92_246-190228-132737
-    Punishment Sensitive/Late RI60/92.246/Photo_92_246-190319-114357
-    Punishment Sensitive/Late RI60/93.246/Photo_93_246-190222-130128
-    Punishment Sensitive/Late RI60/94.246/Photo_94_246-190328-113641
-    Punishment Sensitive/Late RI60/Photo_140_306-190903-102551
-    Punishment Sensitive/Late RI60/Photo_271_396-200722-121638
-    Punishment Sensitive/Late RI60/Photo_347_393-200723-113530
-    Punishment Sensitive/Late RI60/Photo_348_393-200730-113125
-    - Missing Fi1d Solution: add Fi1r as an optional field
 
 ## Optogenetics
 ### Notes

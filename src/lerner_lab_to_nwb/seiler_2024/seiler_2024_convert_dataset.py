@@ -242,7 +242,6 @@ def fp_to_nwb(
                         matching_box_numbers.append(box_number)
                 if (
                     (photometry_subject_id == "332.393" and photometry_start_date == "07/28/20")
-                    or (photometry_subject_id == "334.394" and photometry_start_date == "07/21/20")
                     or (
                         photometry_subject_id == "64.205"
                         and photometry_start_date == "10/17/18"
@@ -306,9 +305,17 @@ def fp_to_nwb(
                 )
                 if fiber_photometry_folder_path.name in fi1r_only_sessions:
                     session_to_nwb_args["has_demodulated_commanded_voltages"] = False
-                if photometry_subject_id == "139.298" and photometry_start_date == "09/12/19":
+                if fiber_photometry_folder_path.name == "Photo_139_298-190912-095034":
                     session_to_nwb_args["fiber_photometry_t2"] = 2267.0
-                # Could not convert PS/140.306/08/09/19 12:10:58
+                    session_to_nwb_args["second_fiber_photometry_folder_path"] = (
+                        fiber_photometry_folder_path.parent / "Photo_139_298-190912-103544"
+                    )
+                if fiber_photometry_folder_path.name == "Photo_139_298-190912-103544":
+                    continue
+                if fiber_photometry_folder_path.name == "Photo_332_393-200728-122403":
+                    session_to_nwb_args["second_fiber_photometry_folder_path"] = (
+                        fiber_photometry_folder_path.parent / "Photo_332_393-200728-123314"
+                    )
                 if photometry_subject_id == "140.306" and photometry_start_date == "08/09/19":
                     session_to_nwb_args["flip_ttls_lr"] = True
 

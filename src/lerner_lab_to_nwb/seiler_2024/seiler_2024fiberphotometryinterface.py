@@ -27,10 +27,9 @@ class Seiler2024FiberPhotometryInterface(BaseDataInterface):
 
     keywords = ["fiber photometry"]
 
-    def __init__(self, folder_path: str, behavior_kwargs: dict, verbose: bool = True):
+    def __init__(self, folder_path: str, verbose: bool = True):
         super().__init__(
             folder_path=folder_path,
-            behavior_kwargs=behavior_kwargs,
             verbose=verbose,
         )
 
@@ -49,6 +48,7 @@ class Seiler2024FiberPhotometryInterface(BaseDataInterface):
         t2: Optional[float] = None,
         flip_ttls_lr: bool = False,
         has_demodulated_commanded_voltages: bool = True,
+        second_folder_path: Optional[str] = None,
     ):
         # Load Data
         folder_path = Path(self.source_data["folder_path"])
@@ -58,6 +58,28 @@ class Seiler2024FiberPhotometryInterface(BaseDataInterface):
                 tdt_photometry = read_block(str(folder_path))
             else:
                 tdt_photometry = read_block(str(folder_path), t2=t2)
+            if second_folder_path is not None:
+                tdt_photometry2 = read_block(str(second_folder_path))
+                tdt_photometry.streams["Dv1A"].data = np.concatenate(
+                    [tdt_photometry.streams["Dv1A"].data, tdt_photometry2.streams["Dv1A"].data], axis=0
+                )
+                tdt_photometry.streams["Dv2A"].data = np.concatenate(
+                    [tdt_photometry.streams["Dv2A"].data, tdt_photometry2.streams["Dv2A"].data], axis=0
+                )
+                tdt_photometry.streams["Dv3B"].data = np.concatenate(
+                    [tdt_photometry.streams["Dv3B"].data, tdt_photometry2.streams["Dv3B"].data], axis=0
+                )
+                tdt_photometry.streams["Dv4B"].data = np.concatenate(
+                    [tdt_photometry.streams["Dv4B"].data, tdt_photometry2.streams["Dv4B"].data], axis=0
+                )
+                if has_demodulated_commanded_voltages:
+                    tdt_photometry.streams["Fi1d"].data = np.concatenate(
+                        [tdt_photometry.streams["Fi1d"].data, tdt_photometry2.streams["Fi1d"].data], axis=1
+                    )
+                else:
+                    tdt_photometry.streams["Fi1r"].data = np.concatenate(
+                        [tdt_photometry.streams["Fi1r"].data, tdt_photometry2.streams["Fi1r"].data], axis=1
+                    )
 
         # Commanded Voltages
         multi_commanded_voltage = MultiCommandedVoltage()
@@ -122,14 +144,14 @@ class Seiler2024FiberPhotometryInterface(BaseDataInterface):
         else:
             dms_commanded_voltage_series = multi_commanded_voltage.create_commanded_voltage_series(
                 name="dms_commanded_voltage",
-                data=H5DataIO(tdt_photometry.streams["Fi1r"].data, compression=True),
+                data=H5DataIO(tdt_photometry.streams["Fi1r"].data[0, :], compression=True),
                 rate=tdt_photometry.streams["Fi1r"].fs,
                 unit="volts",
                 power=1.0,
             )
             dls_commanded_voltage_series = multi_commanded_voltage.create_commanded_voltage_series(
                 name="dls_commanded_voltage",
-                data=H5DataIO(tdt_photometry.streams["Fi1r"].data, compression=True),
+                data=H5DataIO(tdt_photometry.streams["Fi1r"].data[1, :], compression=True),
                 rate=tdt_photometry.streams["Fi1r"].fs,
                 unit="volts",
                 power=1.0,
