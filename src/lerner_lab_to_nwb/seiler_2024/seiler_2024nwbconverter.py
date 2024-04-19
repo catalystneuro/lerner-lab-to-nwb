@@ -55,7 +55,8 @@ class Seiler2024NWBConverter(NWBConverter):
         )
 
         # Read Fiber Photometry Data
-        t2 = conversion_options["FiberPhotometry"]["t2"] if "t2" in conversion_options["FiberPhotometry"] else None
+        t2 = conversion_options["FiberPhotometry"].get("t2", None)
+        second_folder_path = conversion_options["FiberPhotometry"].get("second_folder_path", None)
         with open(os.devnull, "w") as f, redirect_stdout(f):
             if t2 is None:
                 tdt_photometry = read_block(self.data_interface_objects["FiberPhotometry"].source_data["folder_path"])
@@ -63,6 +64,8 @@ class Seiler2024NWBConverter(NWBConverter):
                 tdt_photometry = read_block(
                     self.data_interface_objects["FiberPhotometry"].source_data["folder_path"], t2=t2
                 )
+            if second_folder_path is not None:
+                tdt_photometry2 = read_block(second_folder_path)
 
         # Aggregate TTLs and Behavior Timestamps
         right_ttl_names_to_behavior_names = {
@@ -92,23 +95,31 @@ class Seiler2024NWBConverter(NWBConverter):
         else:
             raise ValueError(f"MSN ({msn}) does not indicate appropriate TTLs for alignment.")
         for ttl_name, behavior_name in ttl_names_to_behavior_names.items():
-            if ttl_name == "PrtN":
-                ttl_timestamps = []
-                if "PrtN" in tdt_photometry.epocs:
-                    for timestamp in tdt_photometry.epocs["PrtN"].onset:
-                        ttl_timestamps.append(timestamp)
-                if "PrtR" in tdt_photometry.epocs:
-                    for timestamp in tdt_photometry.epocs["PrtR"].onset:
-                        ttl_timestamps.append(timestamp)
-                ttl_timestamps = np.sort(ttl_timestamps)
-            elif ttl_name == "Sock" and "ShockProbe" not in metadata["NWBFile"]["session_id"]:
-                continue
-            else:
-                if len(session_dict[behavior_name]) == 0:
-                    continue  # If behavior is not present the tdt file will not have the appropriate TTL
-                ttl_timestamps = tdt_photometry.epocs[ttl_name].onset
+            if ttl_name == "Sock" and "ShockProbe" not in metadata["NWBFile"]["session_id"]:
+                continue  # If the session is not a shock probe session the tdt file will not have the appropriate TTL
+            if len(session_dict[behavior_name]) == 0:
+                continue  # If behavior is not present the tdt file will not have the appropriate TTL
+
+            ttl_timestamps = self.get_ttl_timestamps(ttl_name, tdt_photometry)
+            if second_folder_path is not None:
+                ttl_timestamps2 = self.get_ttl_timestamps(ttl_name, tdt_photometry2)
+                ttl_timestamps = np.concatenate((ttl_timestamps, ttl_timestamps2))
             session_dict[behavior_name] = ttl_timestamps
         self.data_interface_objects["Behavior"].source_data["session_dict"] = session_dict
+
+    def get_ttl_timestamps(self, ttl_name, tdt_photometry):
+        if ttl_name == "PrtN":
+            ttl_timestamps = []
+            if "PrtN" in tdt_photometry.epocs:
+                for timestamp in tdt_photometry.epocs["PrtN"].onset:
+                    ttl_timestamps.append(timestamp)
+            if "PrtR" in tdt_photometry.epocs:
+                for timestamp in tdt_photometry.epocs["PrtR"].onset:
+                    ttl_timestamps.append(timestamp)
+            ttl_timestamps = np.sort(ttl_timestamps)
+        else:
+            ttl_timestamps = tdt_photometry.epocs[ttl_name].onset
+        return ttl_timestamps
 
     def run_conversion(
         self,

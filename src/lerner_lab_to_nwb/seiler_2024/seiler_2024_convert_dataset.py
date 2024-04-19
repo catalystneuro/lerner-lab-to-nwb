@@ -183,6 +183,8 @@ def fp_to_nwb(
         "Photo_271_396-200722-121638",
         "Photo_347_393-200723-113530",
         "Photo_348_393-200730-113125",
+        "Photo_139_298-190912-095034",
+        "Photo_88_239-190219-140027",
     }
     raw_file_to_info = get_raw_info(behavior_path)
 
