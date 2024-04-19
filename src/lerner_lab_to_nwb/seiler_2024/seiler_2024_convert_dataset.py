@@ -241,7 +241,6 @@ def fp_to_nwb(
                         and photometry_start_date == "02/19/19"
                         and experimental_subgroup.name == "Late"
                     )
-                    # Punishment Resistant/Early RI60/Photo_80_236-190121-093425 is duplicated at Punishment Resistant/Late RI60/80.236/Photo_80_236-190121-093425
                     or (
                         photometry_subject_id == "80.236"
                         and photometry_start_date == "01/21/19"
@@ -287,6 +286,9 @@ def fp_to_nwb(
                     session_to_nwb_args["has_demodulated_commanded_voltages"] = False
                 if photometry_subject_id == "139.298" and photometry_start_date == "09/12/19":
                     session_to_nwb_args["fiber_photometry_t2"] = 2267.0
+                # Could not convert PS/140.306/08/09/19 12:10:58
+                if photometry_subject_id == "140.306" and photometry_start_date == "08/09/19":
+                    session_to_nwb_args["flip_ttls_lr"] = True
 
                 session_to_nwb_args_per_session.append(session_to_nwb_args)
                 nwbfile_path = (
