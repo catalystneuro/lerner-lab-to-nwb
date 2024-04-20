@@ -14,6 +14,7 @@ import numpy as np
 from tdt import read_block
 import os
 from contextlib import redirect_stdout
+from pathlib import Path
 
 
 class Seiler2024NWBConverter(NWBConverter):
@@ -56,14 +57,13 @@ class Seiler2024NWBConverter(NWBConverter):
 
         # Read Fiber Photometry Data
         t2 = conversion_options["FiberPhotometry"].get("t2", None)
+        folder_path = Path(self.data_interface_objects["FiberPhotometry"].source_data["folder_path"])
         second_folder_path = conversion_options["FiberPhotometry"].get("second_folder_path", None)
         with open(os.devnull, "w") as f, redirect_stdout(f):
             if t2 is None:
-                tdt_photometry = read_block(self.data_interface_objects["FiberPhotometry"].source_data["folder_path"])
+                tdt_photometry = read_block(folder_path)
             else:
-                tdt_photometry = read_block(
-                    self.data_interface_objects["FiberPhotometry"].source_data["folder_path"], t2=t2
-                )
+                tdt_photometry = read_block(folder_path, t2=t2)
             if second_folder_path is not None:
                 tdt_photometry2 = read_block(second_folder_path)
 
@@ -94,6 +94,11 @@ class Seiler2024NWBConverter(NWBConverter):
             ttl_names_to_behavior_names = right_ttl_names_to_behavior_names
         else:
             raise ValueError(f"MSN ({msn}) does not indicate appropriate TTLs for alignment.")
+        if folder_path.name == "Photo_332_393-200728-122403":
+            ttl_names_to_behavior_names = {  # This special session only has 2 TTLs bc it is split into 2 folders
+                "RNnR": "right_nose_poke_times",
+                "PrtN": "port_entry_times",
+            }
         for ttl_name, behavior_name in ttl_names_to_behavior_names.items():
             if ttl_name == "Sock" and "ShockProbe" not in metadata["NWBFile"]["session_id"]:
                 continue  # If the session is not a shock probe session the tdt file will not have the appropriate TTL

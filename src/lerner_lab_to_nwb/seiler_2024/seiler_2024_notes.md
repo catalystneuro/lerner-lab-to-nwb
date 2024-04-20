@@ -87,7 +87,7 @@ Many MSNs (ex. 'FOOD_FR1 TTL Left', 'FOOD_FR1 TTL Right', and 'FOOD_RI 30 LEFT')
         - Answer: For 271.396 on 07/07/20, I initially ran the animal on RI60_RIGHT for 15ish minutes before realizing it was a mistake and switching it to RI60 LEFT, hence the 2 MED entries.
         - Solution: Ignore 15min RI60_Right and keep RI60_Left
     - PS/332.393_07/28/20 has 2 fp sessions but no matching behavior session
-        - Solution: stitch them together
+        - Solution: added missing session to behavioral file and stitched them together
     - The RR20 folder only has .mat files rather than tdt synapse output folders -- pls provide?
     - Several sessions don't have fi1d -- see printout
         - Solution: Added option for fi1r-only in photometry interface

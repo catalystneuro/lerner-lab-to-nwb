@@ -169,7 +169,6 @@ def fp_to_nwb(
         "Photo_139_298-190809-132427",
         "Photo_75_214-181029-124815",
         "Photo_92_246-190227-143210",
-        "Photo_78_214-181031-131820",
         "Photo_92_246-190227-150307",
         "Photo_93_246-190222-130128",
         "Photo_75_214-181029-124815",
@@ -249,7 +248,6 @@ def fp_to_nwb(
                     (
                         photometry_subject_id == "334.394" and photometry_start_date == "07/21/20"
                     )  # TODO: Ask Lerner Lab about this session
-                    or (photometry_subject_id == "332.393" and photometry_start_date == "07/28/20")
                     or (
                         photometry_subject_id == "64.205"
                         and photometry_start_date == "10/17/18"
@@ -283,6 +281,11 @@ def fp_to_nwb(
                     or (
                         photometry_subject_id == "93.246"
                         and photometry_start_date == "02/22/19"
+                        and experimental_subgroup.name == "Late RI60"
+                    )
+                    or (
+                        photometry_subject_id == "78.214"
+                        and photometry_start_date == "10/31/18"
                         and experimental_subgroup.name == "Late RI60"
                     )
                 ):
@@ -335,6 +338,12 @@ def fp_to_nwb(
                         fiber_photometry_folder_path.parent / "Photo_332_393-200728-123314"
                     )
                 if fiber_photometry_folder_path.name == "Photo_332_393-200728-123314":
+                    continue
+                if fiber_photometry_folder_path.name == "Photo_92_246-190227-143210":
+                    session_to_nwb_args["second_fiber_photometry_folder_path"] = (
+                        fiber_photometry_folder_path.parent / "Photo_92_246-190227-150307"
+                    )
+                if fiber_photometry_folder_path.name == "Photo_92_246-190227-150307":
                     continue
                 if photometry_subject_id == "140.306" and photometry_start_date == "08/09/19":
                     session_to_nwb_args["flip_ttls_lr"] = True
