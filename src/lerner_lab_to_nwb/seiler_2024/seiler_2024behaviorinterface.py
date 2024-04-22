@@ -87,7 +87,7 @@ class Seiler2024BehaviorInterface(BaseDataInterface):
             "RR5_Left_CVC": "RR5",
             "RR20Right": "RR20",
             "FOOD_FR1 Habit Training TTL": "FR1",
-            "Probe Test Habit Training TTL": "OmissionProbe",  # TODO: Confirm with Lerner Lab
+            "Probe Test Habit Training TTL": "ProbeTest",
             "RI 30 RIGHT_STIM": "RI30",
             "RI 60 RIGHT STIM": "RI60",
             "RI 60 LEFT_STIM": "RI60",
