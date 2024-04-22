@@ -121,9 +121,16 @@ class Seiler2024OptogeneticInterface(BaseDataInterface):
         opto_metadata = metadata["Optogenetics"]["experimental_group_to_metadata"][
             self.source_data["experimental_group"]
         ]
-        device = nwbfile.create_device(  # TODO: Ask Lerner Lab for data sheet
-            name="LED_and_pulse_generator",
-            description="LED and pulse generator used for optogenetic stimulation.",
+        device = nwbfile.create_device(
+            name="light_source",
+            description=(
+                "Optogenetic stimulus pulses were generated from the Optogenetics-LED-Dual (Prizmatix) driven by the "
+                "Optogenetics PulserPlus (Prizmatix). Engineered for scaling Optogenetics experiments, the "
+                "Optogenetics-LED-Dual light source features two independent fiber-coupled LED channels each equipped "
+                "with independent power and switching control. Optogenetics Pulser / PulserPlus are programmable "
+                "TTL pulse train generators for pulsing LEDs, lasers and shutters used in Optogenetics activation "
+                "in neurophysiology and behavioral research."
+            ),
             manufacturer="Prizmatix",
         )
         ogen_site = nwbfile.create_ogen_site(
