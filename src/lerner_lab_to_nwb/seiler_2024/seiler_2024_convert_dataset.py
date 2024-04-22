@@ -612,6 +612,7 @@ def session_should_be_skipped(*, start_date, start_time, subject_id, msn):
         "RR10_Left_AHJS",
         "Probe Test Habit Training CC",
         "FOOD_FR1 Hapit Training TTL",
+        "RK_C_FR1_BOTH_1hr",
     }
     if msn in msns_to_skip:
         return True
