@@ -433,35 +433,40 @@ def opto_to_nwb(
         A list of dictionaries containing the arguments for session_to_nwb for each session.
     """
     experiment_type = "Opto"
-    experimental_groups = ["DLS-Excitatory", "DMS-Excitatory", "DMS-Inhibitory"]
     experimental_group_to_optogenetic_treatments = {
-        "DLS-Excitatory": ["ChR2", "EYFP", "ChR2Scrambled"],
-        "DMS-Excitatory": ["ChR2", "EYFP", "ChR2Scrambled"],
+        # "DLS-Excitatory": ["ChR2", "EYFP", "ChR2Scrambled"],
+        # "DMS-Excitatory": ["ChR2", "EYFP", "ChR2Scrambled"],
         "DMS-Inhibitory": ["NpHR", "EYFP", "NpHRScrambled"],
     }
+    experimental_groups = list(experimental_group_to_optogenetic_treatments.keys())
     optogenetic_treatment_to_folder_name = {
         "ChR2": "ChR2",
         "EYFP": "EYFP",
         "ChR2Scrambled": "Scrambled",
-        "NpHR": "Halo",
+        "NpHR": ["Halo", "NpHr"],
         "NpHRScrambled": "Scrambled",
     }
     experimental_group_to_subgroups = {
         "DLS-Excitatory": [""],
         "DMS-Excitatory": [""],
-        "DMS-Inhibitory": ["Group 1"],  # TODO: Get group 2 data from Lerner Lab
+        "DMS-Inhibitory": ["Group 1", "Group 2"],
     }
     opto_path = data_dir_path / f"{experiment_type} Experiments"
     session_to_nwb_args_per_session: list[dict] = []  # Each dict contains the args for session_to_nwb for a session
     nwbfile_paths = set()  # Each path is the path to the nwb file created for a session
 
     for experimental_group in experimental_groups:
+        print(experimental_group)
         experimental_group_path = opto_path / experimental_group.replace("-", " ")
-        for subgroup in experimental_group_to_subgroups[experimental_group]:
+        for i, subgroup in enumerate(experimental_group_to_subgroups[experimental_group]):
             subgroup_path = experimental_group_path / subgroup if subgroup else experimental_group_path
             optogenetic_treatments = experimental_group_to_optogenetic_treatments[experimental_group]
             for optogenetic_treatment in optogenetic_treatments:
-                optogenetic_treatment_path = subgroup_path / optogenetic_treatment_to_folder_name[optogenetic_treatment]
+                if optogenetic_treatment == "NpHR":
+                    optogenetic_treatment_folder_name = optogenetic_treatment_to_folder_name[optogenetic_treatment][i]
+                else:
+                    optogenetic_treatment_folder_name = optogenetic_treatment_to_folder_name[optogenetic_treatment]
+                optogenetic_treatment_path = subgroup_path / optogenetic_treatment_folder_name
                 subject_paths = [
                     path
                     for path in optogenetic_treatment_path.iterdir()
