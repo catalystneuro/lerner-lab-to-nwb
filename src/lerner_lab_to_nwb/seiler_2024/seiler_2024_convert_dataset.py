@@ -133,10 +133,10 @@ def fp_to_nwb(
     experiment_type = "FP"
     experimental_groups = ["DPR", "PR", "PS", "RR20"]
     experimental_group_to_long_name = {
-        "DPR": "Delayed Punishment Resistant",
-        "PR": "Punishment Resistant",
-        "PS": "Punishment Sensitive",
-        # "RR20": "RR20",
+        # "DPR": "Delayed Punishment Resistant",
+        # "PR": "Punishment Resistant",
+        # "PS": "Punishment Sensitive",
+        "RR20": "RR20",
     }
     behavior_path = data_dir_path / f"{experiment_type} Experiments" / "Behavior"
     photometry_path = data_dir_path / f"{experiment_type} Experiments" / "Photometry"
@@ -248,6 +248,11 @@ def fp_to_nwb(
                     (
                         photometry_subject_id == "334.394" and photometry_start_date == "07/21/20"
                     )  # TODO: Ask Lerner Lab about this session
+                    or (
+                        photometry_subject_id == "99.257"
+                        and photometry_start_date == "04/16/19"
+                        # TODO: Ask Lerner Lab about this session
+                    )
                     or (
                         photometry_subject_id == "64.205"
                         and photometry_start_date == "10/17/18"

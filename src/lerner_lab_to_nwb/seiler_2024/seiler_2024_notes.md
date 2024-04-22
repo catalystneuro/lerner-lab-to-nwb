@@ -105,6 +105,10 @@ Many MSNs (ex. 'FOOD_FR1 TTL Left', 'FOOD_FR1 TTL Right', and 'FOOD_RI 30 LEFT')
     - Some of the animals/days have 2 photometry sessions but only 1 behavior session
     (ex. Punishment Sensitive/Late RI60/Photo_139_298-190912-095034 and Photo_139_298-190912-103544) is the photometry
     for that 1 session split across the two folders?
+        - Answer: Yes, occasionally the computer freezes or something and I need to restart the TDT recording while the MED program is unaffected. For my analysis I basically just stitched them together.
+        - Solution: Added stitching functionality for optional second_folder_path
+    - For DPR/334.394/07/21/20, 3 right nosepokes were made BUT photometry object still doesn't have a RNPS object
+    - RR20/99.257 on 04/16/19 has a photometry session but no matching behavior session on that day -- pls provide?
 
 ## Optogenetics
 ### Notes
