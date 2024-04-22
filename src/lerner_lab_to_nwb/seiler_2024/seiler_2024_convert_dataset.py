@@ -55,8 +55,6 @@ def dataset_to_nwb(
     # )
     # session_to_nwb_args_per_session = fp_session_to_nwb_args_per_session + opto_session_to_nwb_args_per_session
     session_to_nwb_args_per_session = fp_session_to_nwb_args_per_session
-    # print(len(session_to_nwb_args_per_session))
-    # return
 
     futures = []
     with ProcessPoolExecutor(max_workers=max_workers) as executor:
@@ -133,9 +131,9 @@ def fp_to_nwb(
     experiment_type = "FP"
     experimental_groups = ["DPR", "PR", "PS", "RR20"]
     experimental_group_to_long_name = {
-        # "DPR": "Delayed Punishment Resistant",
-        # "PR": "Punishment Resistant",
-        # "PS": "Punishment Sensitive",
+        "DPR": "Delayed Punishment Resistant",
+        "PR": "Punishment Resistant",
+        "PS": "Punishment Sensitive",
         "RR20": "RR20",
     }
     behavior_path = data_dir_path / f"{experiment_type} Experiments" / "Behavior"
@@ -360,54 +358,54 @@ def fp_to_nwb(
                 )
                 nwbfile_paths.add(nwbfile_path)
 
-    # # Iterate through all behavior files
-    # for experimental_group in experimental_groups:
-    #     experimental_group_path = behavior_path / experimental_group
-    #     subject_dirs = [subject_dir for subject_dir in experimental_group_path.iterdir() if subject_dir.is_dir()]
-    #     for subject_dir in subject_dirs:
-    #         subject_id = subject_dir.name
-    #         header_variables = get_fp_header_variables(subject_dir, subject_id, raw_file_to_info, start_variable)
-    #         start_dates, start_times, msns, file_paths, subjects, box_numbers = header_variables
-    #         for start_date, start_time, msn, file, subject, box_number in zip(
-    #             start_dates, start_times, msns, file_paths, subjects, box_numbers
-    #         ):
-    #             if session_should_be_skipped(
-    #                 start_date=start_date,
-    #                 start_time=start_time,
-    #                 subject_id=subject_id,
-    #                 msn=msn,
-    #             ):
-    #                 continue
-    #             session_conditions = {
-    #                 "Start Date": start_date,
-    #                 "Start Time": start_time,
-    #             }
-    #             if subject is not None:
-    #                 session_conditions["Subject"] = subject
-    #             if box_number is not None:
-    #                 session_conditions["Box"] = box_number
-    #             start_datetime = datetime.strptime(f"{start_date} {start_time}", "%m/%d/%y %H:%M:%S")
-    #             session_to_nwb_args = dict(
-    #                 data_dir_path=data_dir_path,
-    #                 output_dir_path=output_dir_path,
-    #                 behavior_file_path=file,
-    #                 subject_id=subject_id,
-    #                 session_conditions=session_conditions,
-    #                 start_variable=start_variable,
-    #                 start_datetime=start_datetime,
-    #                 experiment_type=experiment_type,
-    #                 experimental_group=experimental_group,
-    #                 stub_test=stub_test,
-    #                 verbose=verbose,
-    #             )
-    #             nwbfile_path = (
-    #                 output_dir_path
-    #                 / f"{experiment_type}_{experimental_group}_{subject_id}_{start_datetime.isoformat()}.nwb"
-    #             )
-    #             if nwbfile_path in nwbfile_paths:
-    #                 continue
-    #             nwbfile_paths.add(nwbfile_path)
-    #             session_to_nwb_args_per_session.append(session_to_nwb_args)
+    # Iterate through all behavior files
+    for experimental_group in experimental_groups:
+        experimental_group_path = behavior_path / experimental_group
+        subject_dirs = [subject_dir for subject_dir in experimental_group_path.iterdir() if subject_dir.is_dir()]
+        for subject_dir in subject_dirs:
+            subject_id = subject_dir.name
+            header_variables = get_fp_header_variables(subject_dir, subject_id, raw_file_to_info, start_variable)
+            start_dates, start_times, msns, file_paths, subjects, box_numbers = header_variables
+            for start_date, start_time, msn, file, subject, box_number in zip(
+                start_dates, start_times, msns, file_paths, subjects, box_numbers
+            ):
+                if session_should_be_skipped(
+                    start_date=start_date,
+                    start_time=start_time,
+                    subject_id=subject_id,
+                    msn=msn,
+                ):
+                    continue
+                session_conditions = {
+                    "Start Date": start_date,
+                    "Start Time": start_time,
+                }
+                if subject is not None:
+                    session_conditions["Subject"] = subject
+                if box_number is not None:
+                    session_conditions["Box"] = box_number
+                start_datetime = datetime.strptime(f"{start_date} {start_time}", "%m/%d/%y %H:%M:%S")
+                session_to_nwb_args = dict(
+                    data_dir_path=data_dir_path,
+                    output_dir_path=output_dir_path,
+                    behavior_file_path=file,
+                    subject_id=subject_id,
+                    session_conditions=session_conditions,
+                    start_variable=start_variable,
+                    start_datetime=start_datetime,
+                    experiment_type=experiment_type,
+                    experimental_group=experimental_group,
+                    stub_test=stub_test,
+                    verbose=verbose,
+                )
+                nwbfile_path = (
+                    output_dir_path
+                    / f"{experiment_type}_{experimental_group}_{subject_id}_{start_datetime.isoformat()}.nwb"
+                )
+                if nwbfile_path in nwbfile_paths:
+                    continue
+                nwbfile_paths.add(nwbfile_path)
+                session_to_nwb_args_per_session.append(session_to_nwb_args)
     return session_to_nwb_args_per_session
 
 
