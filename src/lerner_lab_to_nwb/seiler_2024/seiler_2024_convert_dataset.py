@@ -435,8 +435,8 @@ def opto_to_nwb(
     """
     experiment_type = "Opto"
     experimental_group_to_optogenetic_treatments = {
-        # "DLS-Excitatory": ["ChR2", "EYFP", "ChR2Scrambled"],
-        # "DMS-Excitatory": ["ChR2", "EYFP", "ChR2Scrambled"],
+        "DLS-Excitatory": ["ChR2", "EYFP", "ChR2Scrambled"],
+        "DMS-Excitatory": ["ChR2", "EYFP", "ChR2Scrambled"],
         "DMS-Inhibitory": ["NpHR", "EYFP", "NpHRScrambled"],
     }
     experimental_groups = list(experimental_group_to_optogenetic_treatments.keys())
@@ -459,8 +459,6 @@ def opto_to_nwb(
     for experimental_group in experimental_groups:
         experimental_group_path = opto_path / experimental_group.replace("-", " ")
         for i, subgroup in enumerate(experimental_group_to_subgroups[experimental_group]):
-            if subgroup == "Group 1":
-                continue  # TODO: Remove this skip before merging
             subgroup_path = experimental_group_path / subgroup if subgroup else experimental_group_path
             optogenetic_treatments = experimental_group_to_optogenetic_treatments[experimental_group]
             for optogenetic_treatment in optogenetic_treatments:
@@ -479,6 +477,7 @@ def opto_to_nwb(
                     )
                 ]
                 for subject_path in subject_paths:
+                    # fmt: off
                     if re.match(r"([0-9]){2,3}\.([0-9]){3}", subject_path.name):
                         subject_id = subject_path.name
                     elif "Subject" in subject_path.name:
@@ -487,18 +486,21 @@ def opto_to_nwb(
                         subject_id = (
                             f"{subject_path.name.split('_')[1]}.{subject_path.name.split('_')[2].split(' ')[0]}"
                         )
-                    elif re.match(r"[1-2]([0-9]){3}-[0-1][0-9]-[0-3][0-9]_", subject_path.name) or re.match(
-                        r"[1-2]([0-9]){3}[0-1][0-9][0-3][0-9]_", subject_path.name
+                    elif (
+                        re.match(r"[1-2]([0-9]){3}-[0-1][0-9]-[0-3][0-9]_", subject_path.name) or
+                        re.match(r"[1-2]([0-9]){3}[0-1][0-9][0-3][0-9]_", subject_path.name)
                     ):
                         subject_id = subject_path.name.split("_")[1]
                     elif re.match(r"[1-2]([0-9]){3}-[0-1][0-9]-[0-3][0-9]-", subject_path.name):
                         subject_id = subject_path.name.split("-")[-1]
-                    elif re.match(r"([0-9]){3}_([0-9]){4}", subject_path.name) or re.match(
-                        r"([0-9]){3}_([0-9]){2}_([0-9]){2}", subject_path.name
+                    elif (
+                        re.match(r"([0-9]){3}_([0-9]){4}", subject_path.name) or
+                        re.match(r"([0-9]){3}_([0-9]){2}_([0-9]){2}", subject_path.name)
                     ):
                         subject_id = subject_path.name.split("_")[0]
                     else:
                         raise ValueError(f"Subject ID not found in {subject_path}")
+                    # fmt: on
                     print(f"subject_path.name: {subject_path.name}, subject_id: {subject_id}")
                     header_variables = get_opto_header_variables(subject_path)
                     start_dates, start_times, msns, file_paths, subjects, box_numbers = header_variables
