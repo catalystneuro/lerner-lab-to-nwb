@@ -477,31 +477,7 @@ def opto_to_nwb(
                     )
                 ]
                 for subject_path in subject_paths:
-                    # fmt: off
-                    if re.match(r"([0-9]){2,3}\.([0-9]){3}", subject_path.name):
-                        subject_id = subject_path.name
-                    elif "Subject" in subject_path.name:
-                        subject_id = subject_path.name.split(" ")[1]
-                    elif re.match(r"[1-2]([0-9]){3}-[0-1][0-9]-[0-3][0-9]_([0-9]){3}_([0-9]){3}", subject_path.name):
-                        subject_id = (
-                            f"{subject_path.name.split('_')[1]}.{subject_path.name.split('_')[2].split(' ')[0]}"
-                        )
-                    elif (
-                        re.match(r"[1-2]([0-9]){3}-[0-1][0-9]-[0-3][0-9]_", subject_path.name) or
-                        re.match(r"[1-2]([0-9]){3}[0-1][0-9][0-3][0-9]_", subject_path.name)
-                    ):
-                        subject_id = subject_path.name.split("_")[1]
-                    elif re.match(r"[1-2]([0-9]){3}-[0-1][0-9]-[0-3][0-9]-", subject_path.name):
-                        subject_id = subject_path.name.split("-")[-1]
-                    elif (
-                        re.match(r"([0-9]){3}_([0-9]){4}", subject_path.name) or
-                        re.match(r"([0-9]){3}_([0-9]){2}_([0-9]){2}", subject_path.name)
-                    ):
-                        subject_id = subject_path.name.split("_")[0]
-                    else:
-                        raise ValueError(f"Subject ID not found in {subject_path}")
-                    # fmt: on
-                    print(f"subject_path.name: {subject_path.name}, subject_id: {subject_id}")
+                    subject_id = get_opto_subject_id(subject_path)
                     header_variables = get_opto_header_variables(subject_path)
                     start_dates, start_times, msns, file_paths, subjects, box_numbers = header_variables
                     for start_date, start_time, msn, file, subject, box_number in zip(
@@ -546,6 +522,53 @@ def opto_to_nwb(
                         nwbfile_paths.add(nwbfile_path)
                         session_to_nwb_args_per_session.append(session_to_nwb_args)
     return session_to_nwb_args_per_session
+
+
+def get_opto_subject_id(subject_path: Path):
+    """Get the subject ID from the subject path for the optogenetic portion of the dataset.
+
+    Parameters
+    ----------
+    subject_path : Path
+        The path to the subject medpc file or directory.
+
+    Returns
+    -------
+    str
+        The subject ID. Ex. '139.298'
+    """
+    # fmt: off
+    if re.match(r"([0-9]){2,3}\.([0-9]){3}", subject_path.name):
+        subject_id = subject_path.name
+    elif "Subject" in subject_path.name:
+        subject_id = subject_path.name.split(" ")[1]
+    elif re.match(r"[1-2]([0-9]){3}-[0-1][0-9]-[0-3][0-9]_([0-9]){3}_([0-9]){3}", subject_path.name):
+        subject_id = (
+            f"{subject_path.name.split('_')[1]}.{subject_path.name.split('_')[2].split(' ')[0]}"
+        )
+    elif (
+        re.match(r"[1-2]([0-9]){3}-[0-1][0-9]-[0-3][0-9]_", subject_path.name) or
+        re.match(r"[1-2]([0-9]){3}[0-1][0-9][0-3][0-9]_", subject_path.name)
+    ):
+        subject_id = subject_path.name.split("_")[1]
+    elif re.match(r"[1-2]([0-9]){3}-[0-1][0-9]-[0-3][0-9]-", subject_path.name):
+        subject_id = subject_path.name.split("-")[-1]
+    elif (
+        re.match(r"([0-9]){3}_([0-9]){4}", subject_path.name) or
+        re.match(r"([0-9]){3}_([0-9]){2}_([0-9]){2}", subject_path.name)
+    ):
+        subject_id = subject_path.name.split("_")[0]
+    elif subject_path.is_dir():
+        subject_id = subject_path.name
+    elif subject_path.name == "2021-10-29_262_259.478":
+        subject_id = "262.478"
+    else:
+        raise ValueError(f"Subject ID not found in {subject_path}")
+    # fmt: on
+    if subject_id.endswith(".txt"):
+        subject_id = subject_id[:-4]
+
+    return subject_id
 
 
 def get_opto_header_variables(subject_path):
