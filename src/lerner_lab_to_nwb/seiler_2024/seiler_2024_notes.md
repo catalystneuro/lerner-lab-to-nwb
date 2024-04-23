@@ -133,4 +133,19 @@ Many MSNs (ex. 'FOOD_FR1 TTL Left', 'FOOD_FR1 TTL Right', and 'FOOD_RI 30 LEFT')
     Punishment Sensitive/Late RI60/Photo_348_393-200730-113125
 
 ## Optogenetics
-TODO
+### Notes
+- Optogenetic pulses are either paired directly with reward times or optogenetic_stimulus_times variable in medpc file
+    for "scrambled" trials.
+- timing info can be found in paper (460nm, 1 s, 20 Hz, 15 mW for excitatory and 625nm, 1 s, 15 mW for inhibitory)
+- Some of the opto csv sessions have start times (ex. DLS Excitatory/ChR2/290.407/290.407_09-23-20.csv) -- added optional parsing
+- Some of the sessions (ex. DLS-Excitatory/079.402/06/27/20) don't have any reward/stim times
+
+### Questions
+- need to ask for more specific info about the device (data sheet)
+- Need pulse width for excitatory optogenetics
+- DMS-Inhibitory Group 2 is missing
+- DLS-Excitatory has a bunch of files (medpc and csv) organized by date not belonging to any optogenetic treatment group folder
+    (ChR2, EYFP, Scrambled).  Which treatment did these sessions receive?
+- DMS-Excitatory has some csv files w/ only session-aggregated info (total right rewards but not right reward times)
+    ex. ChR2/121_280.CSV -- do you have individual session info for these animals?
+- RI 60 LEFT_STIM, RI 30 LEFT_STIM, and RK_C_FR1_BOTH_1hr msns show up in opto data but don't have associated files -- assumed to be the same as their right counterparts?

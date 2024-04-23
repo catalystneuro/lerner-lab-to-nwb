@@ -4,8 +4,11 @@ from typing import Optional
 from pynwb import NWBFile
 from neuroconv.tools.nwb_helpers import make_or_load_nwbfile
 
-from lerner_lab_to_nwb.seiler_2024 import Seiler2024BehaviorInterface
-from lerner_lab_to_nwb.seiler_2024 import Seiler2024FiberPhotometryInterface
+from lerner_lab_to_nwb.seiler_2024 import (
+    Seiler2024BehaviorInterface,
+    Seiler2024FiberPhotometryInterface,
+    Seiler2024OptogeneticInterface,
+)
 from .medpc import read_medpc_file
 import numpy as np
 from tdt import read_block
@@ -19,6 +22,7 @@ class Seiler2024NWBConverter(NWBConverter):
     data_interface_classes = dict(
         Behavior=Seiler2024BehaviorInterface,
         FiberPhotometry=Seiler2024FiberPhotometryInterface,
+        Optogenetic=Seiler2024OptogeneticInterface,
     )
 
     def temporally_align_data_interfaces(self, metadata: dict):

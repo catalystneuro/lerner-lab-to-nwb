@@ -90,14 +90,37 @@ class Seiler2024BehaviorInterface(BaseDataInterface):
             "Probe Test Habit Training TTL": "OmissionProbe",  # TODO: Confirm with Lerner Lab
             "RI 30 RIGHT_STIM": "RI30",
             "RI 60 RIGHT STIM": "RI60",
+            "RI 60 LEFT_STIM": "RI60",
+            "RI 30 LEFT_STIM": "RI30",
         }
         if self.source_data["from_csv"]:
-            start_date = datetime.strptime(Path(self.source_data["file_path"]).stem.split("_")[1], "%m-%d-%y")
-            start_time = time(0, 0, 0)
-            training_stage = "Unknown"
-            subject = Path(self.source_data["file_path"]).stem.split("_")[0]
-            msn = "Unknown"
-            box = "Unknown"
+            session_dtypes = {
+                "Start Date": str,
+                "End Date": str,
+                "Start Time": str,
+                "End Time": str,
+                "MSN": str,
+                "Experiment": str,
+                "Subject": str,
+                "Box": str,
+            }
+            session_df = pd.read_csv(self.source_data["file_path"], dtype=session_dtypes)
+            start_date = (
+                session_df["Start Date"][0]
+                if "Start Date" in session_df.columns
+                else Path(self.source_data["file_path"]).stem.split("_")[1].replace("-", "/")
+            )
+            start_date = datetime.strptime(start_date, "%m/%d/%y").date()
+            start_time = session_df["Start Time"][0] if "Start Time" in session_df.columns else "00:00:00"
+            start_time = datetime.strptime(start_time, "%H:%M:%S").time()
+            msn = session_df["MSN"][0] if "MSN" in session_df.columns else "Unknown"
+            training_stage = msn_to_training_stage[msn] if "MSN" in session_df.columns else "Unknown"
+            subject = (
+                session_df["Subject"][0]
+                if "Subject" in session_df.columns
+                else Path(self.source_data["file_path"]).stem.split("_")[0]
+            )
+            box = session_df["Box"][0] if "Box" in session_df.columns else "Unknown"
         else:
             session_dict = read_medpc_file(
                 file_path=self.source_data["file_path"],
@@ -163,7 +186,17 @@ class Seiler2024BehaviorInterface(BaseDataInterface):
                 "RightRewardTs": "right_reward_times",
                 "LeftRewardTs": "left_reward_times",
             }
-            session_df = pd.read_csv(self.source_data["file_path"])
+            session_dtypes = {
+                "Start Date": str,
+                "End Date": str,
+                "Start Time": str,
+                "End Time": str,
+                "MSN": str,
+                "Experiment": str,
+                "Subject": str,
+                "Box": str,
+            }
+            session_df = pd.read_csv(self.source_data["file_path"], dtype=session_dtypes)
             session_dict = {}
             for csv_name, dict_name in csv_name_to_dict_name.items():
                 session_dict[dict_name] = np.trim_zeros(session_df[csv_name].dropna().values, trim="b")
