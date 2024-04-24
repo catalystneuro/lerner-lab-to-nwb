@@ -15,23 +15,55 @@ from pathlib import Path
 class Seiler2024ExcelMetadataInterface(BaseDataInterface):
     """Excel Metadata interface for seiler_2024 conversion"""
 
-    def __init__(self, file_path: str, verbose: bool = True):
-        """Initialize Seiler2024BehaviorInterface.
+    def __init__(self, file_path: str, subject_id: str, verbose: bool = True):
+        """Initialize Seiler2024ExcelMetadataInterface.
 
         Parameters
         ----------
         file_path : str
             Path to the excel metadata file.
+        subject_id : str
+            Subject ID.
         verbose : bool, optional
             Whether to print verbose output, by default True
         """
         super().__init__(
             file_path=file_path,
+            subject_id=subject_id,
             verbose=verbose,
         )
 
     def get_metadata(self) -> DeepDict:
         metadata = super().get_metadata()
+
+        # Read metadata from excel file
+        metadata_path = Path(self.source_data["file_path"])
+        df = pd.read_excel(
+            metadata_path,
+            sheet_name="Mouse Demographics",
+            dtype={"Mouse ID": str},
+        )
+        df.set_index("Mouse ID", inplace=True)
+        try:
+            subject_df = df.loc[self.source_data["subject_id"]]
+
+            # Add metadata to metadata dict
+            excel_sex_to_nwb_sex = {"Male": "M", "Female": "F"}
+            metadata["Subject"]["sex"] = excel_sex_to_nwb_sex[subject_df["Sex"]]
+            metadata["NWBFile"]["surgery"] = subject_df["Surgical Manipulation"]
+            if not pd.isna(subject_df["Treatment"]):
+                metadata["NWBFile"]["stimulus_notes"] = subject_df["Treatment"]
+            metadata["NWBFile"]["notes"] = (
+                f'Hemisphere with DMS: {subject_df["Hemisphere with DMS"]}\n'
+                f'Experiment: {subject_df["Experiment"]}\n'
+                f'Behavior: {subject_df["Behavior"]}\n'
+                f'Punishment Group: {subject_df["Punishment Group"]}\n'
+            )
+            print(metadata["NWBFile"]["notes"])
+        except KeyError:  # TODO: Ask Lerner lab about missing subjects
+            print(f"Subject ID {self.source_data['subject_id']} not found in metadata file.")
+            metadata["Subject"]["sex"] = "U"
+
         return metadata
 
     def get_metadata_schema(self) -> dict:

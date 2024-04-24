@@ -26,7 +26,13 @@ NWBFile:
 Subject:
   species: Mus musculus
   age: P10W/  # in ISO 8601, such as "P1W2D"
-  sex: U  # One of M, F, U, or O
+  description: Male and female WT (C57BL/6J) and (DAT)::IRES-Cre knockin mice (JAX006660) were obtained from The Jackson Laboratory and
+    crossed in house. Only heterozygote transgenic mice, obtained by backcrossing to C57BL/6J wildtypes, were used for experiments.
+    Littermates of the same sex were randomly assigned to experimental groups (fiber photometry-14 males, 22 females; DMS excitatory
+    optogenetics- 20 males, 19 females; DMS inhibitory optogenetics- 13 males, 13 females; DLS excitatory optogenetics- 18 males, 18
+    females). Adult mice at least 10 weeks of age were used in all experiments. Mice were group housed under a conventional 12 h light
+    cycle (dark from 7:00pm to 7:00am) with ad libitum access to food and water prior to operant training. All experiments were approved
+    by the Northwestern University Institutional Animal Care and Use Committee.
 
 Behavior:
   msn_to_medpc_name_to_dict_name:

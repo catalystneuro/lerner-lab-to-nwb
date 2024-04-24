@@ -144,7 +144,6 @@ class Seiler2024BehaviorInterface(BaseDataInterface):
 
         metadata["Subject"] = {}
         metadata["Subject"]["subject_id"] = subject
-        metadata["Subject"]["sex"] = "U"  # TODO: Grab sex info from sheets
 
         metadata["Behavior"] = {}
         metadata["Behavior"]["box"] = box

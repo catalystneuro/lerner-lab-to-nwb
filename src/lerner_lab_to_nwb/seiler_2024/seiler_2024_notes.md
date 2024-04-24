@@ -127,3 +127,13 @@ Many MSNs (ex. 'FOOD_FR1 TTL Left', 'FOOD_FR1 TTL Right', and 'FOOD_RI 30 LEFT')
 - DMS-Excitatory has some csv files w/ only session-aggregated info (total right rewards but not right reward times)
     ex. ChR2/121_280.CSV -- do you have individual session info for these animals?
 - RI 60 LEFT_STIM, RI 30 LEFT_STIM, and RK_C_FR1_BOTH_1hr msns show up in opto data but don't have associated files -- assumed to be the same as their right counterparts?
+
+
+## Metadata
+### Notes
+- Some medpc filenames/sessions have incomplete or missing subject names (ex. 75 instead of 75.214) -- need to do some matching operation
+- Punishment Group has a typo for PR ('Punishment Resitant' instead of 'Punishment Resistant') -- I'll fix on my end
+
+### Questions
+- Some of the subject_ids are not present in the metadata excel file -- pls provide
+- Some animals are missing the "Hemisphere with DMS" field -- pls provide

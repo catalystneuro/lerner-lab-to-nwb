@@ -130,7 +130,7 @@ def session_to_nwb(
 
     # Add Excel-based Metadata
     metadata_path = data_dir_path / "MouseDemographics.xlsx"
-    source_data.update(dict(Metadata={"file_path": str(metadata_path), "verbose": verbose}))
+    source_data.update(dict(Metadata={"file_path": str(metadata_path), "subject_id": subject_id, "verbose": verbose}))
     conversion_options.update(dict(Metadata={}))
 
     converter = Seiler2024NWBConverter(source_data=source_data, verbose=verbose)
