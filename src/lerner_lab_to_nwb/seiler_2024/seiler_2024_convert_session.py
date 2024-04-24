@@ -128,6 +128,11 @@ def session_to_nwb(
         )
         conversion_options.update(dict(Optogenetic={}))
 
+    # Add Excel-based Metadata
+    metadata_path = data_dir_path / "MouseDemographics.xlsx"
+    source_data.update(dict(Metadata={"file_path": str(metadata_path), "verbose": verbose}))
+    conversion_options.update(dict(Metadata={}))
+
     converter = Seiler2024NWBConverter(source_data=source_data, verbose=verbose)
     metadata = converter.get_metadata()
 

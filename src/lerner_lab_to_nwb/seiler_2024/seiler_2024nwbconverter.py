@@ -8,6 +8,7 @@ from lerner_lab_to_nwb.seiler_2024 import (
     Seiler2024BehaviorInterface,
     Seiler2024FiberPhotometryInterface,
     Seiler2024OptogeneticInterface,
+    Seiler2024ExcelMetadataInterface,
 )
 from .medpc import read_medpc_file
 import numpy as np
@@ -24,6 +25,7 @@ class Seiler2024NWBConverter(NWBConverter):
         Behavior=Seiler2024BehaviorInterface,
         FiberPhotometry=Seiler2024FiberPhotometryInterface,
         Optogenetic=Seiler2024OptogeneticInterface,
+        Metadata=Seiler2024ExcelMetadataInterface,
     )
 
     def temporally_align_data_interfaces(self, metadata: dict, conversion_options: dict):
