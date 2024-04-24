@@ -9,6 +9,7 @@ import numpy as np
 from concurrent.futures import ProcessPoolExecutor, as_completed
 from pprint import pformat
 import traceback
+import re
 
 from lerner_lab_to_nwb.seiler_2024.seiler_2024_convert_session import session_to_nwb
 from lerner_lab_to_nwb.seiler_2024.medpc import get_medpc_variables
@@ -46,43 +47,50 @@ def dataset_to_nwb(
         stub_test=stub_test,
         verbose=verbose,
     )
-    # opto_session_to_nwb_args_per_session = opto_to_nwb(
-    #     data_dir_path=data_dir_path,
-    #     output_dir_path=output_dir_path,
-    #     start_variable=start_variable,
-    #     stub_test=stub_test,
-    #     verbose=verbose,
-    # )
-    # session_to_nwb_args_per_session = fp_session_to_nwb_args_per_session + opto_session_to_nwb_args_per_session
-    session_to_nwb_args_per_session = fp_session_to_nwb_args_per_session
+    opto_session_to_nwb_args_per_session = opto_to_nwb(
+        data_dir_path=data_dir_path,
+        output_dir_path=output_dir_path,
+        start_variable=start_variable,
+        stub_test=stub_test,
+        verbose=verbose,
+    )
+    session_to_nwb_args_per_session = fp_session_to_nwb_args_per_session + opto_session_to_nwb_args_per_session
 
-    futures = []
-    with ProcessPoolExecutor(max_workers=max_workers) as executor:
-        for session_to_nwb_kwargs in session_to_nwb_args_per_session:
-            experiment_type = session_to_nwb_kwargs["experiment_type"]
-            experimental_group = session_to_nwb_kwargs["experimental_group"]
-            subject_id = session_to_nwb_kwargs["subject_id"]
-            start_datetime = session_to_nwb_kwargs["start_datetime"]
-            optogenetic_treatment = session_to_nwb_kwargs.get("optogenetic_treatment", None)
-            if experiment_type == "FP":
-                exception_file_path = (
-                    output_dir_path
-                    / f"ERROR_{experiment_type}_{experimental_group}_{subject_id}_{start_datetime.isoformat().replace(':', '-')}.txt"
-                )
-            elif experiment_type == "Opto":
-                exception_file_path = (
-                    output_dir_path
-                    / f"ERROR_{experiment_type}_{experimental_group}_{optogenetic_treatment}_{subject_id}_{start_datetime.isoformat().replace(':', '-')}.txt"
-                )
-            futures.append(
-                executor.submit(
-                    safe_session_to_nwb,
-                    session_to_nwb_kwargs=session_to_nwb_kwargs,
-                    exception_file_path=exception_file_path,
-                )
-            )
-        for _ in tqdm(as_completed(futures), total=len(futures)):
-            pass
+    unique_subject_ids = set()
+    for session_to_nwb_kwargs in session_to_nwb_args_per_session:
+        subject_id = session_to_nwb_kwargs["subject_id"]
+        unique_subject_ids.add(subject_id)
+    for subject_id in unique_subject_ids:
+        if not re.match(r"([0-9]){2,3}\.([0-9]){2,3}", subject_id):
+            print(f"Subject ID {subject_id} does not match the expected format.")
+
+    # futures = []
+    # with ProcessPoolExecutor(max_workers=max_workers) as executor:
+    #     for session_to_nwb_kwargs in session_to_nwb_args_per_session:
+    #         experiment_type = session_to_nwb_kwargs["experiment_type"]
+    #         experimental_group = session_to_nwb_kwargs["experimental_group"]
+    #         subject_id = session_to_nwb_kwargs["subject_id"]
+    #         start_datetime = session_to_nwb_kwargs["start_datetime"]
+    #         optogenetic_treatment = session_to_nwb_kwargs.get("optogenetic_treatment", None)
+    #         if experiment_type == "FP":
+    #             exception_file_path = (
+    #                 output_dir_path
+    #                 / f"ERROR_{experiment_type}_{experimental_group}_{subject_id}_{start_datetime.isoformat().replace(':', '-')}.txt"
+    #             )
+    #         elif experiment_type == "Opto":
+    #             exception_file_path = (
+    #                 output_dir_path
+    #                 / f"ERROR_{experiment_type}_{experimental_group}_{optogenetic_treatment}_{subject_id}_{start_datetime.isoformat().replace(':', '-')}.txt"
+    #             )
+    #         futures.append(
+    #             executor.submit(
+    #                 safe_session_to_nwb,
+    #                 session_to_nwb_kwargs=session_to_nwb_kwargs,
+    #                 exception_file_path=exception_file_path,
+    #             )
+    #         )
+    #     for _ in tqdm(as_completed(futures), total=len(futures)):
+    #         pass
 
 
 def safe_session_to_nwb(*, session_to_nwb_kwargs: dict, exception_file_path: Union[Path, str]):

@@ -61,17 +61,17 @@ class Seiler2024ExcelMetadataInterface(BaseDataInterface):
                 metadata["NWBFile"]["virus"] = "AAV5-EF1a-DIO-eNpHR3.0-EYFP"
             if subject_df["Treatment"] == "Control":
                 metadata["NWBFile"]["virus"] = "AAV5-EF1a-DIO-EYFP"
-            if subject_df["Punishment Group"] == "Punishment Resitant":
-                subject_df["Punishment Group"] = "Punishment Resistant"
             metadata["NWBFile"]["notes"] = (
                 f'Hemisphere with DMS: {subject_df["Hemisphere with DMS"]}\n'
                 f'Experiment: {subject_df["Experiment"]}\n'
                 f'Behavior: {subject_df["Behavior"]}\n'
-                f'Punishment Group: {subject_df["Punishment Group"]}\n'
+                f'Punishment Group: {str(subject_df["Punishment Group"]).replace("Resitant", "Resistant")}\n'
             )
         except KeyError:  # TODO: Ask Lerner lab about missing subjects
             print(f"Subject ID {self.source_data['subject_id']} not found in metadata file.")
             metadata["Subject"]["sex"] = "U"
+
+        metadata["Subject"]["subject_id"] = self.source_data["subject_id"]
 
         return metadata
 

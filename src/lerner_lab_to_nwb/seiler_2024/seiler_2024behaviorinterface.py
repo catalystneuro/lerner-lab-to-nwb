@@ -59,39 +59,6 @@ class Seiler2024BehaviorInterface(BaseDataInterface):
             "start_time": time,
             "MSN": str,
         }
-        msn_to_training_stage = {
-            "RR20Left": "RR20",
-            "RI60_RIGHT_SCRAM": "RI60",
-            "RI60_LEFT_SCRAM": "RI60",
-            "RI30 Right SCRAMBLED": "RI30",
-            "RI30 Left Scrambled": "RI30",
-            "FR1_RIGHT_STIM": "FR1",
-            "FR1_RIGHT_SCRAMBLED": "FR1",
-            "FR1_LEFT_STIM": "FR1",
-            "FR1_LEFT_SCRAM": "FR1",
-            "FR1_BOTH_WStim": "FR1",
-            "FR1_BOTH_SCRAMBLED": "FR1",
-            "Footshock Degradation right": "ShockProbe",
-            "Footshock Degradation Left": "ShockProbe",
-            "FOOD_RI 60 RIGHT TTL": "RI60",
-            "FOOD_RI 60 LEFT TTL": "RI60",
-            "FOOD_RI 30 RIGHT TTL": "RI60",
-            "FOOD_RI 30 LEFT": "RI60",
-            "FOOD_FR1 TTL Right": "FR1",
-            "FOOD_FR1 TTL Left": "FR1",
-            "FOOD_FR1 HT TTL (Both)": "FR1",
-            "FOOD_FR1 Habit Training TTL": "FR1",
-            "20sOmissions_TTL": "OmissionProbe",
-            "20sOmissions": "OmissionProbe",
-            "RR5_Left_CVC": "RR5",
-            "RR20Right": "RR20",
-            "FOOD_FR1 Habit Training TTL": "FR1",
-            "Probe Test Habit Training TTL": "OmissionProbe",  # TODO: Confirm with Lerner Lab
-            "RI 30 RIGHT_STIM": "RI30",
-            "RI 60 RIGHT STIM": "RI60",
-            "RI 60 LEFT_STIM": "RI60",
-            "RI 30 LEFT_STIM": "RI30",
-        }
         if self.source_data["from_csv"]:
             session_dtypes = {
                 "Start Date": str,
@@ -113,12 +80,6 @@ class Seiler2024BehaviorInterface(BaseDataInterface):
             start_time = session_df["Start Time"][0] if "Start Time" in session_df.columns else "00:00:00"
             start_time = datetime.strptime(start_time, "%H:%M:%S").time()
             msn = session_df["MSN"][0] if "MSN" in session_df.columns else "Unknown"
-            training_stage = msn_to_training_stage[msn] if "MSN" in session_df.columns else "Unknown"
-            subject = (
-                session_df["Subject"][0]
-                if "Subject" in session_df.columns
-                else Path(self.source_data["file_path"]).stem.split("_")[0]
-            )
             box = session_df["Box"][0] if "Box" in session_df.columns else "Unknown"
         else:
             session_dict = read_medpc_file(
@@ -130,20 +91,11 @@ class Seiler2024BehaviorInterface(BaseDataInterface):
             )
             start_date = session_dict["start_date"]
             start_time = session_dict["start_time"]
-            training_stage = msn_to_training_stage[session_dict["MSN"]]
-            subject = session_dict["subject"]
             msn = session_dict["MSN"]
             box = session_dict["box"]
 
         session_start_time = datetime.combine(start_date, start_time)
-        session_id = session_start_time.isoformat() + "-" + training_stage
-
         metadata["NWBFile"]["session_start_time"] = session_start_time
-        metadata["NWBFile"]["identifier"] = subject + "-" + session_id
-        metadata["NWBFile"]["session_id"] = session_id
-
-        metadata["Subject"] = {}
-        metadata["Subject"]["subject_id"] = subject
 
         metadata["Behavior"] = {}
         metadata["Behavior"]["box"] = box
@@ -205,7 +157,11 @@ class Seiler2024BehaviorInterface(BaseDataInterface):
         behavior_module = nwb_helpers.get_module(
             nwbfile=nwbfile,
             name="behavior",
-            description=f"Operant behavioral data from MedPC. Box = {metadata['Behavior']['box']}",
+            description=(
+                f"Operant behavioral data from MedPC.\n"
+                f"Box = {metadata['Behavior']['box']}\n"
+                f"MSN = {metadata['Behavior']['msn']}"
+            ),
         )
 
         # Port Entry
