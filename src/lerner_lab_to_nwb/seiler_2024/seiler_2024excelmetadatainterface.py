@@ -59,7 +59,6 @@ class Seiler2024ExcelMetadataInterface(BaseDataInterface):
                 f'Behavior: {subject_df["Behavior"]}\n'
                 f'Punishment Group: {subject_df["Punishment Group"]}\n'
             )
-            print(metadata["NWBFile"]["notes"])
         except KeyError:  # TODO: Ask Lerner lab about missing subjects
             print(f"Subject ID {self.source_data['subject_id']} not found in metadata file.")
             metadata["Subject"]["sex"] = "U"
