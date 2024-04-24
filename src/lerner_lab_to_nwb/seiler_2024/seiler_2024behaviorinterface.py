@@ -1,7 +1,6 @@
 """Primary class for converting experiment-specific behavior."""
 from pynwb.file import NWBFile
 from datetime import datetime, date, time
-from pytz import timezone
 from neuroconv.basedatainterface import BaseDataInterface
 from neuroconv.utils import DeepDict
 from neuroconv.tools import nwb_helpers
@@ -136,7 +135,7 @@ class Seiler2024BehaviorInterface(BaseDataInterface):
             msn = session_dict["MSN"]
             box = session_dict["box"]
 
-        session_start_time = datetime.combine(start_date, start_time, tzinfo=timezone("US/Central"))
+        session_start_time = datetime.combine(start_date, start_time)
         session_id = session_start_time.isoformat() + "-" + training_stage
 
         metadata["NWBFile"]["session_start_time"] = session_start_time
