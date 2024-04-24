@@ -537,20 +537,56 @@ def get_opto_subject_id(subject_path: Path):
     str
         The subject ID. Ex. '139.298'
     """
+    partial_subject_ids_to_subject_id = {
+        "268": "268.476",
+        "266": "266.477",
+        "244": "244.465",
+        "343": "343.483",
+        "419": "419.404",
+        "245": "245.464",
+        "342": "342.483",
+        "202": "202.465",
+        "313": "313.403",
+        "418": "418.404",
+        "340": "340.483",
+        "259": "259.478",
+        "264": "264.478",
+        "421": "421.404",
+        "417": "417.404",
+        "233": "233.469",
+        "261": "261.478",
+        "265": "265.476",
+        "311": "311.403",
+        "206": "206.468",
+        "243": "243.468",
+        "263": "263.477",
+        "338": "338.398",
+        "414": "414.405",
+    }
+
     # fmt: off
     if re.match(r"([0-9]){2,3}\.([0-9]){3}", subject_path.name):
+        # ex. subject_path.name = '139.298'
         subject_id = subject_path.name
     elif "Subject" in subject_path.name:
+        # ex. subject_path.name = '2021-10-25_10h44m_Subject 266.477'
         subject_id = subject_path.name.split(" ")[1]
-    elif re.match(r"[1-2]([0-9]){3}-[0-1][0-9]-[0-3][0-9]_([0-9]){3}_([0-9]){3}", subject_path.name):
+    elif re.match(r"[1-2]([0-9]){3}-[0-1][0-9]-[0-3][0-9]_([0-9]){2,3}_([0-9]){3}", subject_path.name):
+        # ex. subject_path.name = '2021-10-29_262_259 - Copy.478'
         subject_id = (
             f"{subject_path.name.split('_')[1]}.{subject_path.name.split('_')[2].split(' ')[0]}"
         )
     elif (
-        re.match(r"[1-2]([0-9]){3}-[0-1][0-9]-[0-3][0-9]_", subject_path.name) or
-        re.match(r"[1-2]([0-9]){3}[0-1][0-9][0-3][0-9]_", subject_path.name)
+        re.match(r"[1-2]([0-9]){3}-[0-1][0-9]-[0-3][0-9]_([0-9]){2,3}\.([0-9]){3}", subject_path.name) or
+        re.match(r"[1-2]([0-9]){3}[0-1][0-9][0-3][0-9]_([0-9]){2,3}\.([0-9]){3}", subject_path.name) or
+        re.match(r"[1-2]([0-9]){3}-[0-1][0-9]-[0-3][0-9]_([0-9]){2,3}", subject_path.name)
     ):
+        # ex. subject_path.name = 2021-10-25_266.477 or 20211025_244.465 or 2021-11-01_202
         subject_id = subject_path.name.split("_")[1]
+    elif re.match(r"[1-2]([0-9]){3}-[0-1][0-9]-[0-3][0-9]__", subject_path.name):
+        # ex. subject_path.name = 2021-10-29__340.483
+        subject_id = subject_path.name.split("__")[1]
+
     elif re.match(r"[1-2]([0-9]){3}-[0-1][0-9]-[0-3][0-9]-", subject_path.name):
         subject_id = subject_path.name.split("-")[-1]
     elif (
@@ -559,7 +595,7 @@ def get_opto_subject_id(subject_path: Path):
     ):
         subject_id = subject_path.name.split("_")[0]
     elif subject_path.is_dir():
-        subject_id = subject_path.name
+        subject_id = subject_path.name.replace("_", ".")
     elif subject_path.name == "2021-10-29_262_259.478":
         subject_id = "262.478"
     else:
@@ -567,6 +603,13 @@ def get_opto_subject_id(subject_path: Path):
     # fmt: on
     if subject_id.endswith(".txt"):
         subject_id = subject_id[:-4]
+
+    if subject_id in partial_subject_ids_to_subject_id:
+        subject_id = partial_subject_ids_to_subject_id[subject_id]
+
+    assert re.match(
+        r"([0-9]){2,3}\.([0-9]){3}", subject_id
+    ), f"Subject ID {subject_id} with path {subject_path} does not match the expected format."
 
     return subject_id
 
