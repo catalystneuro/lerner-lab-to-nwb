@@ -53,6 +53,14 @@ class Seiler2024ExcelMetadataInterface(BaseDataInterface):
             metadata["NWBFile"]["surgery"] = subject_df["Surgical Manipulation"]
             if not pd.isna(subject_df["Treatment"]):
                 metadata["NWBFile"]["stimulus_notes"] = subject_df["Treatment"]
+            if subject_df["Experiment"] == "Fiber Photometry":
+                metadata["NWBFile"]["virus"] = "AAV5-CAG-FLEX-jGCaMP7b-WPRE"
+            elif subject_df["Experiment"] == "DLS-Excitatory" or subject_df["Experiment"] == "DMS-Excitatory":
+                metadata["NWBFile"]["virus"] = "AAV5-EF1a-DIO-hChR2(H134R)-EYFP"
+            elif subject_df["Experiment"] == "DMS-Inhibitory" or subject_df["Experiment"] == "DMS-Inhibitory Group 2":
+                metadata["NWBFile"]["virus"] = "AAV5-EF1a-DIO-eNpHR3.0-EYFP"
+            if subject_df["Treatment"] == "Control":
+                metadata["NWBFile"]["virus"] = "AAV5-EF1a-DIO-EYFP"
             metadata["NWBFile"]["notes"] = (
                 f'Hemisphere with DMS: {subject_df["Hemisphere with DMS"]}\n'
                 f'Experiment: {subject_df["Experiment"]}\n'

@@ -33,6 +33,8 @@ Subject:
     females). Adult mice at least 10 weeks of age were used in all experiments. Mice were group housed under a conventional 12 h light
     cycle (dark from 7:00pm to 7:00am) with ad libitum access to food and water prior to operant training. All experiments were approved
     by the Northwestern University Institutional Animal Care and Use Committee.
+  strain: C57BL/6J
+  genotype: "DAT-IRES-Cre: B6.SJLSlc6a3tm1.1(cre)Bkmn/J"
 
 Behavior:
   msn_to_medpc_name_to_dict_name:
