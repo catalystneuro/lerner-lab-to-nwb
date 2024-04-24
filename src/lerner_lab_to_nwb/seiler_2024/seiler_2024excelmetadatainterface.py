@@ -63,7 +63,6 @@ class Seiler2024ExcelMetadataInterface(BaseDataInterface):
                 metadata["NWBFile"]["virus"] = "AAV5-EF1a-DIO-EYFP"
             if subject_df["Punishment Group"] == "Punishment Resitant":
                 subject_df["Punishment Group"] = "Punishment Resistant"
-            print(subject_df["Punishment Group"])
             metadata["NWBFile"]["notes"] = (
                 f'Hemisphere with DMS: {subject_df["Hemisphere with DMS"]}\n'
                 f'Experiment: {subject_df["Experiment"]}\n'
