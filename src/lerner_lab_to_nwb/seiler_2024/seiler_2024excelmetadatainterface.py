@@ -37,7 +37,7 @@ class Seiler2024ExcelMetadataInterface(BaseDataInterface):
             sheet_name="Mouse Demographics",
             dtype={"Mouse ID": str},
         )
-        df["DNL"] = df["Mouse ID"].str.contains("(DNL)")
+        df["DNL"] = df["Mouse ID"].str.contains("(DNL)", regex=False)
         df["Mouse ID"] = df["Mouse ID"].str.replace("(DNL)", "")
         df["Mouse ID"] = df["Mouse ID"].str.strip()
         df.set_index("Mouse ID", inplace=True)
