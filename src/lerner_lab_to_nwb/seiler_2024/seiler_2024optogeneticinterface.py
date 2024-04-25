@@ -122,7 +122,7 @@ class Seiler2024OptogeneticInterface(BaseDataInterface):
             self.source_data["experimental_group"]
         ]
         device = nwbfile.create_device(
-            name="light_source",
+            name="Optogenetics_LED_Dual",
             description=(
                 "Optogenetic stimulus pulses were generated from the Optogenetics-LED-Dual (Prizmatix) driven by the "
                 "Optogenetics PulserPlus (Prizmatix). Engineered for scaling Optogenetics experiments, the "
