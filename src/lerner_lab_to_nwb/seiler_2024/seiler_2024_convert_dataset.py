@@ -9,7 +9,6 @@ import numpy as np
 from concurrent.futures import ProcessPoolExecutor, as_completed
 from pprint import pformat
 import traceback
-import re
 
 from lerner_lab_to_nwb.seiler_2024.seiler_2024_convert_session import session_to_nwb
 from lerner_lab_to_nwb.seiler_2024.medpc import get_medpc_variables
