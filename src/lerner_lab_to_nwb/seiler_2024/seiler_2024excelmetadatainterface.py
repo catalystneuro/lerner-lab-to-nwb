@@ -37,7 +37,11 @@ class Seiler2024ExcelMetadataInterface(BaseDataInterface):
             sheet_name="Mouse Demographics",
             dtype={"Mouse ID": str},
         )
+        df["DNL"] = df["Mouse ID"].str.contains("(DNL)")
+        df["Mouse ID"] = df["Mouse ID"].str.replace("(DNL)", "")
+        df["Mouse ID"] = df["Mouse ID"].str.strip()
         df.set_index("Mouse ID", inplace=True)
+
         if self.source_data["subject_id"] in df.index:
             subject_df = df.loc[self.source_data["subject_id"]]
 
@@ -60,6 +64,7 @@ class Seiler2024ExcelMetadataInterface(BaseDataInterface):
                 f'Experiment: {subject_df["Experiment"]}\n'
                 f'Behavior: {subject_df["Behavior"]}\n'
                 f'Punishment Group: {str(subject_df["Punishment Group"]).replace("Resitant", "Resistant")}\n'
+                f'Did Not Learn: {subject_df["DNL"]}\n'
             )
         else:  # TODO: Ask Lerner lab about missing subjects
             if self.verbose:
