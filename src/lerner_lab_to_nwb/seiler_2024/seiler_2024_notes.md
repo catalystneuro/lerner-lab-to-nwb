@@ -123,10 +123,14 @@ Many MSNs (ex. 'FOOD_FR1 TTL Left', 'FOOD_FR1 TTL Right', and 'FOOD_RI 30 LEFT')
 
 ### Questions
 - need to ask for more specific info about the device (data sheet)
+    - Answer: This is the LED source https://www.prizmatix.com/Optogenetics/Optogenetics-LED-Dual.aspx and this is the pulser (its the PulserPlus option) https://www.prizmatix.com/optogenetics/Prizmatix-in-vivo-Optogenetics-Toolbox.htm#pls
 - Need pulse width for excitatory optogenetics
+    - Answer: The pulse width is 5ms
 - DMS-Inhibitory Group 2 is missing
+    - Solution: Lerner Lab provided this.
 - DLS-Excitatory has a bunch of files (medpc and csv) organized by date not belonging to any optogenetic treatment group folder
     (ChR2, EYFP, Scrambled).  Which treatment did these sessions receive?
+    - Solution: Metadata excel file has treatment info --> metadata["NWBFile"]["stimulus_notes"]
 - DMS-Excitatory has some csv files w/ only session-aggregated info (total right rewards but not right reward times)
     ex. ChR2/121_280.CSV -- do you have individual session info for these animals?
 - RI 60 LEFT_STIM, RI 30 LEFT_STIM, and RK_C_FR1_BOTH_1hr msns show up in opto data but don't have associated files -- assumed to be the same as their right counterparts?
