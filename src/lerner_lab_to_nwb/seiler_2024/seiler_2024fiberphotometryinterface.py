@@ -19,6 +19,7 @@ from hdmf.backends.hdf5.h5_utils import H5DataIO
 from tdt import read_block
 import os
 from contextlib import redirect_stdout
+from typing import Optional
 
 
 class Seiler2024FiberPhotometryInterface(BaseDataInterface):
@@ -26,10 +27,9 @@ class Seiler2024FiberPhotometryInterface(BaseDataInterface):
 
     keywords = ["fiber photometry"]
 
-    def __init__(self, folder_path: str, behavior_kwargs: dict, verbose: bool = True):
+    def __init__(self, folder_path: str, verbose: bool = True):
         super().__init__(
             folder_path=folder_path,
-            behavior_kwargs=behavior_kwargs,
             verbose=verbose,
         )
 
@@ -41,72 +41,141 @@ class Seiler2024FiberPhotometryInterface(BaseDataInterface):
         metadata_schema = super().get_metadata_schema()
         return metadata_schema
 
-    def add_to_nwbfile(self, nwbfile: NWBFile, metadata: dict):
+    def add_to_nwbfile(
+        self,
+        nwbfile: NWBFile,
+        metadata: dict,
+        t2: Optional[float] = None,
+        flip_ttls_lr: bool = False,
+        has_demodulated_commanded_voltages: bool = True,
+        second_folder_path: Optional[str] = None,
+    ):
         # Load Data
         folder_path = Path(self.source_data["folder_path"])
         assert folder_path.is_dir(), f"Folder path {folder_path} does not exist."
         with open(os.devnull, "w") as f, redirect_stdout(f):
-            tdt_photometry = read_block(str(folder_path))
+            if t2 is None:
+                tdt_photometry = read_block(str(folder_path))
+            else:
+                tdt_photometry = read_block(str(folder_path), t2=t2)
+            if second_folder_path is not None:
+                tdt_photometry2 = read_block(str(second_folder_path))
+                tdt_photometry.streams["Dv1A"].data = np.concatenate(
+                    [tdt_photometry.streams["Dv1A"].data, tdt_photometry2.streams["Dv1A"].data], axis=0
+                )
+                tdt_photometry.streams["Dv2A"].data = np.concatenate(
+                    [tdt_photometry.streams["Dv2A"].data, tdt_photometry2.streams["Dv2A"].data], axis=0
+                )
+                tdt_photometry.streams["Dv3B"].data = np.concatenate(
+                    [tdt_photometry.streams["Dv3B"].data, tdt_photometry2.streams["Dv3B"].data], axis=0
+                )
+                tdt_photometry.streams["Dv4B"].data = np.concatenate(
+                    [tdt_photometry.streams["Dv4B"].data, tdt_photometry2.streams["Dv4B"].data], axis=0
+                )
+                if has_demodulated_commanded_voltages:
+                    tdt_photometry.streams["Fi1d"].data = np.concatenate(
+                        [tdt_photometry.streams["Fi1d"].data, tdt_photometry2.streams["Fi1d"].data], axis=1
+                    )
+                else:
+                    tdt_photometry.streams["Fi1r"].data = np.concatenate(
+                        [tdt_photometry.streams["Fi1r"].data, tdt_photometry2.streams["Fi1r"].data], axis=1
+                    )
 
         # Commanded Voltages
         multi_commanded_voltage = MultiCommandedVoltage()
-        dms_commanded_signal_series = multi_commanded_voltage.create_commanded_voltage_series(
-            name="dms_commanded_signal",
-            data=H5DataIO(tdt_photometry.streams["Fi1d"].data[0, :], compression=True),
-            frequency=211.0,
-            power=1.0,
-            rate=tdt_photometry.streams["Fi1d"].fs,
-            unit="volts",
-        )
-        dms_commanded_reference_series = multi_commanded_voltage.create_commanded_voltage_series(
-            name="dms_commanded_reference",
-            data=H5DataIO(tdt_photometry.streams["Fi1d"].data[1, :], compression=True),
-            frequency=330.0,
-            power=1.0,
-            rate=tdt_photometry.streams["Fi1d"].fs,
-            unit="volts",
-        )
-        dls_commanded_signal_series = multi_commanded_voltage.create_commanded_voltage_series(
-            name="dls_commanded_signal",
-            data=H5DataIO(tdt_photometry.streams["Fi1d"].data[3, :], compression=True),
-            frequency=450.0,
-            power=1.0,
-            rate=tdt_photometry.streams["Fi1d"].fs,
-            unit="volts",
-        )
-        dls_commanded_reference_series = multi_commanded_voltage.create_commanded_voltage_series(
-            name="dls_commanded_reference",
-            data=H5DataIO(tdt_photometry.streams["Fi1d"].data[2, :], compression=True),
-            frequency=270.0,
-            power=1.0,
-            rate=tdt_photometry.streams["Fi1d"].fs,
-            unit="volts",
-        )
-
-        # Excitation Sources
         excitation_sources_table = ExcitationSourcesTable(
             description="465nm and 405nm LEDs were modulated at 211 Hz and 330 Hz, respectively, for DMS probes. 465nm and 405nm LEDs were modulated at 450 Hz and 270 Hz, respectively for DLS probes. LED currents were adjusted in order to return a voltage between 150-200mV for each signal, were offset by 5 mA, were demodulated using a 4 Hz lowpass frequency filter.",
         )
-        excitation_sources_table.add_row(
-            peak_wavelength=465.0,
-            source_type="LED",
-            commanded_voltage=dms_commanded_signal_series,
-        )
-        excitation_sources_table.add_row(
-            peak_wavelength=405.0,
-            source_type="LED",
-            commanded_voltage=dms_commanded_reference_series,
-        )
-        excitation_sources_table.add_row(
-            peak_wavelength=465.0,
-            source_type="LED",
-            commanded_voltage=dls_commanded_signal_series,
-        )
-        excitation_sources_table.add_row(
-            peak_wavelength=405.0,
-            source_type="LED",
-            commanded_voltage=dls_commanded_reference_series,
-        )
+        if has_demodulated_commanded_voltages:
+            dms_commanded_signal_series = multi_commanded_voltage.create_commanded_voltage_series(
+                name="dms_commanded_signal",
+                data=H5DataIO(tdt_photometry.streams["Fi1d"].data[0, :], compression=True),
+                frequency=211.0,
+                power=1.0,
+                rate=tdt_photometry.streams["Fi1d"].fs,
+                unit="volts",
+            )
+            dms_commanded_reference_series = multi_commanded_voltage.create_commanded_voltage_series(
+                name="dms_commanded_reference",
+                data=H5DataIO(tdt_photometry.streams["Fi1d"].data[1, :], compression=True),
+                frequency=330.0,
+                power=1.0,
+                rate=tdt_photometry.streams["Fi1d"].fs,
+                unit="volts",
+            )
+            dls_commanded_signal_series = multi_commanded_voltage.create_commanded_voltage_series(
+                name="dls_commanded_signal",
+                data=H5DataIO(tdt_photometry.streams["Fi1d"].data[3, :], compression=True),
+                frequency=450.0,
+                power=1.0,
+                rate=tdt_photometry.streams["Fi1d"].fs,
+                unit="volts",
+            )
+            dls_commanded_reference_series = multi_commanded_voltage.create_commanded_voltage_series(
+                name="dls_commanded_reference",
+                data=H5DataIO(tdt_photometry.streams["Fi1d"].data[2, :], compression=True),
+                frequency=270.0,
+                power=1.0,
+                rate=tdt_photometry.streams["Fi1d"].fs,
+                unit="volts",
+            )
+
+            # Excitation Sources
+            excitation_sources_table.add_row(
+                peak_wavelength=465.0,
+                source_type="LED",
+                commanded_voltage=dms_commanded_signal_series,
+            )
+            excitation_sources_table.add_row(
+                peak_wavelength=405.0,
+                source_type="LED",
+                commanded_voltage=dms_commanded_reference_series,
+            )
+            excitation_sources_table.add_row(
+                peak_wavelength=465.0,
+                source_type="LED",
+                commanded_voltage=dls_commanded_signal_series,
+            )
+            excitation_sources_table.add_row(
+                peak_wavelength=405.0,
+                source_type="LED",
+                commanded_voltage=dls_commanded_reference_series,
+            )
+        else:
+            dms_commanded_voltage_series = multi_commanded_voltage.create_commanded_voltage_series(
+                name="dms_commanded_voltage",
+                data=H5DataIO(tdt_photometry.streams["Fi1r"].data[0, :], compression=True),
+                rate=tdt_photometry.streams["Fi1r"].fs,
+                unit="volts",
+                power=1.0,
+            )
+            dls_commanded_voltage_series = multi_commanded_voltage.create_commanded_voltage_series(
+                name="dls_commanded_voltage",
+                data=H5DataIO(tdt_photometry.streams["Fi1r"].data[1, :], compression=True),
+                rate=tdt_photometry.streams["Fi1r"].fs,
+                unit="volts",
+                power=1.0,
+            )
+            excitation_sources_table.add_row(
+                peak_wavelength=465.0,
+                source_type="LED",
+                commanded_voltage=dms_commanded_voltage_series,
+            )
+            excitation_sources_table.add_row(
+                peak_wavelength=405.0,
+                source_type="LED",
+                commanded_voltage=dms_commanded_voltage_series,
+            )
+            excitation_sources_table.add_row(
+                peak_wavelength=465.0,
+                source_type="LED",
+                commanded_voltage=dls_commanded_voltage_series,
+            )
+            excitation_sources_table.add_row(
+                peak_wavelength=405.0,
+                source_type="LED",
+                commanded_voltage=dls_commanded_voltage_series,
+            )
 
         photodetectors_table = PhotodetectorsTable(
             description="Newport Visible Femtowatt Photoreceiver Module: This battery-operated photoreceiver has high gain and detects CW light signals in the sub-picowatt to nanowatt range. When used in conjunction with a modulated light source and a lock-in amplifier to reduce the measurement bandwidth, it achieves sensitivity levels in the femtowatt range. Doric offer this Newport product with add-on fiber optic adapter that improves coupling efficiency between the large core, high NA optical fibers used in Fiber Photometry and relatively small detector area. Its output analog voltage (0-5 V) can be monitored with an oscilloscope or with a DAQ board to record the data with a computer.",

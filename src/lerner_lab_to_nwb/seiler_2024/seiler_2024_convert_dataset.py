@@ -6,6 +6,9 @@ from datetime import datetime
 import shutil
 import pandas as pd
 import numpy as np
+from concurrent.futures import ProcessPoolExecutor, as_completed
+from pprint import pformat
+import traceback
 
 from lerner_lab_to_nwb.seiler_2024.seiler_2024_convert_session import session_to_nwb
 from lerner_lab_to_nwb.seiler_2024.medpc import get_medpc_variables
@@ -13,7 +16,12 @@ from lerner_lab_to_nwb.seiler_2024.medpc import read_medpc_file
 
 
 def dataset_to_nwb(
-    data_dir_path: Union[str, Path], output_dir_path: Union[str, Path], stub_test: bool = False, verbose: bool = True
+    *,
+    data_dir_path: Union[str, Path],
+    output_dir_path: Union[str, Path],
+    max_workers: int = 1,
+    stub_test: bool = False,
+    verbose: bool = True,
 ):
     """Convert the entire dataset to NWB.
 
@@ -38,47 +46,62 @@ def dataset_to_nwb(
         stub_test=stub_test,
         verbose=verbose,
     )
-    opto_session_to_nwb_args_per_session = opto_to_nwb(
-        data_dir_path=data_dir_path,
-        output_dir_path=output_dir_path,
-        start_variable=start_variable,
-        stub_test=stub_test,
-        verbose=verbose,
-    )
-    session_to_nwb_args_per_session = fp_session_to_nwb_args_per_session + opto_session_to_nwb_args_per_session
+    # opto_session_to_nwb_args_per_session = opto_to_nwb(
+    #     data_dir_path=data_dir_path,
+    #     output_dir_path=output_dir_path,
+    #     start_variable=start_variable,
+    #     stub_test=stub_test,
+    #     verbose=verbose,
+    # )
+    # session_to_nwb_args_per_session = fp_session_to_nwb_args_per_session + opto_session_to_nwb_args_per_session
+    session_to_nwb_args_per_session = fp_session_to_nwb_args_per_session
 
-    # Convert all sessions and handle missing Fi1d's
-    missing_fi1d_sessions = []
-    missing_msn_errors = set()
-    for session_to_nwb_args in tqdm(session_to_nwb_args_per_session):
-        try:
-            session_to_nwb(**session_to_nwb_args)
-        except AttributeError as e:
-            if str(e) == "'StructType' object has no attribute 'Fi1d'":
-                missing_fi1d_sessions.append(
-                    str(session_to_nwb_args["fiber_photometry_folder_path"]).split("Photometry/")[1]
+    futures = []
+    with ProcessPoolExecutor(max_workers=max_workers) as executor:
+        for session_to_nwb_kwargs in session_to_nwb_args_per_session:
+            experiment_type = session_to_nwb_kwargs["experiment_type"]
+            experimental_group = session_to_nwb_kwargs["experimental_group"]
+            subject_id = session_to_nwb_kwargs["subject_id"]
+            start_datetime = session_to_nwb_kwargs["start_datetime"]
+            optogenetic_treatment = session_to_nwb_kwargs.get("optogenetic_treatment", None)
+            if experiment_type == "FP":
+                exception_file_path = (
+                    output_dir_path
+                    / f"ERROR_{experiment_type}_{experimental_group}_{subject_id}_{start_datetime.isoformat().replace(':', '-')}.txt"
                 )
-                continue
-            else:
-                print(
-                    f"Could not convert {session_to_nwb_args['experimental_group']}/{session_to_nwb_args['subject_id']}/{session_to_nwb_args['session_conditions']['Start Date']} {session_to_nwb_args['session_conditions']['Start Time']}"
+            elif experiment_type == "Opto":
+                exception_file_path = (
+                    output_dir_path
+                    / f"ERROR_{experiment_type}_{experimental_group}_{optogenetic_treatment}_{subject_id}_{start_datetime.isoformat().replace(':', '-')}.txt"
                 )
-                raise AttributeError(e)
-        except KeyError as e:
-            missing_msn_errors.add(str(e))
-        except Exception as e:
-            print(
-                f"Could not convert {session_to_nwb_args['experimental_group']}/{session_to_nwb_args['subject_id']}/{session_to_nwb_args['session_conditions']['Start Date']} {session_to_nwb_args['session_conditions']['Start Time']}"
+            futures.append(
+                executor.submit(
+                    safe_session_to_nwb,
+                    session_to_nwb_kwargs=session_to_nwb_kwargs,
+                    exception_file_path=exception_file_path,
+                )
             )
-            raise Exception(e)
-    if missing_fi1d_sessions:
-        print("Missing Fi1d Sessions:")
-        for session in missing_fi1d_sessions:
-            print(session)
-    if missing_msn_errors:
-        print("Missing MSN errors:")
-        for error in missing_msn_errors:
-            print(error)
+        for _ in tqdm(as_completed(futures), total=len(futures)):
+            pass
+
+
+def safe_session_to_nwb(*, session_to_nwb_kwargs: dict, exception_file_path: Union[Path, str]):
+    """Convert a session to NWB while handling any errors by recording error messages to the exception_file_path.
+
+    Parameters
+    ----------
+    session_to_nwb_kwargs : dict
+        The arguments for session_to_nwb.
+    exception_file_path : Path
+        The path to the file where the exception messages will be saved.
+    """
+    exception_file_path = Path(exception_file_path)
+    try:
+        session_to_nwb(**session_to_nwb_kwargs)
+    except Exception as e:
+        with open(exception_file_path, mode="w") as f:
+            f.write(f"session_to_nwb_kwargs: \n {pformat(session_to_nwb_kwargs)}\n\n")
+            f.write(traceback.format_exc())
 
 
 def fp_to_nwb(
@@ -115,6 +138,54 @@ def fp_to_nwb(
     }
     behavior_path = data_dir_path / f"{experiment_type} Experiments" / "Behavior"
     photometry_path = data_dir_path / f"{experiment_type} Experiments" / "Photometry"
+    fi1r_only_sessions = {
+        "Photo_333_393-200713-121027",
+        "Photo_346_394-200707-141513",
+        "Photo_64_205-181017-094913",
+        "Photo_81_236-190117-102128",
+        "Photo_87_239-190228-111317",
+        "Photo_81_236-190207-101451",
+        "Photo_87_239-190321-110120",
+        "Photo_88_239-190311-112034",
+        "Photo_333_393-200729-115506",
+        "Photo_346_394-200722-132345",
+        "Photo_349_393-200717-123319",
+        "Photo_111_285-190605-142759",
+        "Photo_141_308-190809-143410",
+        "Photo_80_236-190121-093425",
+        "Photo_61_207-181017-105639",
+        "Photo_63_207-181015-093910",
+        "Photo_63_207-181030-103332",
+        "Photo_80_236-190121-093425",
+        "Photo_89_247-190328-125515",
+        "Photo_028_392-200724-130323",
+        "Photo_048_392-200728-121222",
+        "Photo_112_283-190620-093542",
+        "Photo_113_283-190605-115438",
+        "Photo_114_273-190607-140822",
+        "Photo_115_273-190611-115654",
+        "Photo_139_298-190809-132427",
+        "Photo_75_214-181029-124815",
+        "Photo_92_246-190227-143210",
+        "Photo_92_246-190227-150307",
+        "Photo_93_246-190222-130128",
+        "Photo_75_214-181029-124815",
+        "Photo_78_214-181031-131820",
+        "Photo_90_247-190328-103249",
+        "Photo_92_246-190228-132737",
+        "Photo_92_246-190319-114357",
+        "Photo_93_246-190222-130128",
+        "Photo_94_246-190328-113641",
+        "Photo_140_306-190903-102551",
+        "Photo_271_396-200722-121638",
+        "Photo_347_393-200723-113530",
+        "Photo_348_393-200730-113125",
+        "Photo_139_298-190912-095034",
+        "Photo_88_239-190219-140027",
+        "Photo_89_247-190308-095258",
+        "Photo_140_306-190809-121107",
+        "Photo_271_396-200707-125117",
+    }
     raw_file_to_info = get_raw_info(behavior_path)
 
     # Iterate through file system to get necessary information for converting each session
@@ -146,17 +217,24 @@ def fp_to_nwb(
                     subject_dir, photometry_subject_id, raw_file_to_info, start_variable
                 )
                 start_dates, start_times, msns, file_paths, subjects, box_numbers = header_variables
-                (
-                    matching_start_dates,
-                    matching_start_times,
-                    matching_msns,
-                    matching_file_paths,
-                    matching_subjects,
-                    matching_box_numbers,
-                ) = ([], [], [], [], [], [])
+                matching_start_dates = []
+                matching_start_times = []
+                matching_msns = []
+                matching_file_paths = []
+                matching_subjects = []
+                matching_box_numbers = []
                 for start_date, start_time, msn, file, subject, box_number in zip(
                     start_dates, start_times, msns, file_paths, subjects, box_numbers
                 ):
+                    if (
+                        photometry_subject_id == "271.396"
+                        and photometry_start_date == "07/07/20"
+                        and msn == "FOOD_RI 60 RIGHT TTL"
+                        or photometry_subject_id == "88.239"
+                        and photometry_start_date == "02/19/19"
+                        and msn == "FOOD_RI 60 LEFT TTL"
+                    ):
+                        continue
                     if start_date == photometry_start_date:
                         matching_start_dates.append(start_date)
                         matching_start_times.append(start_time)
@@ -165,13 +243,55 @@ def fp_to_nwb(
                         matching_subjects.append(subject)
                         matching_box_numbers.append(box_number)
                 if (
-                    (photometry_subject_id == "88.239" and photometry_start_date == "02/19/19")
-                    or (photometry_subject_id == "271.396" and photometry_start_date == "07/07/20")
-                    or (photometry_subject_id == "332.393" and photometry_start_date == "07/28/20")
-                    or (photometry_subject_id == "334.394" and photometry_start_date == "07/21/20")
-                    or (photometry_subject_id == "140.306" and photometry_start_date == "08/09/19")
-                    or (photometry_subject_id == "139.298" and photometry_start_date == "09/12/19")
-                ):  # TODO: Ask Lerner Lab about these sessions
+                    (
+                        photometry_subject_id == "334.394" and photometry_start_date == "07/21/20"
+                    )  # TODO: Ask Lerner Lab about this session
+                    or (
+                        photometry_subject_id == "99.257"
+                        and photometry_start_date == "04/16/19"
+                        # TODO: Ask Lerner Lab about this session
+                    )
+                    or (
+                        photometry_subject_id == "64.205"
+                        and photometry_start_date == "10/17/18"
+                        and experimental_subgroup.name == "Late"
+                    )
+                    or (
+                        photometry_subject_id == "81.236"
+                        and photometry_start_date == "01/17/19"
+                        and experimental_subgroup.name == "Late"
+                    )
+                    or (
+                        photometry_subject_id == "87.239"
+                        and photometry_start_date == "02/28/19"
+                        and experimental_subgroup.name == "Late"
+                    )
+                    or (
+                        photometry_subject_id == "88.239"
+                        and photometry_start_date == "02/19/19"
+                        and experimental_subgroup.name == "Late"
+                    )
+                    or (
+                        photometry_subject_id == "80.236"
+                        and photometry_start_date == "01/21/19"
+                        and experimental_subgroup.name == "Late RI60"
+                    )
+                    or (
+                        photometry_subject_id == "75.214"
+                        and photometry_start_date == "10/29/18"
+                        and experimental_subgroup.name == "Late RI60"
+                    )
+                    or (
+                        photometry_subject_id == "93.246"
+                        and photometry_start_date == "02/22/19"
+                        and experimental_subgroup.name == "Late RI60"
+                    )
+                    or (
+                        photometry_subject_id == "78.214"
+                        and photometry_start_date == "10/31/18"
+                        and experimental_subgroup.name == "Late RI60"
+                    )
+                ):
                     continue
                 assert (
                     len(matching_start_dates) == 1
@@ -207,6 +327,30 @@ def fp_to_nwb(
                     stub_test=stub_test,
                     verbose=verbose,
                 )
+                if fiber_photometry_folder_path.name in fi1r_only_sessions:
+                    session_to_nwb_args["has_demodulated_commanded_voltages"] = False
+                if fiber_photometry_folder_path.name == "Photo_139_298-190912-095034":
+                    session_to_nwb_args["fiber_photometry_t2"] = 2267.0
+                    session_to_nwb_args["second_fiber_photometry_folder_path"] = (
+                        fiber_photometry_folder_path.parent / "Photo_139_298-190912-103544"
+                    )
+                if fiber_photometry_folder_path.name == "Photo_139_298-190912-103544":
+                    continue
+                if fiber_photometry_folder_path.name == "Photo_332_393-200728-122403":
+                    session_to_nwb_args["second_fiber_photometry_folder_path"] = (
+                        fiber_photometry_folder_path.parent / "Photo_332_393-200728-123314"
+                    )
+                if fiber_photometry_folder_path.name == "Photo_332_393-200728-123314":
+                    continue
+                if fiber_photometry_folder_path.name == "Photo_92_246-190227-143210":
+                    session_to_nwb_args["second_fiber_photometry_folder_path"] = (
+                        fiber_photometry_folder_path.parent / "Photo_92_246-190227-150307"
+                    )
+                if fiber_photometry_folder_path.name == "Photo_92_246-190227-150307":
+                    continue
+                if photometry_subject_id == "140.306" and photometry_start_date == "08/09/19":
+                    session_to_nwb_args["flip_ttls_lr"] = True
+
                 session_to_nwb_args_per_session.append(session_to_nwb_args)
                 nwbfile_path = (
                     output_dir_path
@@ -627,4 +771,11 @@ if __name__ == "__main__":
         shutil.rmtree(
             output_dir_path, ignore_errors=True
         )  # ignore errors due to MacOS race condition (https://github.com/python/cpython/issues/81441)
-    dataset_to_nwb(data_dir_path=data_dir_path, output_dir_path=output_dir_path, stub_test=False, verbose=False)
+    max_workers = 4
+    dataset_to_nwb(
+        data_dir_path=data_dir_path,
+        output_dir_path=output_dir_path,
+        max_workers=max_workers,
+        stub_test=False,
+        verbose=False,
+    )

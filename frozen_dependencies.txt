@@ -30,6 +30,7 @@ distlib==0.3.8
 dnspython==2.5.0
 email-validator==2.1.0.post1
 entrypoints==0.4
+et-xmlfile==1.1.0
 etelemetry==0.3.1
 executing==2.0.1
 fasteners==0.19
@@ -97,6 +98,7 @@ numcodecs==0.11.0
 numpy==1.26.3
 nwbinspector==0.4.33
 nwbwidgets==0.11.3
+openpyxl==3.1.2
 packaging==23.2
 pandas==2.2.0
 parse==1.20.1

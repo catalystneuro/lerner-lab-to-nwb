@@ -14,6 +14,7 @@ import numpy as np
 from tdt import read_block
 import os
 from contextlib import redirect_stdout
+from pathlib import Path
 
 
 class Seiler2024NWBConverter(NWBConverter):
@@ -25,7 +26,7 @@ class Seiler2024NWBConverter(NWBConverter):
         Optogenetic=Seiler2024OptogeneticInterface,
     )
 
-    def temporally_align_data_interfaces(self, metadata: dict):
+    def temporally_align_data_interfaces(self, metadata: dict, conversion_options: dict):
         """Align the FiberPhotometry and Behavior data interfaces in time.
 
         This method uses TTLs from the FiberPhotometry data that correspond to behavior events to generate aligned
@@ -35,6 +36,8 @@ class Seiler2024NWBConverter(NWBConverter):
         ----------
         metadata : dict
             The metadata for the session.
+        conversion_options : dict
+            The conversion options for the session.
         """
         if not "FiberPhotometry" in self.data_interface_objects.keys():
             self.data_interface_objects["Behavior"].source_data["session_dict"] = None
@@ -53,46 +56,75 @@ class Seiler2024NWBConverter(NWBConverter):
         )
 
         # Read Fiber Photometry Data
+        t2 = conversion_options["FiberPhotometry"].get("t2", None)
+        folder_path = Path(self.data_interface_objects["FiberPhotometry"].source_data["folder_path"])
+        second_folder_path = conversion_options["FiberPhotometry"].get("second_folder_path", None)
         with open(os.devnull, "w") as f, redirect_stdout(f):
-            tdt_photometry = read_block(self.data_interface_objects["FiberPhotometry"].source_data["folder_path"])
+            if t2 is None:
+                tdt_photometry = read_block(folder_path)
+            else:
+                tdt_photometry = read_block(folder_path, t2=t2)
+            if second_folder_path is not None:
+                tdt_photometry2 = read_block(second_folder_path)
 
         # Aggregate TTLs and Behavior Timestamps
-        if "RIGHT" in msn or "Right" in msn or "right" in msn:
-            ttl_names_to_behavior_names = {
-                "LNPS": "left_nose_poke_times",
-                "RNRW": "right_reward_times",
-                "RNnR": "right_nose_poke_times",
-                "PrtN": "port_entry_times",
-                "Sock": "footshock_times",
-            }
-        elif "LEFT" in msn or "Left" in msn or "left" in msn:
-            ttl_names_to_behavior_names = {
-                "RNPS": "right_nose_poke_times",
-                "LNRW": "left_reward_times",
-                "LNnR": "left_nose_poke_times",
-                "PrtN": "port_entry_times",
-                "Sock": "footshock_times",
-            }
+        right_ttl_names_to_behavior_names = {
+            "LNPS": "left_nose_poke_times",
+            "RNRW": "right_reward_times",
+            "RNnR": "right_nose_poke_times",
+            "PrtN": "port_entry_times",
+            "Sock": "footshock_times",
+        }
+        left_ttl_names_to_behavior_names = {
+            "RNPS": "right_nose_poke_times",
+            "LNRW": "left_reward_times",
+            "LNnR": "left_nose_poke_times",
+            "PrtN": "port_entry_times",
+            "Sock": "footshock_times",
+        }
+        msn_is_right = "RIGHT" in msn or "Right" in msn or "right" in msn
+        msn_is_left = "LEFT" in msn or "Left" in msn or "left" in msn or msn == "Probe Test Habit Training TTL"
+        if not conversion_options["FiberPhotometry"]["flip_ttls_lr"] and msn_is_right:
+            ttl_names_to_behavior_names = right_ttl_names_to_behavior_names
+        elif not conversion_options["FiberPhotometry"]["flip_ttls_lr"] and msn_is_left:
+            ttl_names_to_behavior_names = left_ttl_names_to_behavior_names
+        elif conversion_options["FiberPhotometry"]["flip_ttls_lr"] and msn_is_right:
+            ttl_names_to_behavior_names = left_ttl_names_to_behavior_names
+        elif conversion_options["FiberPhotometry"]["flip_ttls_lr"] and msn_is_left:
+            ttl_names_to_behavior_names = right_ttl_names_to_behavior_names
         else:
             raise ValueError(f"MSN ({msn}) does not indicate appropriate TTLs for alignment.")
+        if folder_path.name == "Photo_332_393-200728-122403":
+            ttl_names_to_behavior_names = {  # This special session only has 2 TTLs bc it is split into 2 folders
+                "RNnR": "right_nose_poke_times",
+                "PrtN": "port_entry_times",
+            }
         for ttl_name, behavior_name in ttl_names_to_behavior_names.items():
-            if ttl_name == "PrtN":
-                ttl_timestamps = []
-                if "PrtN" in tdt_photometry.epocs:
-                    for timestamp in tdt_photometry.epocs["PrtN"].onset:
-                        ttl_timestamps.append(timestamp)
-                if "PrtR" in tdt_photometry.epocs:
-                    for timestamp in tdt_photometry.epocs["PrtR"].onset:
-                        ttl_timestamps.append(timestamp)
-                ttl_timestamps = np.sort(ttl_timestamps)
-            elif ttl_name == "Sock" and "ShockProbe" not in metadata["NWBFile"]["session_id"]:
-                continue
-            else:
-                if len(session_dict[behavior_name]) == 0:
-                    continue  # If behavior is not present the tdt file will not have the appropriate TTL
-                ttl_timestamps = tdt_photometry.epocs[ttl_name].onset
+            if ttl_name == "Sock" and "ShockProbe" not in metadata["NWBFile"]["session_id"]:
+                continue  # If the session is not a shock probe session the tdt file will not have the appropriate TTL
+            if len(session_dict[behavior_name]) == 0:
+                continue  # If behavior is not present the tdt file will not have the appropriate TTL
+
+            ttl_timestamps = self.get_ttl_timestamps(ttl_name, tdt_photometry)
+            if second_folder_path is not None:
+                ttl_timestamps2 = self.get_ttl_timestamps(ttl_name, tdt_photometry2)
+                ttl_timestamps = np.concatenate((ttl_timestamps, ttl_timestamps2))
             session_dict[behavior_name] = ttl_timestamps
         self.data_interface_objects["Behavior"].source_data["session_dict"] = session_dict
+
+    def get_ttl_timestamps(self, ttl_name, tdt_photometry):
+        if ttl_name == "PrtN":
+            ttl_timestamps = []
+            if "PrtN" in tdt_photometry.epocs:
+                for timestamp in tdt_photometry.epocs["PrtN"].onset:
+                    ttl_timestamps.append(timestamp)
+            if "PrtR" in tdt_photometry.epocs:
+                for timestamp in tdt_photometry.epocs["PrtR"].onset:
+                    ttl_timestamps.append(timestamp)
+            ttl_timestamps = np.sort(ttl_timestamps)
+        else:
+            ttl_timestamps = tdt_photometry.epocs[ttl_name].onset
+        return ttl_timestamps
 
     def run_conversion(
         self,
@@ -109,7 +141,7 @@ class Seiler2024NWBConverter(NWBConverter):
 
         self.validate_conversion_options(conversion_options=conversion_options)
 
-        self.temporally_align_data_interfaces(metadata=metadata)
+        self.temporally_align_data_interfaces(metadata=metadata, conversion_options=conversion_options)
 
         with make_or_load_nwbfile(
             nwbfile_path=nwbfile_path,
