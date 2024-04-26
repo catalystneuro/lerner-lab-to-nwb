@@ -1,5 +1,9 @@
 # Notes concerning the seiler_2024 conversion split by interface
 
+# Gdrive Data Changes (Need to be redone every time I download the data)
+- For consistency across groups, I renamed Opto Experiments/DMS Inhibitory/Group 1/Halo --> NpHr
+- PS/332.393 was missing the 07/28/2020 session but Lerner Lab provided a backup --> I copy/pasted the backup from the provided .txt file into the medpc file at the end
+
  ## Behavior
  For all medpc files,
  - MSN refers to the name of the code file used to produce this session
@@ -36,28 +40,29 @@ In FP Experiments/Behavior/DPR/334.394,
 In FP Experiments/Behavior/PR/141.308,
 - medpc file is filled with whitespace characters like \t
 
-In FP Experiments/Behavior/PS/139.298,
-- one of the sessions (ex. 09/20/19) is actually from subject 144.306
-- 144.306 is a ghost -- it doesn't show up in any of the behavior folders and not in the mosue demographics google sheet
-
-In FP Experiments/Behavior/PS/140.306,
-- one of the sessions (ex. 09/06/19) has a bunch of garbage to the right of the 'A' variable
-
 In FP Experiments/Behavior/MEDPCRawFilesbyDate/2018-11-09,
 - All the sessions have the same start_date and start_time and no subject info --> need to make medpc reader support
 more generic filter conditions (ex. box number)
 
-In FP Experiments/Behavior/MEDPCRawFilesbyDate/2019-02-19,
-- One of the animals (88.239) has 2 sessions in the same day, with one only 9mins long -- mistaken session?
+In FP Experiments/Behavior/PS/140.306,
+- one of the sessions (ex. 09/06/19) has a bunch of garbage to the right of the 'A' variable
+- Solution: Handled by reader
+
+### Resolved Questions
+In FP Experiments/Behavior/PS/139.298,
+- one of the sessions (ex. 09/20/19) is actually from subject 144.306
+- 144.306 is a ghost -- it doesn't show up in any of the behavior folders and not in the mosue demographics google sheet
+- Answer: Yes it looks like I must have accidentally saved those in the wrong file. You should trust that the subject number is correct and disregard the sessions in question.
+- Solution: Trust subject field of medpc file in these cases.
 
 What experimental stage (FR1, footshock probe, omission probe, etc.) does "Probe Test Habit Training TTL" correspond to?
+- Answer: Probe tests always occur immediately following a Footshock degradation program. They were not used in the paper however.
+- Solution: training stage = ProbeTest
 
 Many MSNs (ex. 'FOOD_FR1 TTL Left', 'FOOD_FR1 TTL Right', and 'FOOD_RI 30 LEFT') list both E and U as corresponding to duration of port entry.
+- Answer: As far as I can tell, U should just be ignored. It looks like a carry over from older versions of this code and nothing is actually being stored in U.
+- Solution: Ignore U
 
-### Opto Behavior
-- Opto Behavior files are disorganized esp. DLS Excitatory with a mix of folders, medpc files, and csv files
-- File structure also contains important metadata for optogenetic interface ex. ChR2 vs EYFP
-- Plan: Swing back around to opto behavior when constructing optogenetic interface
 
 ## Fiber Photometry
 - 6 data streams:
@@ -71,6 +76,8 @@ Many MSNs (ex. 'FOOD_FR1 TTL Left', 'FOOD_FR1 TTL Right', and 'FOOD_RI 30 LEFT')
 - some folders have subject_id with multiple session folders for each subject
 - For DPR/334.394/07/02/20, no right nosepokes were made --> photometry object doesn't have a RNPS object
     - Solution: only extract ttls if the corresponding behavior array is non-empty
+
+### Resolved Questions
 - Delayed Punishment Resistant/Early/Photo_64_205-181017-094913 is duplicated at Delayed Punishment Resistant/Late/64.205/Photo_64_205-181017-094913
     - Same for Photo_81_236-190117-102128, Photo_87_239-190228-111317, Photo_88_239-190219-140027
     - --> skipping the second one
@@ -79,49 +86,54 @@ Many MSNs (ex. 'FOOD_FR1 TTL Left', 'FOOD_FR1 TTL Right', and 'FOOD_RI 30 LEFT')
 - Punishment Sensitive/Early RI60/Photo_75_214-181029-124815 is duplicated at Punishment Sensitive/Late RI60/Photo_75_214-181029-124815
     - same for Photo_93_246-190222-130128
     - --> skipping second one
-- Questions for Lerner Lab:
-    - The TTL for 'unrewarded right nose pokes' (RNnR), corresponds to the nose pokes variable in medpc, which supposedly
-    records *all* nosepokes. Which is correct?
-    - Mistaken session 88.239?
-    - PS/271.396_07/07/20 has two behavioral sessions but only 1 fp session folder
-        - Answer: For 271.396 on 07/07/20, I initially ran the animal on RI60_RIGHT for 15ish minutes before realizing it was a mistake and switching it to RI60 LEFT, hence the 2 MED entries.
-        - Solution: Ignore 15min RI60_Right and keep RI60_Left
-    - PS/332.393_07/28/20 has 2 fp sessions but no matching behavior session
-        - Solution: added missing session to behavioral file and stitched them together
-    - The RR20 folder only has .mat files rather than tdt synapse output folders -- pls provide?
-    - Several sessions don't have fi1d -- see printout
-        - Solution: Added option for fi1r-only in photometry interface
-    - Delayed Punishment Resistant/Late/Photo_334_394-200721-131257 throws an error from tdt.read_block, but loads fine if t2 <= 824
-        - Solution: just load with t2<=824
-        - This session also is missing RNPS TTL but has 3 nose poke times in the medpc file --> ask lab
-    - Punishment Sensitive/Late RI60/Photo_139_298-190912-095034 throws an error from tdt.read_block, but loads fine if t2 <= 2267
-        - Solution: just load with t2<=2267
-        - This session is also Fi1r-only
-    - Punishment Sensitive/Early RI60/Photo_140_306-190809-121107 has msn FOOD_RI 60 LEFT TTL, but epocs
-    PrtN, RNnR, PrtR, LNPS, RNRW -- why is this mismatched with the expected epocs?
-        - Answer: Per my notes, this animal was accidentally run on the wrong TDT program.
-        - Solution: Manually correct this session (essentially everything that says right is actually left, and vice versa).
-        - This sesison is also Fi1r-only
-    - Some of the animals/days have 2 photometry sessions but only 1 behavior session
-    (ex. Punishment Sensitive/Late RI60/Photo_139_298-190912-095034 and Photo_139_298-190912-103544) is the photometry
-    for that 1 session split across the two folders?
-        - Answer: Yes, occasionally the computer freezes or something and I need to restart the TDT recording while the MED program is unaffected. For my analysis I basically just stitched them together.
-        - Solution: Added stitching functionality for optional second_folder_path
-    - For DPR/334.394/07/21/20, 3 right nosepokes were made BUT photometry object still doesn't have a RNPS object
-    - RR20/99.257 on 04/16/19 has a photometry session but no matching behavior session on that day -- pls provide?
+- The TTL for 'unrewarded right nose pokes' (RNnR), corresponds to the nose pokes variable in medpc, which supposedly
+records *all* nosepokes. Which is correct?
+    - Answer: Separately from that collection, MED is sending TTLs for either rewarded or unrewarded nosepokes to the TDT rig. This is happening based on the IF statement in S.S.4 of the MSN code.    These are not "stored" in an array in the MED output themselves but are in the TDT output. Does that make sense? It's a little confusing so I'm happy to explain it on a Zoom call.
+        The right nosepokes (variable R) are being recorded in MEDPC, regardless of whether they are rewarded or unrewarded in DIM C. This is happening in the S.S.7 (Timestamp Collection) portion of the MSN code. DIM D contains all of the timestamps for when a right reward was delivered (which happens when they make a rewarded nosepoke so it makes sense that these are the same as the times of right rewarded nosepokes).
+    - Solution: Treat 'RNnR' as right nosepoke times (Dim C) since it matches the shape. Treat 'RNRW' as right reward times (Dim D) since it matches the shape.
+- PS/271.396_07/07/20 has two behavioral sessions but only 1 fp session folder
+    - Answer: For 271.396 on 07/07/20, I initially ran the animal on RI60_RIGHT for 15ish minutes before realizing it was a mistake and switching it to RI60 LEFT, hence the 2 MED entries.
+    - Solution: Ignore 15min RI60_Right and keep RI60_Left
+- PS/332.393_07/28/20 has 2 fp sessions but no matching behavior session
+    - Solution: added missing session to behavioral file and stitched them together
+- The RR20 folder only has .mat files rather than tdt synapse output folders -- pls provide?
+    - Solution: Lerner Lab provided RR20.
+- Several sessions don't have fi1d -- see printout
+    - Solution: Added option for fi1r-only in photometry interface
+- Delayed Punishment Resistant/Late/Photo_334_394-200721-131257 throws an error from tdt.read_block, but loads fine if t2 <= 824
+    - Solution: just load with t2<=824
+    - This session also is missing RNPS TTL but has 3 nose poke times in the medpc file --> ask lab
+- Punishment Sensitive/Late RI60/Photo_139_298-190912-095034 throws an error from tdt.read_block, but loads fine if t2 <= 2267
+    - Solution: just load with t2<=2267
+    - This session is also Fi1r-only
+- Punishment Sensitive/Early RI60/Photo_140_306-190809-121107 has msn FOOD_RI 60 LEFT TTL, but epocs
+PrtN, RNnR, PrtR, LNPS, RNRW -- why is this mismatched with the expected epocs?
+    - Answer: Per my notes, this animal was accidentally run on the wrong TDT program.
+    - Solution: Manually correct this session (essentially everything that says right is actually left, and vice versa).
+    - This sesison is also Fi1r-only
+- Some of the animals/days have 2 photometry sessions but only 1 behavior session
+(ex. Punishment Sensitive/Late RI60/Photo_139_298-190912-095034 and Photo_139_298-190912-103544) is the photometry
+for that 1 session split across the two folders?
+    - Answer: Yes, occasionally the computer freezes or something and I need to restart the TDT recording while the MED program is unaffected. For my analysis I basically just stitched them together.
+    - Solution: Added stitching functionality for optional second_folder_path
+
+### Active Questions
+- For DPR/334.394/07/21/20, 3 right nosepokes were made BUT photometry object still doesn't have a RNPS object
+- RR20/99.257 on 04/16/19 has a photometry session but no matching behavior session on that day -- pls provide?
 
 ## Optogenetics
 ### Notes
+- Opto Behavior files are disorganized esp. DLS Excitatory with a mix of folders, medpc files, and csv files
+- File structure also contains important metadata for optogenetic interface ex. ChR2 vs EYFP
 - Optogenetic pulses are either paired directly with reward times or optogenetic_stimulus_times variable in medpc file
     for "scrambled" trials.
 - timing info can be found in paper (460nm, 1 s, 20 Hz, 15 mW for excitatory and 625nm, 1 s, 15 mW for inhibitory)
 - Some of the opto csv sessions have start times (ex. DLS Excitatory/ChR2/290.407/290.407_09-23-20.csv) -- added optional parsing
 - Some of the sessions (ex. DLS-Excitatory/079.402/06/27/20) don't have any reward/stim times
-- For consistency across groups, I renamed Opto Experiments/DMS Inhibitory/Group 1/Halo --> NpHr
 - Some of the medpc files organized by date are redundant but others are not ex. 309.399
 - A few of those animals died and were not included in the paper (416.405 and 289.408) --> skip DLS Excitatory .csvs
 
-### Questions
+### Resolved Questions
 - need to ask for more specific info about the device (data sheet)
     - Answer: This is the LED source https://www.prizmatix.com/Optogenetics/Optogenetics-LED-Dual.aspx and this is the pulser (its the PulserPlus option) https://www.prizmatix.com/optogenetics/Prizmatix-in-vivo-Optogenetics-Toolbox.htm#pls
 - Need pulse width for excitatory optogenetics
@@ -131,10 +143,11 @@ Many MSNs (ex. 'FOOD_FR1 TTL Left', 'FOOD_FR1 TTL Right', and 'FOOD_RI 30 LEFT')
 - DLS-Excitatory has a bunch of files (medpc and csv) organized by date not belonging to any optogenetic treatment group folder
     (ChR2, EYFP, Scrambled).  Which treatment did these sessions receive?
     - Solution: Metadata excel file has treatment info --> metadata["NWBFile"]["stimulus_notes"]
-- DMS-Excitatory has some csv files w/ only session-aggregated info (total right rewards but not right reward times)
-    ex. ChR2/121_280.CSV -- do you have individual session info for these animals?
 - RI 60 LEFT_STIM, RI 30 LEFT_STIM, and RK_C_FR1_BOTH_1hr msns show up in opto data but don't have associated files -- assumed to be the same as their right counterparts?
     - Solution: Added missing MSNs; skipped RK_C_FR1_BOTH_1hr
+
+### Active Questions
+- DMS-Excitatory has some csv files w/ only session-aggregated info (total right rewards but not right reward times) ex. ChR2/121_280.CSV -- do you have individual session info for these animals?
 - Some csv files do not have any subject info (ex. DLS Excitatory/_08-28-20.csv) -- pls provide or we will need to skip these sessions
 - Some of the sessions in the DLS Excitatory medpc files organized by date don't have subject info -- pls provide or we will need to skip these sessions
     Full List:
