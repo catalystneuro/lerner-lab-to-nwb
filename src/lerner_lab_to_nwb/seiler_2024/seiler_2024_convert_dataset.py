@@ -40,14 +40,13 @@ def dataset_to_nwb(
     start_variable = "Start Date"
     data_dir_path = Path(data_dir_path)
     output_dir_path = Path(output_dir_path)
-    # fp_session_to_nwb_args_per_session = fp_to_nwb(
-    #     data_dir_path=data_dir_path,
-    #     output_dir_path=output_dir_path,
-    #     start_variable=start_variable,
-    #     stub_test=stub_test,
-    #     verbose=verbose,
-    # )
-    fp_session_to_nwb_args_per_session = []
+    fp_session_to_nwb_args_per_session = fp_to_nwb(
+        data_dir_path=data_dir_path,
+        output_dir_path=output_dir_path,
+        start_variable=start_variable,
+        stub_test=stub_test,
+        verbose=verbose,
+    )
     opto_session_to_nwb_args_per_session = opto_to_nwb(
         data_dir_path=data_dir_path,
         output_dir_path=output_dir_path,
