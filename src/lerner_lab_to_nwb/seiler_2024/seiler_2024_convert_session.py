@@ -19,7 +19,9 @@ def session_to_nwb(
     start_variable: str,
     experiment_type: Literal["FP", "Opto"],
     experimental_group: Literal["DPR", "PR", "PS", "RR20", "DMS-Inhibitory", "DMS-Excitatory", "DLS-Excitatory"],
-    optogenetic_treatment: Optional[Literal["ChR2", "EYFP", "ChR2Scrambled", "NpHR", "NpHRScrambled"]] = None,
+    optogenetic_treatment: Optional[
+        Literal["ChR2", "EYFP", "ChR2Scrambled", "NpHR", "NpHRScrambled", "Unknown"]
+    ] = None,
     fiber_photometry_folder_path: Optional[Union[str, Path]] = None,
     second_fiber_photometry_folder_path: Optional[Union[str, Path]] = None,
     fiber_photometry_t2: Optional[float] = None,
@@ -51,7 +53,7 @@ def session_to_nwb(
         The type of experiment.
     experimental_group : Literal["DPR", "PR", "PS", "RR20", "DMS-Inhibitory", "DMS-Excitatory", "DLS-Excitatory"]
         The experimental group.
-    optogenetic_treatment : Optional[Literal["ChR2", "EYFP", "ChR2Scrambled", "NpHR", "NpHRScrambled"]], optional
+    optogenetic_treatment : Optional[Literal["ChR2", "EYFP", "ChR2Scrambled", "NpHR", "NpHRScrambled", "Unknown"]], optional
         The optogenetic treatment, by default None for FP sessions.
     fiber_photometry_folder_path : Optional[Union[str, Path]], optional
         Path to the folder containing the fiber photometry data, by default None

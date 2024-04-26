@@ -24,7 +24,7 @@ class Seiler2024OptogeneticInterface(BaseDataInterface):
         session_conditions: dict,
         start_variable: str,
         experimental_group: Literal["DMS-Inhibitory", "DMS-Excitatory", "DLS-Excitatory"],
-        optogenetic_treatment: Literal["ChR2", "EYFP", "ChR2Scrambled", "NpHR", "NpHRScrambled"],
+        optogenetic_treatment: Literal["ChR2", "EYFP", "ChR2Scrambled", "NpHR", "NpHRScrambled", "Unknown"],
         verbose: bool = True,
     ):
         """Initialize Seiler2024OptogeneticInterface.

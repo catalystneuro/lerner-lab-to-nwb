@@ -118,6 +118,8 @@ Many MSNs (ex. 'FOOD_FR1 TTL Left', 'FOOD_FR1 TTL Right', and 'FOOD_RI 30 LEFT')
 - Some of the opto csv sessions have start times (ex. DLS Excitatory/ChR2/290.407/290.407_09-23-20.csv) -- added optional parsing
 - Some of the sessions (ex. DLS-Excitatory/079.402/06/27/20) don't have any reward/stim times
 - For consistency across groups, I renamed Opto Experiments/DMS Inhibitory/Group 1/Halo --> NpHr
+- Some of the medpc files organized by date are redundant but others are not ex. 309.399
+- A few of those animals died and were not included in the paper (416.405 and 289.408) --> skip DLS Excitatory .csvs
 
 ### Questions
 - need to ask for more specific info about the device (data sheet)
@@ -129,3 +131,27 @@ Many MSNs (ex. 'FOOD_FR1 TTL Left', 'FOOD_FR1 TTL Right', and 'FOOD_RI 30 LEFT')
     ex. ChR2/121_280.CSV -- do you have individual session info for these animals?
 - RI 60 LEFT_STIM, RI 30 LEFT_STIM, and RK_C_FR1_BOTH_1hr msns show up in opto data but don't have associated files -- assumed to be the same as their right counterparts?
     - Solution: Added missing MSNs; skipped RK_C_FR1_BOTH_1hr
+- Some csv files do not have any subject info (ex. DLS Excitatory/_08-28-20.csv) -- pls provide or we will need to skip these sessions
+- Some of the sessions in the DLS Excitatory medpc files organized by date don't have subject info -- pls provide or we will need to skip these sessions
+    Full List:
+        start_date ='08/28/20' start_time ='14:02:02'
+        start_date ='08/28/20' start_time ='15:19:38'
+        start_date ='08/28/20' start_time ='15:53:16'
+        start_date ='08/28/20' start_time ='16:02:33'
+        start_date ='08/28/20' start_time ='16:33:16'
+        start_date ='08/28/20' start_time ='16:38:51'
+        start_date ='09/03/20' start_time ='12:39:34'
+        start_date ='09/03/20' start_time ='12:39:34'
+        start_date ='09/03/20' start_time ='12:39:34'
+        start_date ='09/03/20' start_time ='12:39:34'
+        start_date ='08/31/20' start_time ='13:02:03'
+        start_date ='08/31/20' start_time ='13:02:03'
+        start_date ='08/31/20' start_time ='13:02:03'
+        start_date ='08/31/20' start_time ='13:02:03'
+        start_date ='08/31/20' start_time ='14:53:03'
+        start_date ='08/31/20' start_time ='14:53:03'
+        start_date ='08/31/20' start_time ='14:53:03'
+        start_date ='08/31/20' start_time ='15:34:14'
+        start_date ='09/22/20' start_time ='12:43:27'
+        start_date ='09/22/20' start_time ='12:43:27'
+        start_date ='09/22/20' start_time ='12:43:27'

@@ -521,6 +521,58 @@ def opto_to_nwb(
                             continue
                         nwbfile_paths.add(nwbfile_path)
                         session_to_nwb_args_per_session.append(session_to_nwb_args)
+    # DLS Excitatory raw files by date
+    raw_files_by_date_path = data_dir_path / "Opto Experiments" / "DLS Excitatory"
+    start_dates, start_times, msns, file_paths, subjects, box_numbers = [], [], [], [], [], []
+    for file in raw_files_by_date_path.iterdir():
+        if (
+            file.name.startswith(".") or file.is_dir() or file.suffix == ".csv"
+        ):  # TODO: ask Lerner Lab about orphaned csvs
+            continue
+        info = get_medpc_variables(file_path=file, variable_names=["Subject", "Start Date", "Start Time", "MSN", "Box"])
+        for i in range(len(info["Subject"])):
+            start_dates.append(info["Start Date"][i])
+            start_times.append(info["Start Time"][i])
+            msns.append(info["MSN"][i])
+            file_paths.append(file)
+            subjects.append(info["Subject"][i])
+            box_numbers.append(info["Box"][i])
+    for start_date, start_time, msn, file, subject, box_number in zip(
+        start_dates, start_times, msns, file_paths, subjects, box_numbers
+    ):
+        if session_should_be_skipped(
+            start_date=start_date,
+            start_time=start_time,
+            subject_id=subject,
+            msn=msn,
+        ):
+            continue
+        session_conditions = {
+            "Start Date": start_date,
+            "Start Time": start_time,
+            "Subject": subject,
+            "Box": box_number,
+        }
+        start_datetime = datetime.strptime(f"{start_date} {start_time}", "%m/%d/%y %H:%M:%S")
+        session_to_nwb_args = dict(
+            data_dir_path=data_dir_path,
+            output_dir_path=output_dir_path,
+            behavior_file_path=file,
+            subject_id=subject,
+            session_conditions=session_conditions,
+            start_variable=start_variable,
+            start_datetime=start_datetime,
+            experiment_type=experiment_type,
+            experimental_group="DLS-Excitatory",
+            optogenetic_treatment="Unknown",
+            stub_test=stub_test,
+            verbose=verbose,
+        )
+        nwbfile_path = output_dir_path / f"{experiment_type}_DLS-Excitatory_{subject}_{start_datetime.isoformat()}.nwb"
+        if nwbfile_path in nwbfile_paths:
+            continue
+        nwbfile_paths.add(nwbfile_path)
+        session_to_nwb_args_per_session.append(session_to_nwb_args)
     return session_to_nwb_args_per_session
 
 
@@ -707,6 +759,8 @@ def session_should_be_skipped(*, start_date, start_time, subject_id, msn):
         "FOOD_FR1 Hapit Training TTL",
         "RK_C_FR1_BOTH_1hr",
     }
+    if subject_id == "":
+        return True
     if msn in msns_to_skip:
         return True
     if (
