@@ -24,7 +24,7 @@ class Seiler2024OptogeneticInterface(BaseDataInterface):
         session_conditions: dict,
         start_variable: str,
         experimental_group: Literal["DMS-Inhibitory", "DMS-Excitatory", "DLS-Excitatory"],
-        optogenetic_treatment: Literal["ChR2", "EYFP", "ChR2Scrambled", "NpHR", "NpHRScrambled"],
+        optogenetic_treatment: Literal["ChR2", "EYFP", "ChR2Scrambled", "NpHR", "NpHRScrambled", "Unknown"],
         verbose: bool = True,
     ):
         """Initialize Seiler2024OptogeneticInterface.
@@ -58,6 +58,23 @@ class Seiler2024OptogeneticInterface(BaseDataInterface):
 
     def get_metadata(self) -> DeepDict:
         metadata = super().get_metadata()
+
+        if self.source_data["optogenetic_treatment"] == "ChR2":
+            metadata["NWBFile"]["stimulus_notes"] = "Excitatory stimulation on rewarded nosepokes"
+        elif self.source_data["optogenetic_treatment"] == "NpHR":
+            metadata["NWBFile"]["stimulus_notes"] = "Inhibitory stimulation on rewarded nosepokes"
+        elif self.source_data["optogenetic_treatment"] == "ChR2Scrambled":
+            metadata["NWBFile"]["stimulus_notes"] = "Excitatory stimulation on random nosepokes"
+        elif self.source_data["optogenetic_treatment"] == "NpHRScrambled":
+            metadata["NWBFile"]["stimulus_notes"] = "Inhibitory stimulation on random nosepokes"
+        elif self.source_data["optogenetic_treatment"] == "EYFP":
+            metadata["NWBFile"]["stimulus_notes"] = "Control"
+        elif self.source_data["optogenetic_treatment"] == "Unknown":
+            return metadata
+        else:
+            raise ValueError(
+                f"Optogenetic treatment must be one of 'ChR2', 'EYFP', 'ChR2Scrambled', 'NpHR', 'NpHRScrambled', or 'Unknown' but got {self.source_data['optogenetic_treatment']}"
+            )
         return metadata
 
     def get_metadata_schema(self) -> dict:
@@ -121,9 +138,16 @@ class Seiler2024OptogeneticInterface(BaseDataInterface):
         opto_metadata = metadata["Optogenetics"]["experimental_group_to_metadata"][
             self.source_data["experimental_group"]
         ]
-        device = nwbfile.create_device(  # TODO: Ask Lerner Lab for data sheet
-            name="LED_and_pulse_generator",
-            description="LED and pulse generator used for optogenetic stimulation.",
+        device = nwbfile.create_device(
+            name="Optogenetics_LED_Dual",
+            description=(
+                "Optogenetic stimulus pulses were generated from the Optogenetics-LED-Dual (Prizmatix) driven by the "
+                "Optogenetics PulserPlus (Prizmatix). Engineered for scaling Optogenetics experiments, the "
+                "Optogenetics-LED-Dual light source features two independent fiber-coupled LED channels each equipped "
+                "with independent power and switching control. Optogenetics Pulser / PulserPlus are programmable "
+                "TTL pulse train generators for pulsing LEDs, lasers and shutters used in Optogenetics activation "
+                "in neurophysiology and behavioral research."
+            ),
             manufacturer="Prizmatix",
         )
         ogen_site = nwbfile.create_ogen_site(
@@ -146,7 +170,6 @@ class Seiler2024OptogeneticInterface(BaseDataInterface):
             data=H5DataIO(data, compression=True),
             timestamps=H5DataIO(timestamps, compression=True),
             description=opto_metadata["ogen_series_description"],
-            comments=f"Optogenetic Treatment: {self.source_data['optogenetic_treatment']}",
         )
         nwbfile.add_stimulus(ogen_series)
 
