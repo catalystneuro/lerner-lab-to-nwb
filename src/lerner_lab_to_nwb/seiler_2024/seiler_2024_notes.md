@@ -144,6 +144,16 @@ for that 1 session split across the two folders?
     (ChR2, EYFP, Scrambled).  Which treatment did these sessions receive?
     - Solution: Metadata excel file has treatment info --> metadata["NWBFile"]["stimulus_notes"]
 - RI 60 LEFT_STIM, RI 30 LEFT_STIM, and RK_C_FR1_BOTH_1hr msns show up in opto data but don't have associated files -- assumed to be the same as their right counterparts?
+
+## Metadata
+### Notes
+- Some medpc filenames/sessions have incomplete or missing subject names (ex. 75 instead of 75.214) -- need to do some matching operation
+- Punishment Group has a typo for PR ('Punishment Resitant' instead of 'Punishment Resistant') -- I'll fix on my end
+
+### Questions
+- Some of the subject_ids are not present in the metadata excel file -- pls provide
+- Some animals are missing the "Hemisphere with DMS" field -- pls provide
+=======
     - Solution: Added missing MSNs; skipped RK_C_FR1_BOTH_1hr
 
 ### Active Questions

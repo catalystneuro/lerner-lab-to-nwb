@@ -9,3 +9,4 @@ ndx-events
 ndx-photometry @ git+https://github.com/catalystneuro/ndx-photometry.git@main
 ipykernel
 tdt
+openpyxl

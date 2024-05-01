@@ -4,6 +4,7 @@ from typing import Union, Literal, Optional
 import shutil
 from neuroconv.utils import load_dict_from_file, dict_deep_update
 from datetime import datetime
+from pytz import timezone
 
 from lerner_lab_to_nwb.seiler_2024 import Seiler2024NWBConverter
 
@@ -77,6 +78,9 @@ def session_to_nwb(
         output_dir_path = output_dir_path / "nwb_stub"
     output_dir_path.mkdir(parents=True, exist_ok=True)
 
+    if experiment_type not in ["FP", "Opto"]:
+        raise ValueError(f"Invalid experiment type: {experiment_type}")
+
     source_data = {}
     conversion_options = {}
 
@@ -129,6 +133,19 @@ def session_to_nwb(
         )
         conversion_options.update(dict(Optogenetic={}))
 
+    # Add Excel-based Metadata
+    metadata_path = data_dir_path / "MouseDemographics.xlsx"
+    source_data.update(
+        dict(
+            Metadata={
+                "file_path": str(metadata_path),
+                "subject_id": subject_id,
+                "verbose": verbose,
+            }
+        )
+    )
+    conversion_options.update(dict(Metadata={}))
+
     converter = Seiler2024NWBConverter(source_data=source_data, verbose=verbose)
     metadata = converter.get_metadata()
 
@@ -137,19 +154,15 @@ def session_to_nwb(
     editable_metadata = load_dict_from_file(editable_metadata_path)
     metadata = dict_deep_update(metadata, editable_metadata)
 
-    start_datetime = metadata["NWBFile"]["session_start_time"]
-    if experiment_type == "FP":
-        nwbfile_path = (
-            output_dir_path
-            / f"{experiment_type}_{experimental_group}_{subject_id}_{start_datetime.isoformat().replace(':', '-')}.nwb"
-        )
-    elif experiment_type == "Opto":
-        nwbfile_path = (
-            output_dir_path
-            / f"{experiment_type}_{experimental_group}_{optogenetic_treatment}_{subject_id}_{start_datetime.isoformat().replace(':', '-')}.nwb"
-        )
+    session_start_time = metadata["NWBFile"]["session_start_time"]
+    if optogenetic_treatment is None:
+        session_id = f"{experiment_type}_{experimental_group}_{session_start_time.isoformat().replace(':', '-')}"
     else:
-        raise ValueError(f"Invalid experiment type: {experiment_type}")
+        session_id = f"{experiment_type}-{experimental_group}-{optogenetic_treatment}-{session_start_time.isoformat().replace(':', '-')}"
+    metadata["NWBFile"]["session_id"] = session_id
+    cst = timezone("US/Central")
+    metadata["NWBFile"]["session_start_time"] = metadata["NWBFile"]["session_start_time"].replace(tzinfo=cst)
+    nwbfile_path = output_dir_path / f"sub-{subject_id}_ses-{session_id}.nwb"
 
     # Run conversion
     converter.run_conversion(metadata=metadata, nwbfile_path=nwbfile_path, conversion_options=conversion_options)
@@ -430,7 +443,6 @@ if __name__ == "__main__":
         stub_test=stub_test,
     )
 
-    # Delayed Punishment Resistant/Early/Photo_333_393-200713-121027
     # Fiber Photometry session with only Fi1r (no Fi1d)
     experiment_type = "FP"
     experimental_group = "DPR"
@@ -471,93 +483,6 @@ if __name__ == "__main__":
         experimental_group=experimental_group,
         stub_test=stub_test,
     )
-
-    # # Fiber Photometry session with partial corruption AND missing RNPS TTL
-    # experiment_type = "FP"
-    # experimental_group = "DPR"
-    # subject_id = "334.394"
-    # start_datetime = datetime(2020, 7, 21, 13, 0, 24)
-    # session_conditions = {
-    #     "Start Date": start_datetime.strftime("%m/%d/%y"),
-    #     "Start Time": start_datetime.strftime("%H:%M:%S"),
-    # }
-    # start_variable = "Start Date"
-    # behavior_file_path = (
-    #     data_dir_path
-    #     / f"{experiment_type} Experiments"
-    #     / "Behavior"
-    #     / f"{experimental_group}"
-    #     / f"{subject_id}"
-    #     / f"{subject_id}"
-    # )
-    # fiber_photometry_folder_path = (
-    #     data_dir_path
-    #     / f"{experiment_type} Experiments"
-    #     / "Photometry"
-    #     / f"Delayed Punishment Resistant"
-    #     / f"Late"
-    #     / f"Photo_334_394-200721-131257"
-    # )
-    # fiber_photometry_t2 = 824.0
-    # session_to_nwb(
-    #     data_dir_path=data_dir_path,
-    #     output_dir_path=output_dir_path,
-    #     behavior_file_path=behavior_file_path,
-    #     fiber_photometry_folder_path=fiber_photometry_folder_path,
-    #     fiber_photometry_t2=fiber_photometry_t2,
-    #     subject_id=subject_id,
-    #     session_conditions=session_conditions,
-    #     start_variable=start_variable,
-    #     start_datetime=start_datetime,
-    #     experiment_type=experiment_type,
-    #     experimental_group=experimental_group,
-    #     stub_test=stub_test,
-    # )
-
-    # # Fiber Photometry session with partial corruption AND missing Fi1d AND stitching two sessions together
-    # experiment_type = "FP"
-    # experimental_group = "PS"
-    # subject_id = "139.298"
-    # start_datetime = datetime(2019, 9, 12, 9, 33, 41)
-    # session_conditions = {
-    #     "Start Date": start_datetime.strftime("%m/%d/%y"),
-    #     "Start Time": start_datetime.strftime("%H:%M:%S"),
-    # }
-    # start_variable = "Start Date"
-    # behavior_file_path = (
-    #     data_dir_path
-    #     / f"{experiment_type} Experiments"
-    #     / "Behavior"
-    #     / f"{experimental_group}"
-    #     / f"{subject_id}"
-    #     / f"{subject_id}"
-    # )
-    # fiber_photometry_folder_path = (
-    #     data_dir_path
-    #     / f"{experiment_type} Experiments"
-    #     / "Photometry"
-    #     / f"Punishment Sensitive"
-    #     / f"Late RI60"
-    #     / f"Photo_{subject_id.split('.')[0]}_{subject_id.split('.')[1]}-190912-095034"
-    # )
-    # fiber_photometry_t2 = 2267.0
-    # second_fiber_photometry_folder_path = fiber_photometry_folder_path.parent / "Photo_139_298-190912-103544"
-    # session_to_nwb(
-    #     data_dir_path=data_dir_path,
-    #     output_dir_path=output_dir_path,
-    #     behavior_file_path=behavior_file_path,
-    #     fiber_photometry_folder_path=fiber_photometry_folder_path,
-    #     second_fiber_photometry_folder_path=second_fiber_photometry_folder_path,
-    #     fiber_photometry_t2=fiber_photometry_t2,
-    #     has_demodulated_commanded_voltages=False,
-    #     subject_id=subject_id,
-    #     session_conditions=session_conditions,
-    #     start_variable=start_variable,
-    #     start_datetime=start_datetime,
-    #     experiment_type=experiment_type,
-    #     experimental_group=experimental_group,
-    #     stub_test=stub_test,
-    # )
 
     # Fiber Photometry session with swapped left and right TTLs and missing Fi1d
     experiment_type = "FP"
