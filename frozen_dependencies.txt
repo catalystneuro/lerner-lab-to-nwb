@@ -43,7 +43,7 @@ fscacher==0.4.0
 fsspec==2023.12.2
 gast==0.4.0
 h5py==3.10.0
-hdmf==3.12.2
+hdmf==3.13.0
 hdmf_zarr==0.5.0
 humanize==4.9.0
 identify==2.5.33
@@ -86,6 +86,7 @@ more-itertools==10.2.0
 multidict==6.0.4
 natsort==8.4.0
 ndx-events==0.2.0
+ndx-fiber-photometry @ git+https://github.com/catalystneuro/ndx-fiber-photometry.git@9122b1e41500cc50dc22d4238591cc8de281d20a
 ndx-grayscalevolume==0.0.2
 ndx-icephys-meta==0.1.0
 ndx-photometry @ git+https://github.com/catalystneuro/ndx-photometry.git@c1284c91a7e0a5dfd19f84bbf683e17fa607d4ec
