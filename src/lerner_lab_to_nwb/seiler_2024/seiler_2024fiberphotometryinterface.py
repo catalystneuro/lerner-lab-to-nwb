@@ -83,6 +83,124 @@ class Seiler2024FiberPhotometryInterface(BaseDataInterface):
                         [tdt_photometry.streams["Fi1r"].data, tdt_photometry2.streams["Fi1r"].data], axis=1
                     )
 
+        # Optical Fibers
+        dms_fiber = OpticalFiber(
+            name="dms_fiber",
+            description="Fiber optic implants (Doric Lenses; 400 um, 0.48 NA) were placed above DMS (AP 0.8, ML 1.5, DV 2.8) and DLS (AP 0.1, ML 2.8, DV 3.5). The DMS implant was placed in the hemisphere receiving a medial SNc viral injection, while the DLS implant was placed in the hemisphere receiving a lateral SNc viral injection. Calcium signals from dopamine terminals in DMS and DLS were recorded during RI30, on the first and last days of RI60/RR20 training as well as on both footshock probes for each mouse. All recordings were done using a fiber photometry rig with optical components from Doric lenses controlled by a real-time processor from Tucker Davis Technologies (TDT; RZ5P). TDT Synapse software was used for data acquisition.",
+            manufacturer="Doric Lenses",
+            model="Fiber Optic Implant",
+            numerical_aperture=0.48,
+        )
+        dls_fiber = OpticalFiber(
+            name="dls_fiber",
+            description="Fiber optic implants (Doric Lenses; 400 um, 0.48 NA) were placed above DMS (AP 0.8, ML 1.5, DV 2.8) and DLS (AP 0.1, ML 2.8, DV 3.5). The DMS implant was placed in the hemisphere receiving a medial SNc viral injection, while the DLS implant was placed in the hemisphere receiving a lateral SNc viral injection. Calcium signals from dopamine terminals in DMS and DLS were recorded during RI30, on the first and last days of RI60/RR20 training as well as on both footshock probes for each mouse. All recordings were done using a fiber photometry rig with optical components from Doric lenses controlled by a real-time processor from Tucker Davis Technologies (TDT; RZ5P). TDT Synapse software was used for data acquisition.",
+            manufacturer="Doric Lenses",
+            model="Fiber Optic Implant",
+            numerical_aperture=0.48,
+        )
+
+        # Excitation Sources
+        dms_signal_excitation_source = ExcitationSource(
+            name="dms_signal_excitation_source",
+            description="465nm and 405nm LEDs were modulated at 211 Hz and 330 Hz, respectively, for DMS probes. 465nm and 405nm LEDs were modulated at 450 Hz and 270 Hz, respectively for DLS probes. LED currents were adjusted in order to return a voltage between 150-200mV for each signal, were offset by 5 mA, were demodulated using a 4 Hz lowpass frequency filter.",
+            manufacturer="Doric Lenses",
+            model="Connectorized LED",
+            illumination_type="LED",
+            excitation_wavelength_in_nm=465.0,
+        )
+        dms_reference_excitation_source = ExcitationSource(
+            name="dms_reference_excitation_source",
+            description="465nm and 405nm LEDs were modulated at 211 Hz and 330 Hz, respectively, for DMS probes. 465nm and 405nm LEDs were modulated at 450 Hz and 270 Hz, respectively for DLS probes. LED currents were adjusted in order to return a voltage between 150-200mV for each signal, were offset by 5 mA, were demodulated using a 4 Hz lowpass frequency filter.",
+            manufacturer="Doric Lenses",
+            model="Connectorized LED",
+            illumination_type="LED",
+            excitation_wavelength_in_nm=405.0,
+        )
+        dls_signal_excitation_source = ExcitationSource(
+            name="dls_signal_excitation_source",
+            description="465nm and 405nm LEDs were modulated at 211 Hz and 330 Hz, respectively, for DMS probes. 465nm and 405nm LEDs were modulated at 450 Hz and 270 Hz, respectively for DLS probes. LED currents were adjusted in order to return a voltage between 150-200mV for each signal, were offset by 5 mA, were demodulated using a 4 Hz lowpass frequency filter.",
+            manufacturer="Doric Lenses",
+            model="Connectorized LED",
+            illumination_type="LED",
+            excitation_wavelength_in_nm=465.0,
+        )
+        dls_reference_excitation_source = ExcitationSource(
+            name="dls_reference_excitation_source",
+            description="465nm and 405nm LEDs were modulated at 211 Hz and 330 Hz, respectively, for DMS probes. 465nm and 405nm LEDs were modulated at 450 Hz and 270 Hz, respectively for DLS probes. LED currents were adjusted in order to return a voltage between 150-200mV for each signal, were offset by 5 mA, were demodulated using a 4 Hz lowpass frequency filter.",
+            manufacturer="Doric Lenses",
+            model="Connectorized LED",
+            illumination_type="LED",
+            excitation_wavelength_in_nm=405.0,
+        )
+
+        # Photodetector
+        photodetector = Photodetector(
+            name="photodetector",
+            description="This battery-operated photoreceiver has high gain and detects CW light signals in the sub-picowatt to nanowatt range. When used in conjunction with a modulated light source and a lock-in amplifier to reduce the measurement bandwidth, it achieves sensitivity levels in the femtowatt range. Doric offer this Newport product with add-on fiber optic adapter that improves coupling efficiency between the large core, high NA optical fibers used in Fiber Photometry and relatively small detector area. Its output analog voltage (0-5 V) can be monitored with an oscilloscope or with a DAQ board to record the data with a computer.",
+            manufacturer="Doric Lenses",
+            model="Newport Visible Femtowatt Photoreceiver Module",
+            detector_type="photodiode",
+            detected_wavelength_in_nm=525.0,
+            gain=1e10,
+        )
+
+        # Optical Filters
+        emission_filter = OpticalFilter(
+            name="emission_filter",
+            description="Dual excitation band fiber photometry measurements use a Fluorescence Mini Cube with 4 ports: one port for the functional fluorescence excitation light, one for the isosbestic excitation, one for the fluorescence detection, and one for the sample. The cube has dichroic mirrors to combine isosbestic and fluorescence excitations and separate the fluorescence emission and narrow bandpass filters limiting the excitation fluorescence spectrum.",
+            manufacturer="Doric Lenses",
+            model="4 ports Fluorescence Mini Cube - GCaMP",
+            peak_wavelength_in_nm=525.0,
+            bandwidth_in_nm=(500.0, 550.0),
+            filter_type="bandpass",
+        )
+        excitation_filter = OpticalFilter(
+            name="excitation_filter",
+            description="Dual excitation band fiber photometry measurements use a Fluorescence Mini Cube with 4 ports: one port for the functional fluorescence excitation light, one for the isosbestic excitation, one for the fluorescence detection, and one for the sample. The cube has dichroic mirrors to combine isosbestic and fluorescence excitations and separate the fluorescence emission and narrow bandpass filters limiting the excitation fluorescence spectrum.",
+            manufacturer="Doric Lenses",
+            model="4 ports Fluorescence Mini Cube - GCaMP",
+            peak_wavelength_in_nm=475.0,
+            bandwidth_in_nm=(460.0, 490.0),
+            filter_type="bandpass",
+        )
+        isosbestic_excitation_filter = OpticalFilter(
+            name="isosbestic_excitation_filter",
+            description="Dual excitation band fiber photometry measurements use a Fluorescence Mini Cube with 4 ports: one port for the functional fluorescence excitation light, one for the isosbestic excitation, one for the fluorescence detection, and one for the sample. The cube has dichroic mirrors to combine isosbestic and fluorescence excitations and separate the fluorescence emission and narrow bandpass filters limiting the excitation fluorescence spectrum.",
+            manufacturer="Doric Lenses",
+            model="4 ports Fluorescence Mini Cube - GCaMP",
+            peak_wavelength_in_nm=405.0,
+            bandwidth_in_nm=(400.0, 410.0),
+            filter_type="bandpass",
+        )
+
+        # Dichroic Mirror
+        dichroic_mirror = DichroicMirror(  # TODO: Get characteristic wavelengths from Doric Lenses
+            name="dichroic_mirror",
+            description="Dual excitation band fiber photometry measurements use a Fluorescence Mini Cube with 4 ports: one port for the functional fluorescence excitation light, one for the isosbestic excitation, one for the fluorescence detection, and one for the sample. The cube has dichroic mirrors to combine isosbestic and fluorescence excitations and separate the fluorescence emission and narrow bandpass filters limiting the excitation fluorescence spectrum.",
+            manufacturer="Doric Lenses",
+            model="4 ports Fluorescence Mini Cube - GCaMP",
+            cut_on_wavelength_in_nm=495.0,
+        )
+
+        # Indicators (aka Fluorophores)
+        dms_fluorophore = Indicator(
+            name="dms_fluorophore",
+            description="Mice for fiber photometry experiments received infusions of 1ml of AAV5-CAG-FLEX-jGCaMP7b-WPRE (1.02e13 vg/mL, Addgene, lot 18-429) into lateral SNc (AP 3.1, ML 1.3, DV 4.2) in one hemisphere and medial SNc (AP 3.1, ML 0.8, DV 4.7) in the other. Hemispheres were counterbalanced between mice.",
+            manufacturer="Addgene",
+            label="GCaMP7b",
+            injection_location="medial SNc",
+            injection_coordinates_in_mm=(3.1, 0.8, 4.7),
+        )
+        dls_fluorophore = Indicator(
+            name="dls_fluorophore",
+            description="Mice for fiber photometry experiments received infusions of 1ml of AAV5-CAG-FLEX-jGCaMP7b-WPRE (1.02e13 vg/mL, Addgene, lot 18-429) into lateral SNc (AP 3.1, ML 1.3, DV 4.2) in one hemisphere and medial SNc (AP 3.1, ML 0.8, DV 4.7) in the other. Hemispheres were counterbalanced between mice.",
+            manufacturer="Addgene",
+            label="GCaMP7b",
+            injection_location="lateral SNc",
+            injection_coordinates_in_mm=(3.1, 1.3, 4.2),
+        )
+
+        # Commanded Voltage Series
         if has_demodulated_commanded_voltages:
             dms_commanded_signal_series = CommandedVoltageSeries(
                 name="dms_commanded_signal",
@@ -126,117 +244,7 @@ class Seiler2024FiberPhotometryInterface(BaseDataInterface):
                 rate=tdt_photometry.streams["Fi1r"].fs,
             )
 
-        # Excitation Sources
-        dms_signal_excitation_source = ExcitationSource(
-            name="dms_signal_excitation_source",
-            description="465nm and 405nm LEDs were modulated at 211 Hz and 330 Hz, respectively, for DMS probes. 465nm and 405nm LEDs were modulated at 450 Hz and 270 Hz, respectively for DLS probes. LED currents were adjusted in order to return a voltage between 150-200mV for each signal, were offset by 5 mA, were demodulated using a 4 Hz lowpass frequency filter.",
-            manufacturer="Doric Lenses",
-            model="Connectorized LED",
-            illumination_type="LED",
-            excitation_wavelength_in_nm=465.0,
-        )
-        dms_reference_excitation_source = ExcitationSource(
-            name="dms_reference_excitation_source",
-            description="465nm and 405nm LEDs were modulated at 211 Hz and 330 Hz, respectively, for DMS probes. 465nm and 405nm LEDs were modulated at 450 Hz and 270 Hz, respectively for DLS probes. LED currents were adjusted in order to return a voltage between 150-200mV for each signal, were offset by 5 mA, were demodulated using a 4 Hz lowpass frequency filter.",
-            manufacturer="Doric Lenses",
-            model="Connectorized LED",
-            illumination_type="LED",
-            excitation_wavelength_in_nm=405.0,
-        )
-        dls_signal_excitation_source = ExcitationSource(
-            name="dls_signal_excitation_source",
-            description="465nm and 405nm LEDs were modulated at 211 Hz and 330 Hz, respectively, for DMS probes. 465nm and 405nm LEDs were modulated at 450 Hz and 270 Hz, respectively for DLS probes. LED currents were adjusted in order to return a voltage between 150-200mV for each signal, were offset by 5 mA, were demodulated using a 4 Hz lowpass frequency filter.",
-            manufacturer="Doric Lenses",
-            model="Connectorized LED",
-            illumination_type="LED",
-            excitation_wavelength_in_nm=465.0,
-        )
-        dls_reference_excitation_source = ExcitationSource(
-            name="dls_reference_excitation_source",
-            description="465nm and 405nm LEDs were modulated at 211 Hz and 330 Hz, respectively, for DMS probes. 465nm and 405nm LEDs were modulated at 450 Hz and 270 Hz, respectively for DLS probes. LED currents were adjusted in order to return a voltage between 150-200mV for each signal, were offset by 5 mA, were demodulated using a 4 Hz lowpass frequency filter.",
-            manufacturer="Doric Lenses",
-            model="Connectorized LED",
-            illumination_type="LED",
-            excitation_wavelength_in_nm=405.0,
-        )
-
-        photodetector = Photodetector(
-            name="photodetector",
-            description="This battery-operated photoreceiver has high gain and detects CW light signals in the sub-picowatt to nanowatt range. When used in conjunction with a modulated light source and a lock-in amplifier to reduce the measurement bandwidth, it achieves sensitivity levels in the femtowatt range. Doric offer this Newport product with add-on fiber optic adapter that improves coupling efficiency between the large core, high NA optical fibers used in Fiber Photometry and relatively small detector area. Its output analog voltage (0-5 V) can be monitored with an oscilloscope or with a DAQ board to record the data with a computer.",
-            manufacturer="Doric Lenses",
-            model="Newport Visible Femtowatt Photoreceiver Module",
-            detector_type="photodiode",
-            detected_wavelength_in_nm=525.0,
-            gain=1e10,
-        )
-
-        dms_fluorophore = Indicator(
-            name="dms_fluorophore",
-            description="Mice for fiber photometry experiments received infusions of 1ml of AAV5-CAG-FLEX-jGCaMP7b-WPRE (1.02e13 vg/mL, Addgene, lot 18-429) into lateral SNc (AP 3.1, ML 1.3, DV 4.2) in one hemisphere and medial SNc (AP 3.1, ML 0.8, DV 4.7) in the other. Hemispheres were counterbalanced between mice.",
-            manufacturer="Addgene",
-            label="GCaMP7b",
-            injection_location="medial SNc",
-            injection_coordinates_in_mm=(3.1, 0.8, 4.7),
-        )
-        dls_fluorophore = Indicator(
-            name="dls_fluorophore",
-            description="Mice for fiber photometry experiments received infusions of 1ml of AAV5-CAG-FLEX-jGCaMP7b-WPRE (1.02e13 vg/mL, Addgene, lot 18-429) into lateral SNc (AP 3.1, ML 1.3, DV 4.2) in one hemisphere and medial SNc (AP 3.1, ML 0.8, DV 4.7) in the other. Hemispheres were counterbalanced between mice.",
-            manufacturer="Addgene",
-            label="GCaMP7b",
-            injection_location="lateral SNc",
-            injection_coordinates_in_mm=(3.1, 1.3, 4.2),
-        )
-
-        dms_fiber = OpticalFiber(
-            name="dms_fiber",
-            description="Fiber optic implants (Doric Lenses; 400 um, 0.48 NA) were placed above DMS (AP 0.8, ML 1.5, DV 2.8) and DLS (AP 0.1, ML 2.8, DV 3.5). The DMS implant was placed in the hemisphere receiving a medial SNc viral injection, while the DLS implant was placed in the hemisphere receiving a lateral SNc viral injection. Calcium signals from dopamine terminals in DMS and DLS were recorded during RI30, on the first and last days of RI60/RR20 training as well as on both footshock probes for each mouse. All recordings were done using a fiber photometry rig with optical components from Doric lenses controlled by a real-time processor from Tucker Davis Technologies (TDT; RZ5P). TDT Synapse software was used for data acquisition.",
-            manufacturer="Doric Lenses",
-            model="Fiber Optic Implant",
-            numerical_aperture=0.48,
-        )
-        dls_fiber = OpticalFiber(
-            name="dls_fiber",
-            description="Fiber optic implants (Doric Lenses; 400 um, 0.48 NA) were placed above DMS (AP 0.8, ML 1.5, DV 2.8) and DLS (AP 0.1, ML 2.8, DV 3.5). The DMS implant was placed in the hemisphere receiving a medial SNc viral injection, while the DLS implant was placed in the hemisphere receiving a lateral SNc viral injection. Calcium signals from dopamine terminals in DMS and DLS were recorded during RI30, on the first and last days of RI60/RR20 training as well as on both footshock probes for each mouse. All recordings were done using a fiber photometry rig with optical components from Doric lenses controlled by a real-time processor from Tucker Davis Technologies (TDT; RZ5P). TDT Synapse software was used for data acquisition.",
-            manufacturer="Doric Lenses",
-            model="Fiber Optic Implant",
-            numerical_aperture=0.48,
-        )
-
-        emission_filter = OpticalFilter(
-            name="emission_filter",
-            description="Dual excitation band fiber photometry measurements use a Fluorescence Mini Cube with 4 ports: one port for the functional fluorescence excitation light, one for the isosbestic excitation, one for the fluorescence detection, and one for the sample. The cube has dichroic mirrors to combine isosbestic and fluorescence excitations and separate the fluorescence emission and narrow bandpass filters limiting the excitation fluorescence spectrum.",
-            manufacturer="Doric Lenses",
-            model="4 ports Fluorescence Mini Cube - GCaMP",
-            peak_wavelength_in_nm=525.0,
-            bandwidth_in_nm=(500.0, 550.0),
-            filter_type="bandpass",
-        )
-        excitation_filter = OpticalFilter(
-            name="excitation_filter",
-            description="Dual excitation band fiber photometry measurements use a Fluorescence Mini Cube with 4 ports: one port for the functional fluorescence excitation light, one for the isosbestic excitation, one for the fluorescence detection, and one for the sample. The cube has dichroic mirrors to combine isosbestic and fluorescence excitations and separate the fluorescence emission and narrow bandpass filters limiting the excitation fluorescence spectrum.",
-            manufacturer="Doric Lenses",
-            model="4 ports Fluorescence Mini Cube - GCaMP",
-            peak_wavelength_in_nm=475.0,
-            bandwidth_in_nm=(460.0, 490.0),
-            filter_type="bandpass",
-        )
-        isosbestic_excitation_filter = OpticalFilter(
-            name="isosbestic_excitation_filter",
-            description="Dual excitation band fiber photometry measurements use a Fluorescence Mini Cube with 4 ports: one port for the functional fluorescence excitation light, one for the isosbestic excitation, one for the fluorescence detection, and one for the sample. The cube has dichroic mirrors to combine isosbestic and fluorescence excitations and separate the fluorescence emission and narrow bandpass filters limiting the excitation fluorescence spectrum.",
-            manufacturer="Doric Lenses",
-            model="4 ports Fluorescence Mini Cube - GCaMP",
-            peak_wavelength_in_nm=405.0,
-            bandwidth_in_nm=(400.0, 410.0),
-            filter_type="bandpass",
-        )
-        dichroic_mirror = DichroicMirror(  # TODO: Get characteristic wavelengths from Doric Lenses
-            name="dichroic_mirror",
-            description="Dual excitation band fiber photometry measurements use a Fluorescence Mini Cube with 4 ports: one port for the functional fluorescence excitation light, one for the isosbestic excitation, one for the fluorescence detection, and one for the sample. The cube has dichroic mirrors to combine isosbestic and fluorescence excitations and separate the fluorescence emission and narrow bandpass filters limiting the excitation fluorescence spectrum.",
-            manufacturer="Doric Lenses",
-            model="4 ports Fluorescence Mini Cube - GCaMP",
-            cut_on_wavelength_in_nm=495.0,
-        )
-
+        # Fiber Photometry Table
         fiber_photometry_table = FiberPhotometryTable(
             name="fiber_photometry_table",
             description="Fiber optic implants (Doric Lenses; 400 um, 0.48 NA) were placed above DMS (AP 0.8, ML 1.5, DV 2.8) and DLS (AP 0.1, ML 2.8, DV 3.5). The DMS implant was placed in the hemisphere receiving a medial SNc viral injection, while the DLS implant was placed in the hemisphere receiving a lateral SNc viral injection. Calcium signals from dopamine terminals in DMS and DLS were recorded during RI30, on the first and last days of RI60/RR20 training as well as on both footshock probes for each mouse. All recordings were done using a fiber photometry rig with optical components from Doric lenses controlled by a real-time processor from Tucker Davis Technologies (TDT; RZ5P). TDT Synapse software was used for data acquisition.",
