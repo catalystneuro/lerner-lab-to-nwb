@@ -181,7 +181,6 @@ class Seiler2024FiberPhotometryInterface(BaseDataInterface):
             description="Dual excitation band fiber photometry measurements use a Fluorescence Mini Cube with 4 ports: one port for the functional fluorescence excitation light, one for the isosbestic excitation, one for the fluorescence detection, and one for the sample. The cube has dichroic mirrors to combine isosbestic and fluorescence excitations and separate the fluorescence emission and narrow bandpass filters limiting the excitation fluorescence spectrum.",
             manufacturer="Doric Lenses",
             model="4 ports Fluorescence Mini Cube - GCaMP",
-            cut_on_wavelength_in_nm=495.0,
         )
 
         # Indicators (aka Fluorophores)
