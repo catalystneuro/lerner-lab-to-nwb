@@ -349,23 +349,19 @@ class Seiler2024FiberPhotometryInterface(BaseDataInterface):
                 emission_filter=emission_filter,
                 dichroic_mirror=dichroic_mirror,
             )
-        dms_signal_region = fiber_photometry_table.create_region(
-            name="fiber_photometry_table_region",
+        dms_signal_region = fiber_photometry_table.create_fiber_photometry_table_region(
             description="The region of the FiberPhotometryTable corresponding to the DMS signal.",
             region=[0],
         )
-        dms_reference_region = fiber_photometry_table.create_region(
-            name="fiber_photometry_table_region",
+        dms_reference_region = fiber_photometry_table.create_fiber_photometry_table_region(
             description="The region of the FiberPhotometryTable corresponding to the DMS reference.",
             region=[1],
         )
-        dls_signal_region = fiber_photometry_table.create_region(
-            name="fiber_photometry_table_region",
+        dls_signal_region = fiber_photometry_table.create_fiber_photometry_table_region(
             description="The region of the FiberPhotometryTable corresponding to the DLS signal.",
             region=[2],
         )
-        dls_reference_region = fiber_photometry_table.create_region(
-            name="fiber_photometry_table_region",
+        dls_reference_region = fiber_photometry_table.create_fiber_photometry_table_region(
             description="The region of the FiberPhotometryTable corresponding to the DLS reference.",
             region=[3],
         )
