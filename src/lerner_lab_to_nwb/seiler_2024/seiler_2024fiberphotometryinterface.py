@@ -90,6 +90,7 @@ class Seiler2024FiberPhotometryInterface(BaseDataInterface):
             manufacturer="Doric Lenses",
             model="Fiber Optic Implant",
             numerical_aperture=0.48,
+            core_diameter_in_um=400.0,
         )
         dls_fiber = OpticalFiber(
             name="dls_fiber",
@@ -97,6 +98,7 @@ class Seiler2024FiberPhotometryInterface(BaseDataInterface):
             manufacturer="Doric Lenses",
             model="Fiber Optic Implant",
             numerical_aperture=0.48,
+            core_diameter_in_um=400.0,
         )
 
         # Excitation Sources
