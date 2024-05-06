@@ -1,7 +1,7 @@
 NWBFile:
   related_publications:
     - https://doi.org/10.1016/j.cub.2022.01.055
-  session_description:
+  experiment_description:
     Compulsive behavior is a defining feature of disorders such as substance use disorders.
     Current evidence suggests that corticostriatal circuits control the expression of established compulsions,
     but little is known about the mechanisms regulating the development of compulsions.

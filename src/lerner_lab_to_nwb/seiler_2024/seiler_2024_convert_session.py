@@ -154,6 +154,7 @@ def session_to_nwb(
     editable_metadata = load_dict_from_file(editable_metadata_path)
     metadata = dict_deep_update(metadata, editable_metadata)
 
+    metadata["NWBFile"]["session_description"] = metadata["Behavior"]["session_description"]
     session_start_time = metadata["NWBFile"]["session_start_time"]
     if optogenetic_treatment is None:
         session_id = f"{experiment_type}_{experimental_group}_{session_start_time.isoformat().replace(':', '-')}"
