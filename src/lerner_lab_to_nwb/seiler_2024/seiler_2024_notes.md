@@ -48,6 +48,11 @@ In FP Experiments/Behavior/PS/140.306,
 - one of the sessions (ex. 09/06/19) has a bunch of garbage to the right of the 'A' variable
 - Solution: Handled by reader
 
+### Active Questions
+- In FP Experiments/Behavior/RR20/95.259/95.259, some of the sessions (ex. 04/09/19) have non-ascending reward port intervals
+ex. reward port entry = 985.750, reward port exit = 985.850 (duration = 0.1), next reward port entry = 985.800 (before previous exit)
+how is this possible?
+
 ### Resolved Questions
 In FP Experiments/Behavior/PS/139.298,
 - one of the sessions (ex. 09/20/19) is actually from subject 144.306
