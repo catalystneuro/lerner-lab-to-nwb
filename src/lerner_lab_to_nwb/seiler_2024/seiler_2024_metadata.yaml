@@ -23,6 +23,17 @@ NWBFile:
     - Bianco, Joseph M.
     - Bridgemohan, Abigael S.
     - Lerner, Talia N.
+  keywords:
+    - dorsal striatum
+    - dopamine
+    - substantia nigra
+    - reward learning
+    - habit formation
+    - compulsive behavior
+    - punishment-resistant reward seeking
+    - fiber photometry
+    - optogenetics
+
 Subject:
   species: Mus musculus
   age: P10W/  # in ISO 8601, such as "P1W2D"
