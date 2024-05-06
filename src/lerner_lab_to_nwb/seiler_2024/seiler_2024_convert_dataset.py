@@ -245,11 +245,11 @@ def fp_to_nwb(
                 if (
                     (
                         photometry_subject_id == "334.394" and photometry_start_date == "07/21/20"
-                    )  # TODO: Ask Lerner Lab about this session
+                    )  # Skipping this session bc photometry data is corrupted
                     or (
                         photometry_subject_id == "99.257"
                         and photometry_start_date == "04/16/19"
-                        # TODO: Ask Lerner Lab about this session
+                        # Skipping this session bc missing behavior data
                     )
                     or (
                         photometry_subject_id == "64.205"

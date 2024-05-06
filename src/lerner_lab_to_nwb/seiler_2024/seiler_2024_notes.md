@@ -116,10 +116,13 @@ PrtN, RNnR, PrtR, LNPS, RNRW -- why is this mismatched with the expected epocs?
 for that 1 session split across the two folders?
     - Answer: Yes, occasionally the computer freezes or something and I need to restart the TDT recording while the MED program is unaffected. For my analysis I basically just stitched them together.
     - Solution: Added stitching functionality for optional second_folder_path
+- For DPR/334.394/07/21/20, 3 right nosepokes were made BUT photometry object still doesn't have a RNPS object
+    - Skip this session bc it is corrupted
+- RR20/99.257 on 04/16/19 has a photometry session but no matching behavior session on that day -- pls provide?
+    - Skip this session bc Lerner Lab can't find it
 
 ### Active Questions
-- For DPR/334.394/07/21/20, 3 right nosepokes were made BUT photometry object still doesn't have a RNPS object
-- RR20/99.257 on 04/16/19 has a photometry session but no matching behavior session on that day -- pls provide?
+None
 
 ## Optogenetics
 ### Notes
@@ -144,17 +147,6 @@ for that 1 session split across the two folders?
     (ChR2, EYFP, Scrambled).  Which treatment did these sessions receive?
     - Solution: Metadata excel file has treatment info --> metadata["NWBFile"]["stimulus_notes"]
 - RI 60 LEFT_STIM, RI 30 LEFT_STIM, and RK_C_FR1_BOTH_1hr msns show up in opto data but don't have associated files -- assumed to be the same as their right counterparts?
-
-## Metadata
-### Notes
-- Some medpc filenames/sessions have incomplete or missing subject names (ex. 75 instead of 75.214) -- need to do some matching operation
-- Punishment Group has a typo for PR ('Punishment Resitant' instead of 'Punishment Resistant') -- I'll fix on my end
-
-### Questions
-- Some of the subject_ids are not present in the metadata excel file -- pls provide
-- Some animals are missing the "Hemisphere with DMS" field -- pls provide
-=======
-    - Solution: Added missing MSNs; skipped RK_C_FR1_BOTH_1hr
 
 ### Active Questions
 - DMS-Excitatory has some csv files w/ only session-aggregated info (total right rewards but not right reward times) ex. ChR2/121_280.CSV -- do you have individual session info for these animals?
@@ -182,3 +174,16 @@ for that 1 session split across the two folders?
         start_date ='09/22/20' start_time ='12:43:27'
         start_date ='09/22/20' start_time ='12:43:27'
         start_date ='09/22/20' start_time ='12:43:27'
+
+
+## Metadata
+### Notes
+- Some medpc filenames/sessions have incomplete or missing subject names (ex. 75 instead of 75.214) -- need to do some matching operation
+- Punishment Group has a typo for PR ('Punishment Resitant' instead of 'Punishment Resistant') -- I'll fix on my end
+
+### Resolved Questions
+- Some animals are missing the "Hemisphere with DMS" field -- pls provide
+    - Solution: Added missing MSNs; skipped RK_C_FR1_BOTH_1hr
+
+### Active Questions
+- Some of the subject_ids are not present in the metadata excel file -- pls provide
