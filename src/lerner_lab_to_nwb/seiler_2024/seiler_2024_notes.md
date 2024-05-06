@@ -147,9 +147,10 @@ None
     (ChR2, EYFP, Scrambled).  Which treatment did these sessions receive?
     - Solution: Metadata excel file has treatment info --> metadata["NWBFile"]["stimulus_notes"]
 - RI 60 LEFT_STIM, RI 30 LEFT_STIM, and RK_C_FR1_BOTH_1hr msns show up in opto data but don't have associated files -- assumed to be the same as their right counterparts?
+- DMS-Excitatory has some csv files w/ only session-aggregated info (total right rewards but not right reward times) ex. ChR2/121_280.CSV -- do you have individual session info for these animals?
+    - Lerner Lab does not have this data --> skip these sessions
 
 ### Active Questions
-- DMS-Excitatory has some csv files w/ only session-aggregated info (total right rewards but not right reward times) ex. ChR2/121_280.CSV -- do you have individual session info for these animals?
 - Some csv files do not have any subject info (ex. DLS Excitatory/_08-28-20.csv) -- pls provide or we will need to skip these sessions
 - Some of the sessions in the DLS Excitatory medpc files organized by date don't have subject info -- pls provide or we will need to skip these sessions
     Full List:

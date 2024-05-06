@@ -472,7 +472,7 @@ def opto_to_nwb(
                     if not (
                         path.name.startswith(".")
                         or path.name.endswith(".csv")
-                        or path.name.endswith(".CSV")  # TODO: add support for session-aggregated CSV files
+                        or path.name.endswith(".CSV")  # session-aggregated CSV files are skipped
                     )
                 ]
                 for subject_path in subject_paths:
