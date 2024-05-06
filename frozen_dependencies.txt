@@ -86,7 +86,7 @@ more-itertools==10.2.0
 multidict==6.0.4
 natsort==8.4.0
 ndx-events==0.2.0
-ndx-fiber-photometry @ git+https://github.com/catalystneuro/ndx-fiber-photometry.git@2468f5365f32ce063d1f9f67de0b1d8ac61735c7
+ndx-fiber-photometry @ git+https://github.com/catalystneuro/ndx-fiber-photometry.git@2e80a7ac040ddca2873cce03aceaabd7c816a5f6
 ndx-grayscalevolume==0.0.2
 ndx-icephys-meta==0.1.0
 ndx-photometry @ git+https://github.com/catalystneuro/ndx-photometry.git@c1284c91a7e0a5dfd19f84bbf683e17fa607d4ec

@@ -13,7 +13,7 @@ from ndx_fiber_photometry import (
     OpticalFiber,
     ExcitationSource,
     Photodetector,
-    OpticalFilter,
+    BandOpticalFilter,
     DichroicMirror,
     Indicator,
 )
@@ -147,32 +147,32 @@ class Seiler2024FiberPhotometryInterface(BaseDataInterface):
         )
 
         # Optical Filters
-        emission_filter = OpticalFilter(
+        emission_filter = BandOpticalFilter(
             name="emission_filter",
             description="Dual excitation band fiber photometry measurements use a Fluorescence Mini Cube with 4 ports: one port for the functional fluorescence excitation light, one for the isosbestic excitation, one for the fluorescence detection, and one for the sample. The cube has dichroic mirrors to combine isosbestic and fluorescence excitations and separate the fluorescence emission and narrow bandpass filters limiting the excitation fluorescence spectrum.",
             manufacturer="Doric Lenses",
             model="4 ports Fluorescence Mini Cube - GCaMP",
-            peak_wavelength_in_nm=525.0,
-            bandwidth_in_nm=(500.0, 550.0),
-            filter_type="bandpass",
+            center_wavelength_in_nm=525.0,
+            bandwidth_in_nm=50.0,
+            filter_type="Bandpass",
         )
-        excitation_filter = OpticalFilter(
+        excitation_filter = BandOpticalFilter(
             name="excitation_filter",
             description="Dual excitation band fiber photometry measurements use a Fluorescence Mini Cube with 4 ports: one port for the functional fluorescence excitation light, one for the isosbestic excitation, one for the fluorescence detection, and one for the sample. The cube has dichroic mirrors to combine isosbestic and fluorescence excitations and separate the fluorescence emission and narrow bandpass filters limiting the excitation fluorescence spectrum.",
             manufacturer="Doric Lenses",
             model="4 ports Fluorescence Mini Cube - GCaMP",
-            peak_wavelength_in_nm=475.0,
-            bandwidth_in_nm=(460.0, 490.0),
-            filter_type="bandpass",
+            center_wavelength_in_nm=475.0,
+            bandwidth_in_nm=30.0,
+            filter_type="Bandpass",
         )
-        isosbestic_excitation_filter = OpticalFilter(
+        isosbestic_excitation_filter = BandOpticalFilter(
             name="isosbestic_excitation_filter",
             description="Dual excitation band fiber photometry measurements use a Fluorescence Mini Cube with 4 ports: one port for the functional fluorescence excitation light, one for the isosbestic excitation, one for the fluorescence detection, and one for the sample. The cube has dichroic mirrors to combine isosbestic and fluorescence excitations and separate the fluorescence emission and narrow bandpass filters limiting the excitation fluorescence spectrum.",
             manufacturer="Doric Lenses",
             model="4 ports Fluorescence Mini Cube - GCaMP",
-            peak_wavelength_in_nm=405.0,
-            bandwidth_in_nm=(400.0, 410.0),
-            filter_type="bandpass",
+            center_wavelength_in_nm=405.0,
+            bandwidth_in_nm=10.0,
+            filter_type="Bandpass",
         )
 
         # Dichroic Mirror
