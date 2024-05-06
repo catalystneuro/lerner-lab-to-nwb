@@ -526,7 +526,7 @@ def opto_to_nwb(
     for file in raw_files_by_date_path.iterdir():
         if (
             file.name.startswith(".") or file.is_dir() or file.suffix == ".csv"
-        ):  # TODO: ask Lerner Lab about orphaned csvs
+        ):  # These .csv files are skipped bc they don't have subject info
             continue
         info = get_medpc_variables(file_path=file, variable_names=["Subject", "Start Date", "Start Time", "MSN", "Box"])
         for i in range(len(info["Subject"])):
