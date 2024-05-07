@@ -117,10 +117,10 @@ class Seiler2024NWBConverter(NWBConverter):
     def get_ttl_timestamps(self, ttl_name, tdt_photometry):
         if ttl_name == "PrtN":
             ttl_timestamps = []
-            if "PrtN" in tdt_photometry.epocs:
+            if "PrtN" in tdt_photometry.epocs.keys():
                 for timestamp in tdt_photometry.epocs["PrtN"].onset:
                     ttl_timestamps.append(timestamp)
-            if "PrtR" in tdt_photometry.epocs:
+            if "PrtR" in tdt_photometry.epocs.keys():
                 for timestamp in tdt_photometry.epocs["PrtR"].onset:
                     ttl_timestamps.append(timestamp)
             ttl_timestamps = np.sort(ttl_timestamps)
