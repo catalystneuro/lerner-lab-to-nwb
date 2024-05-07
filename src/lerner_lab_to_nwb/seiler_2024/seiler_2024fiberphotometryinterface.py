@@ -232,6 +232,7 @@ class Seiler2024FiberPhotometryInterface(BaseDataInterface):
             )
             dls_commanded_reference_series = CommandedVoltageSeries(
                 name="dls_commanded_reference",
+                description="The commanded voltage for the DLS isosbestic reference.",
                 data=H5DataIO(tdt_photometry.streams["Fi1d"].data[2, :], compression=True),
                 unit="volts",
                 frequency=270.0,
