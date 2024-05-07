@@ -208,6 +208,7 @@ class Seiler2024FiberPhotometryInterface(BaseDataInterface):
                 data=H5DataIO(tdt_photometry.streams["Fi1d"].data[0, :], compression=True),
                 unit="volts",
                 frequency=211.0,
+                starting_time=0.0,
                 rate=tdt_photometry.streams["Fi1d"].fs,
             )
             dms_commanded_reference_series = CommandedVoltageSeries(
@@ -215,6 +216,7 @@ class Seiler2024FiberPhotometryInterface(BaseDataInterface):
                 data=H5DataIO(tdt_photometry.streams["Fi1d"].data[1, :], compression=True),
                 unit="volts",
                 frequency=330.0,
+                starting_time=0.0,
                 rate=tdt_photometry.streams["Fi1d"].fs,
             )
             dls_commanded_signal_series = CommandedVoltageSeries(
@@ -222,6 +224,7 @@ class Seiler2024FiberPhotometryInterface(BaseDataInterface):
                 data=H5DataIO(tdt_photometry.streams["Fi1d"].data[3, :], compression=True),
                 unit="volts",
                 frequency=450.0,
+                starting_time=0.0,
                 rate=tdt_photometry.streams["Fi1d"].fs,
             )
             dls_commanded_reference_series = CommandedVoltageSeries(
@@ -229,6 +232,7 @@ class Seiler2024FiberPhotometryInterface(BaseDataInterface):
                 data=H5DataIO(tdt_photometry.streams["Fi1d"].data[2, :], compression=True),
                 unit="volts",
                 frequency=270.0,
+                starting_time=0.0,
                 rate=tdt_photometry.streams["Fi1d"].fs,
             )
         else:
@@ -236,12 +240,14 @@ class Seiler2024FiberPhotometryInterface(BaseDataInterface):
                 name="dms_commanded_voltage",
                 data=H5DataIO(tdt_photometry.streams["Fi1r"].data[0, :], compression=True),
                 unit="volts",
+                starting_time=0.0,
                 rate=tdt_photometry.streams["Fi1r"].fs,
             )
             dls_commanded_voltage_series = CommandedVoltageSeries(
                 name="dls_commanded_voltage",
                 data=H5DataIO(tdt_photometry.streams["Fi1r"].data[1, :], compression=True),
                 unit="volts",
+                starting_time=0.0,
                 rate=tdt_photometry.streams["Fi1r"].fs,
             )
 
@@ -371,6 +377,7 @@ class Seiler2024FiberPhotometryInterface(BaseDataInterface):
             description="The fluorescence from the blue light excitation (465nm) corresponding to the calcium signal in the DMS.",
             data=H5DataIO(tdt_photometry.streams["Dv1A"].data, compression=True),
             unit="a.u.",
+            starting_time=0.0,
             rate=tdt_photometry.streams["Dv1A"].fs,
             fiber_photometry_table_region=dms_signal_region,
         )
@@ -379,6 +386,7 @@ class Seiler2024FiberPhotometryInterface(BaseDataInterface):
             description="The fluorescence from the UV light excitation (405nm) corresponding to the isosbestic reference in the DMS.",
             data=H5DataIO(tdt_photometry.streams["Dv2A"].data, compression=True),
             unit="a.u.",
+            starting_time=0.0,
             rate=tdt_photometry.streams["Dv2A"].fs,
             fiber_photometry_table_region=dms_reference_region,
         )
@@ -387,6 +395,7 @@ class Seiler2024FiberPhotometryInterface(BaseDataInterface):
             description="The fluorescence from the blue light excitation (465nm) corresponding to the calcium signal in the DLS.",
             data=H5DataIO(tdt_photometry.streams["Dv3B"].data, compression=True),
             unit="a.u.",
+            starting_time=0.0,
             rate=tdt_photometry.streams["Dv3B"].fs,
             fiber_photometry_table_region=dls_signal_region,
         )
@@ -395,6 +404,7 @@ class Seiler2024FiberPhotometryInterface(BaseDataInterface):
             description="The fluorescence from the UV light excitation (405nm) corresponding to the isosbestic reference in the DLS.",
             data=H5DataIO(tdt_photometry.streams["Dv4B"].data, compression=True),
             unit="a.u.",
+            starting_time=0.0,
             rate=tdt_photometry.streams["Dv4B"].fs,
             fiber_photometry_table_region=dls_reference_region,
         )
