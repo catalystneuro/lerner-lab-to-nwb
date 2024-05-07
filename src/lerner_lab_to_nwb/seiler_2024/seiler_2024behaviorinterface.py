@@ -230,18 +230,20 @@ class Seiler2024BehaviorInterface(BaseDataInterface):
             behavior_module.add(behavioral_epochs)
 
         # Left/Right Nose pokes
-        left_nose_poke_times = Events(
-            name="left_nose_poke_times",
-            description="Left nose poke times",
-            timestamps=H5DataIO(session_dict["left_nose_poke_times"], compression=True),
-        )
-        right_nose_poke_times = Events(
-            name="right_nose_poke_times",
-            description="Right nose poke times",
-            timestamps=H5DataIO(session_dict["right_nose_poke_times"], compression=True),
-        )
-        behavior_module.add(left_nose_poke_times)
-        behavior_module.add(right_nose_poke_times)
+        if len(session_dict["left_nose_poke_times"]) > 0:
+            left_nose_poke_times = Events(
+                name="left_nose_poke_times",
+                description="Left nose poke times",
+                timestamps=H5DataIO(session_dict["left_nose_poke_times"], compression=True),
+            )
+            behavior_module.add(left_nose_poke_times)
+        if len(session_dict["right_nose_poke_times"]) > 0:
+            right_nose_poke_times = Events(
+                name="right_nose_poke_times",
+                description="Right nose poke times",
+                timestamps=H5DataIO(session_dict["right_nose_poke_times"], compression=True),
+            )
+            behavior_module.add(right_nose_poke_times)
 
         # Left/Right Rewards -- Interleaved for most sessions
         if len(session_dict["left_reward_times"]) > 0:
