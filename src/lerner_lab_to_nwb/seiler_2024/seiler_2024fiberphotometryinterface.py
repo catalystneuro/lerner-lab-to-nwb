@@ -205,6 +205,7 @@ class Seiler2024FiberPhotometryInterface(BaseDataInterface):
         if has_demodulated_commanded_voltages:
             dms_commanded_signal_series = CommandedVoltageSeries(
                 name="dms_commanded_signal",
+                description="The commanded voltage for the DMS signal.",
                 data=H5DataIO(tdt_photometry.streams["Fi1d"].data[0, :], compression=True),
                 unit="volts",
                 frequency=211.0,
@@ -213,6 +214,7 @@ class Seiler2024FiberPhotometryInterface(BaseDataInterface):
             )
             dms_commanded_reference_series = CommandedVoltageSeries(
                 name="dms_commanded_reference",
+                description="The commanded voltage for the DMS isosbestic reference.",
                 data=H5DataIO(tdt_photometry.streams["Fi1d"].data[1, :], compression=True),
                 unit="volts",
                 frequency=330.0,
@@ -221,6 +223,7 @@ class Seiler2024FiberPhotometryInterface(BaseDataInterface):
             )
             dls_commanded_signal_series = CommandedVoltageSeries(
                 name="dls_commanded_signal",
+                description="The commanded voltage for the DLS signal.",
                 data=H5DataIO(tdt_photometry.streams["Fi1d"].data[3, :], compression=True),
                 unit="volts",
                 frequency=450.0,
@@ -238,6 +241,7 @@ class Seiler2024FiberPhotometryInterface(BaseDataInterface):
         else:
             dms_commanded_voltage_series = CommandedVoltageSeries(
                 name="dms_commanded_voltage",
+                description="The modulated commanded voltage for the DMS (both signal and isosbestic).",
                 data=H5DataIO(tdt_photometry.streams["Fi1r"].data[0, :], compression=True),
                 unit="volts",
                 starting_time=0.0,
@@ -245,6 +249,7 @@ class Seiler2024FiberPhotometryInterface(BaseDataInterface):
             )
             dls_commanded_voltage_series = CommandedVoltageSeries(
                 name="dls_commanded_voltage",
+                description="The modulated commanded voltage for the DLS (both signal and isosbestic).",
                 data=H5DataIO(tdt_photometry.streams["Fi1r"].data[1, :], compression=True),
                 unit="volts",
                 starting_time=0.0,
