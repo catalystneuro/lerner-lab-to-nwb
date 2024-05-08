@@ -213,7 +213,7 @@ class Seiler2024BehaviorInterface(BaseDataInterface):
                     timestamps=H5DataIO(session_dict["port_entry_times"], compression=True),
                 )
                 behavior_module.add(reward_port_entry_times)
-        else:
+        elif len(session_dict["port_entry_times"]) > 0:
             port_times, data = [], []
             for port_entry_time, duration in zip(
                 session_dict["port_entry_times"], session_dict["duration_of_port_entry"]
