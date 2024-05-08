@@ -750,8 +750,6 @@ def session_should_be_skipped(*, start_date, start_time, subject_id, msn):
         "FOOD_Magazine Training 1 hr",
         "RI_60_Left_Probability_AH_050619",
         "RI_60_Right_Probability_AH_050619",
-        "RR20_Right_AHJS",
-        "RR20_Left",
         "Extinction - 1 HR",
         "RR10_Left_AHJS",
         "Probe Test Habit Training CC",

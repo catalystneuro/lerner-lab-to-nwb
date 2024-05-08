@@ -127,7 +127,8 @@ for that 1 session split across the two folders?
     - Skip this session bc Lerner Lab can't find it
 
 ### Active Questions
-None
+- Some fiber photometry sessions (ex. FP_RR20_96.259_2019-04-17T16-03-52) have msns that I was told to skip (ex. RR20_Right_AHJS)
+  Should I still skip these, or just treat them like RR20Right?
 
 ## Optogenetics
 ### Notes
