@@ -204,12 +204,13 @@ class Seiler2024BehaviorInterface(BaseDataInterface):
         ):  # some sessions are missing port entry durations ex. FP Experiments/Behavior/PR/028.392/07-09-20
             if self.verbose:
                 print(f"No port entry durations found for {metadata['NWBFile']['session_id']}")
-            reward_port_entry_times = Events(
-                name="reward_port_entry_times",
-                description="Reward port entry times",
-                timestamps=H5DataIO(session_dict["port_entry_times"], compression=True),
-            )
-            behavior_module.add(reward_port_entry_times)
+            if len(session_dict["port_entry_times"]) > 0:
+                reward_port_entry_times = Events(
+                    name="reward_port_entry_times",
+                    description="Reward port entry times",
+                    timestamps=H5DataIO(session_dict["port_entry_times"], compression=True),
+                )
+                behavior_module.add(reward_port_entry_times)
         else:
             port_times, data = [], []
             for port_entry_time, duration in zip(
@@ -262,7 +263,7 @@ class Seiler2024BehaviorInterface(BaseDataInterface):
             behavior_module.add(right_reward_times)
 
         # Footshock
-        if "footshock_times" in session_dict:
+        if "footshock_times" in session_dict and len(session_dict["footshock_times"]) > 0:
             footshock_times = Events(
                 name="footshock_times",
                 description="Footshock times",
