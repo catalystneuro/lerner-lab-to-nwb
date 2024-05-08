@@ -74,7 +74,9 @@ class Seiler2024BehaviorInterface(BaseDataInterface):
             "RI60_RIGHT_SCRAM": "RI60 Training with optogenetic stimulation, rewards delivered on right nose pokes, optogenetic stimulation delivered on random nose pokes",
             "RR5_Left_CVC": "RR5 Training",
             "RR20Left": "RR20 Training, rewards delivered on left nose pokes",
+            "RR20_Left": "RR20 Training, rewards delivered on left nose pokes",
             "RR20Right": "RR20 Training, rewards delivered on right nose pokes",
+            "RR20_Right_AHJS": "RR20 Training, rewards delivered on right nose pokes",
             "Unknown": "Unknown",
         }
         metadata = super().get_metadata()
