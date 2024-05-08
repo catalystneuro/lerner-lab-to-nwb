@@ -165,6 +165,42 @@ def session_to_nwb(
     metadata["NWBFile"]["session_start_time"] = metadata["NWBFile"]["session_start_time"].replace(tzinfo=cst)
     nwbfile_path = output_dir_path / f"sub-{subject_id}_ses-{session_id}.nwb"
 
+    nwbinspector_error_file_paths = [
+        "/Volumes/T7/CatalystNeuro/NWB/Lerner/conversion_nwb/sub-64.205_ses-FP_DPR_2018-10-18T09-29-02.nwb",
+        "/Volumes/T7/CatalystNeuro/NWB/Lerner/conversion_nwb/sub-111.285_ses-FP_PR_2019-06-27T10-27-42.nwb",
+        "/Volumes/T7/CatalystNeuro/NWB/Lerner/conversion_nwb/sub-141.308_ses-FP_PR_2019-09-06T09-11-16.nwb",
+        "/Volumes/T7/CatalystNeuro/NWB/Lerner/conversion_nwb/sub-110.271_ses-FP_PS_2019-06-27T09-53-23.nwb",
+        "/Volumes/T7/CatalystNeuro/NWB/Lerner/conversion_nwb/sub-112.283_ses-FP_PS_2019-06-27T08-56-16.nwb",
+        "/Volumes/T7/CatalystNeuro/NWB/Lerner/conversion_nwb/sub-113.283_ses-FP_PS_2019-06-27T09-27-18.nwb",
+        "/Volumes/T7/CatalystNeuro/NWB/Lerner/conversion_nwb/sub-114.273_ses-FP_PS_2019-07-02T12-40-22.nwb",
+        "/Volumes/T7/CatalystNeuro/NWB/Lerner/conversion_nwb/sub-139.298_ses-FP_PS_2019-09-17T10-17-42.nwb",
+        "/Volumes/T7/CatalystNeuro/NWB/Lerner/conversion_nwb/sub-140.306_ses-FP_PS_2019-09-06T09-11-16.nwb",
+        "/Volumes/T7/CatalystNeuro/NWB/Lerner/conversion_nwb/sub-242.388_ses-Opto-DLS-Excitatory-ChR2-2020-07-30T11-17-58.nwb",
+        "/Volumes/T7/CatalystNeuro/NWB/Lerner/conversion_nwb/sub-313.403_ses-Opto-DLS-Excitatory-EYFP-2020-09-17T11-42-56.nwb",
+        "/Volumes/T7/CatalystNeuro/NWB/Lerner/conversion_nwb/sub-238.388_ses-Opto-DLS-Excitatory-EYFP-2020-07-31T11-56-32.nwb",
+        "/Volumes/T7/CatalystNeuro/NWB/Lerner/conversion_nwb/sub-344.400_ses-Opto-DLS-Excitatory-EYFP-2020-08-04T11-45-57.nwb",
+        "/Volumes/T7/CatalystNeuro/NWB/Lerner/conversion_nwb/sub-342.400_ses-Opto-DLS-Excitatory-EYFP-2020-07-30T11-53-15.nwb",
+        "/Volumes/T7/CatalystNeuro/NWB/Lerner/conversion_nwb/sub-417.404_ses-Opto-DLS-Excitatory-EYFP-2020-10-01T11-17-52.nwb",
+        "/Volumes/T7/CatalystNeuro/NWB/Lerner/conversion_nwb/sub-419.404_ses-Opto-DLS-Excitatory-EYFP-2020-10-01T11-17-52.nwb",
+        "/Volumes/T7/CatalystNeuro/NWB/Lerner/conversion_nwb/sub-239.388_ses-Opto-DLS-Excitatory-ChR2Scrambled-2020-07-31T11-56-32.nwb",
+        "/Volumes/T7/CatalystNeuro/NWB/Lerner/conversion_nwb/sub-281.402_ses-Opto-DMS-Excitatory-ChR2-2020-10-27T11-43-22.nwb",
+        "/Volumes/T7/CatalystNeuro/NWB/Lerner/conversion_nwb/sub-448.419_ses-Opto-DMS-Excitatory-ChR2-2020-12-08T11-43-00.nwb",
+        "/Volumes/T7/CatalystNeuro/NWB/Lerner/conversion_nwb/sub-429.419_ses-Opto-DMS-Excitatory-ChR2-2020-11-28T11-50-24.nwb",
+        "/Volumes/T7/CatalystNeuro/NWB/Lerner/conversion_nwb/sub-129.425_ses-Opto-DMS-Excitatory-EYFP-2020-12-04T12-44-14.nwb",
+        "/Volumes/T7/CatalystNeuro/NWB/Lerner/conversion_nwb/sub-116.417_ses-Opto-DMS-Excitatory-ChR2Scrambled-2020-12-03T12-21-24.nwb",
+        "/Volumes/T7/CatalystNeuro/NWB/Lerner/conversion_nwb/sub-130.425_ses-Opto-DMS-Excitatory-ChR2Scrambled-2020-12-05T12-33-43.nwb",
+        "/Volumes/T7/CatalystNeuro/NWB/Lerner/conversion_nwb/sub-282.402_ses-Opto-DMS-Excitatory-ChR2Scrambled-2020-10-27T11-43-22.nwb",
+        "/Volumes/T7/CatalystNeuro/NWB/Lerner/conversion_nwb/sub-450.417_ses-Opto-DMS-Excitatory-ChR2Scrambled-2020-11-28T11-01-52.nwb",
+        "/Volumes/T7/CatalystNeuro/NWB/Lerner/conversion_nwb/sub-436.422_ses-Opto-DMS-Inhibitory-NpHR-2020-12-01T13-12-08.nwb",
+        "/Volumes/T7/CatalystNeuro/NWB/Lerner/conversion_nwb/sub-430.420_ses-Opto-DMS-Inhibitory-NpHR-2020-12-08T11-43-00.nwb",
+        "/Volumes/T7/CatalystNeuro/NWB/Lerner/conversion_nwb/sub-266.477_ses-Opto-DMS-Inhibitory-NpHR-2021-11-16T10-19-57.nwb",
+        "/Volumes/T7/CatalystNeuro/NWB/Lerner/conversion_nwb/sub-263.477_ses-Opto-DMS-Inhibitory-EYFP-2021-11-04T11-53-19.nwb",
+        "/Volumes/T7/CatalystNeuro/NWB/Lerner/conversion_nwb/sub-267.476_ses-Opto-DMS-Inhibitory-EYFP-2021-11-11T12-07-09.nwb",
+        "/Volumes/T7/CatalystNeuro/NWB/Lerner/conversion_nwb/sub-260.478_ses-Opto-DMS-Inhibitory-NpHRScrambled-2021-11-16T10-53-48.nwb",
+    ]
+    if str(nwbfile_path) not in nwbinspector_error_file_paths:
+        return
+
     # Run conversion
     converter.run_conversion(metadata=metadata, nwbfile_path=nwbfile_path, conversion_options=conversion_options)
 
