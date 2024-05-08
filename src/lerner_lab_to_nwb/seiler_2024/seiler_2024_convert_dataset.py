@@ -226,8 +226,13 @@ def fp_to_nwb(
                 for start_date, start_time, msn, file, subject, box_number in zip(
                     start_dates, start_times, msns, file_paths, subjects, box_numbers
                 ):
-                    if session_should_be_skipped(
-                        start_date=start_date, start_time=start_time, subject_id=photometry_subject_id, msn=msn
+                    if (
+                        photometry_subject_id == "271.396"
+                        and photometry_start_date == "07/07/20"
+                        and msn == "FOOD_RI 60 RIGHT TTL"
+                        or photometry_subject_id == "88.239"
+                        and photometry_start_date == "02/19/19"
+                        and msn == "FOOD_RI 60 LEFT TTL"
                     ):
                         continue
                     if start_date == photometry_start_date:
@@ -776,8 +781,6 @@ def session_should_be_skipped(*, start_date, start_time, subject_id, msn):
             and subject_id == "346.394"
             and msn == "FOOD_RI 60 RIGHT TTL"
         )
-        or (subject_id == "271.396" and start_date == "07/07/20" and msn == "FOOD_RI 60 RIGHT TTL")
-        or (subject_id == "88.239" and start_date == "02/19/19" and msn == "FOOD_RI 60 LEFT TTL")
     ):
         return True
     return False
