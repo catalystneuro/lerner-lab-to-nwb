@@ -188,6 +188,18 @@ class Seiler2024BehaviorInterface(BaseDataInterface):
                 session_dict[dict_name] = np.trim_zeros(session_df[csv_name].dropna().values, trim="b")
         else:
             session_dict = self.source_data["session_dict"]
+            msn = metadata["Behavior"]["msn"]
+            medpc_name_to_dict_name = metadata["Behavior"]["msn_to_medpc_name_to_dict_name"][msn]
+            dict_name_to_type = {dict_name: np.ndarray for dict_name in medpc_name_to_dict_name.values()}
+            medpc_session_dict = read_medpc_file(
+                file_path=self.source_data["file_path"],
+                medpc_name_to_dict_name=medpc_name_to_dict_name,
+                dict_name_to_type=dict_name_to_type,
+                session_conditions=self.source_data["session_conditions"],
+                start_variable=self.source_data["start_variable"],
+            )
+            if "duration_of_port_entry" in medpc_session_dict:
+                session_dict["duration_of_port_entry"] = medpc_session_dict["duration_of_port_entry"]
 
         # Add behavior data to nwbfile
         behavior_module = nwb_helpers.get_module(
