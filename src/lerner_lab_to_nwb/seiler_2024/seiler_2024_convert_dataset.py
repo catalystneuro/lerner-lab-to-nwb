@@ -300,6 +300,11 @@ def fp_to_nwb(
                         and photometry_start_date == "10/31/18"
                         and experimental_subgroup.name == "Late RI60"
                     )
+                    or (
+                        photometry_subject_id == "96.259"
+                        and photometry_start_date == "05/06/19"
+                        and experimental_subgroup.name == "late"
+                    )  # This session is missing RNnR TTLs
                 ):
                     continue
                 assert (
