@@ -6,7 +6,7 @@ dandi
 pre-commit
 pytest
 ndx-events
-ndx-fiber-photometry @ git+https://github.com/catalystneuro/ndx-fiber-photometry.git@main
+ndx-fiber-photometry @ git+https://github.com/catalystneuro/ndx-fiber-photometry.git@add_fiber_photometry_lab_meta_data
 ipykernel
 tdt
 openpyxl

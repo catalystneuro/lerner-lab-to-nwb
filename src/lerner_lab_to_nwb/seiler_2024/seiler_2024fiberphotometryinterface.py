@@ -7,6 +7,7 @@ from neuroconv.utils import DeepDict
 from neuroconv.tools import nwb_helpers
 from pathlib import Path
 from ndx_fiber_photometry import (
+    FiberPhotometry,
     FiberPhotometryTable,
     FiberPhotometryResponseSeries,
     CommandedVoltageSeries,
@@ -364,6 +365,10 @@ class Seiler2024FiberPhotometryInterface(BaseDataInterface):
             description="The region of the FiberPhotometryTable corresponding to the DLS reference.",
             region=[3],
         )
+        fiber_photometry_table_metadata = FiberPhotometry(
+            name="fiber_photometry",
+            fiber_photometry_table=fiber_photometry_table,
+        )
 
         # Fiber Photometry Response Series
         dms_signal_series = FiberPhotometryResponseSeries(
@@ -420,7 +425,7 @@ class Seiler2024FiberPhotometryInterface(BaseDataInterface):
         else:
             nwbfile.add_acquisition(dms_commanded_voltage_series)
             nwbfile.add_acquisition(dls_commanded_voltage_series)
-        nwbfile.add_acquisition(fiber_photometry_table)
+        nwbfile.add_lab_meta_data(fiber_photometry_table_metadata)
         nwbfile.add_acquisition(dms_signal_series)
         nwbfile.add_acquisition(dms_reference_series)
         nwbfile.add_acquisition(dls_signal_series)
