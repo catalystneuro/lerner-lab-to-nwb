@@ -95,32 +95,16 @@ class Seiler2024FiberPhotometryInterface(BaseDataInterface):
         )
 
         # Excitation Sources
-        dms_signal_excitation_source = ExcitationSource(
-            name="dms_signal_excitation_source",
+        excitation_source_calcium_signal = ExcitationSource(
+            name="excitation_source_calcium_signal",
             description="465nm and 405nm LEDs were modulated at 211 Hz and 330 Hz, respectively, for DMS probes. 465nm and 405nm LEDs were modulated at 450 Hz and 270 Hz, respectively for DLS probes. LED currents were adjusted in order to return a voltage between 150-200mV for each signal, were offset by 5 mA, were demodulated using a 4 Hz lowpass frequency filter.",
             manufacturer="Doric Lenses",
             model="Connectorized LED",
             illumination_type="LED",
             excitation_wavelength_in_nm=465.0,
         )
-        dms_reference_excitation_source = ExcitationSource(
-            name="dms_reference_excitation_source",
-            description="465nm and 405nm LEDs were modulated at 211 Hz and 330 Hz, respectively, for DMS probes. 465nm and 405nm LEDs were modulated at 450 Hz and 270 Hz, respectively for DLS probes. LED currents were adjusted in order to return a voltage between 150-200mV for each signal, were offset by 5 mA, were demodulated using a 4 Hz lowpass frequency filter.",
-            manufacturer="Doric Lenses",
-            model="Connectorized LED",
-            illumination_type="LED",
-            excitation_wavelength_in_nm=405.0,
-        )
-        dls_signal_excitation_source = ExcitationSource(
-            name="dls_signal_excitation_source",
-            description="465nm and 405nm LEDs were modulated at 211 Hz and 330 Hz, respectively, for DMS probes. 465nm and 405nm LEDs were modulated at 450 Hz and 270 Hz, respectively for DLS probes. LED currents were adjusted in order to return a voltage between 150-200mV for each signal, were offset by 5 mA, were demodulated using a 4 Hz lowpass frequency filter.",
-            manufacturer="Doric Lenses",
-            model="Connectorized LED",
-            illumination_type="LED",
-            excitation_wavelength_in_nm=465.0,
-        )
-        dls_reference_excitation_source = ExcitationSource(
-            name="dls_reference_excitation_source",
+        excitation_source_isosbestic_control = ExcitationSource(
+            name="excitation_source_isosbestic_control",
             description="465nm and 405nm LEDs were modulated at 211 Hz and 330 Hz, respectively, for DMS probes. 465nm and 405nm LEDs were modulated at 450 Hz and 270 Hz, respectively for DLS probes. LED currents were adjusted in order to return a voltage between 150-200mV for each signal, were offset by 5 mA, were demodulated using a 4 Hz lowpass frequency filter.",
             manufacturer="Doric Lenses",
             model="Connectorized LED",
@@ -250,7 +234,7 @@ class Seiler2024FiberPhotometryInterface(BaseDataInterface):
                 commanded_voltage_series=dms_commanded_signal_series,
                 indicator=dms_fluorophore,
                 optical_fiber=optical_fiber,
-                excitation_source=dms_signal_excitation_source,
+                excitation_source=excitation_source_calcium_signal,
                 photodetector=photodetector,
                 excitation_filter=excitation_filter,
                 emission_filter=emission_filter,
@@ -262,7 +246,7 @@ class Seiler2024FiberPhotometryInterface(BaseDataInterface):
                 commanded_voltage_series=dms_commanded_reference_series,
                 indicator=dms_fluorophore,
                 optical_fiber=optical_fiber,
-                excitation_source=dms_reference_excitation_source,
+                excitation_source=excitation_source_isosbestic_control,
                 photodetector=photodetector,
                 excitation_filter=isosbestic_excitation_filter,
                 emission_filter=emission_filter,
@@ -274,7 +258,7 @@ class Seiler2024FiberPhotometryInterface(BaseDataInterface):
                 commanded_voltage_series=dls_commanded_signal_series,
                 indicator=dls_fluorophore,
                 optical_fiber=optical_fiber,
-                excitation_source=dls_signal_excitation_source,
+                excitation_source=excitation_source_calcium_signal,
                 photodetector=photodetector,
                 excitation_filter=excitation_filter,
                 emission_filter=emission_filter,
@@ -286,7 +270,7 @@ class Seiler2024FiberPhotometryInterface(BaseDataInterface):
                 commanded_voltage_series=dls_commanded_reference_series,
                 indicator=dls_fluorophore,
                 optical_fiber=optical_fiber,
-                excitation_source=dls_reference_excitation_source,
+                excitation_source=excitation_source_isosbestic_control,
                 photodetector=photodetector,
                 excitation_filter=isosbestic_excitation_filter,
                 emission_filter=emission_filter,
@@ -299,7 +283,7 @@ class Seiler2024FiberPhotometryInterface(BaseDataInterface):
                 commanded_voltage_series=dms_commanded_voltage_series,
                 indicator=dms_fluorophore,
                 optical_fiber=optical_fiber,
-                excitation_source=dms_signal_excitation_source,
+                excitation_source=excitation_source_calcium_signal,
                 photodetector=photodetector,
                 excitation_filter=excitation_filter,
                 emission_filter=emission_filter,
@@ -311,7 +295,7 @@ class Seiler2024FiberPhotometryInterface(BaseDataInterface):
                 commanded_voltage_series=dms_commanded_voltage_series,
                 indicator=dms_fluorophore,
                 optical_fiber=optical_fiber,
-                excitation_source=dms_reference_excitation_source,
+                excitation_source=excitation_source_isosbestic_control,
                 photodetector=photodetector,
                 excitation_filter=isosbestic_excitation_filter,
                 emission_filter=emission_filter,
@@ -323,7 +307,7 @@ class Seiler2024FiberPhotometryInterface(BaseDataInterface):
                 commanded_voltage_series=dls_commanded_voltage_series,
                 indicator=dls_fluorophore,
                 optical_fiber=optical_fiber,
-                excitation_source=dls_signal_excitation_source,
+                excitation_source=excitation_source_calcium_signal,
                 photodetector=photodetector,
                 excitation_filter=excitation_filter,
                 emission_filter=emission_filter,
@@ -335,7 +319,7 @@ class Seiler2024FiberPhotometryInterface(BaseDataInterface):
                 commanded_voltage_series=dls_commanded_voltage_series,
                 indicator=dls_fluorophore,
                 optical_fiber=optical_fiber,
-                excitation_source=dls_reference_excitation_source,
+                excitation_source=excitation_source_isosbestic_control,
                 photodetector=photodetector,
                 excitation_filter=isosbestic_excitation_filter,
                 emission_filter=emission_filter,
@@ -397,10 +381,8 @@ class Seiler2024FiberPhotometryInterface(BaseDataInterface):
         )
 
         nwbfile.add_device(optical_fiber)
-        nwbfile.add_device(dms_signal_excitation_source)
-        nwbfile.add_device(dms_reference_excitation_source)
-        nwbfile.add_device(dls_signal_excitation_source)
-        nwbfile.add_device(dls_reference_excitation_source)
+        nwbfile.add_device(excitation_source_calcium_signal)
+        nwbfile.add_device(excitation_source_isosbestic_control)
         nwbfile.add_device(photodetector)
         nwbfile.add_device(excitation_filter)
         nwbfile.add_device(isosbestic_excitation_filter)
