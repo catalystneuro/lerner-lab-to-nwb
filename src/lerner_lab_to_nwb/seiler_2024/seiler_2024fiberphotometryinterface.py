@@ -85,16 +85,8 @@ class Seiler2024FiberPhotometryInterface(BaseDataInterface):
                     )
 
         # Optical Fibers
-        dms_fiber = OpticalFiber(
-            name="dms_fiber",
-            description="Fiber optic implants (Doric Lenses; 400 um, 0.48 NA) were placed above DMS (AP 0.8, ML 1.5, DV 2.8) and DLS (AP 0.1, ML 2.8, DV 3.5). The DMS implant was placed in the hemisphere receiving a medial SNc viral injection, while the DLS implant was placed in the hemisphere receiving a lateral SNc viral injection. Calcium signals from dopamine terminals in DMS and DLS were recorded during RI30, on the first and last days of RI60/RR20 training as well as on both footshock probes for each mouse. All recordings were done using a fiber photometry rig with optical components from Doric lenses controlled by a real-time processor from Tucker Davis Technologies (TDT; RZ5P). TDT Synapse software was used for data acquisition.",
-            manufacturer="Doric Lenses",
-            model="Fiber Optic Implant",
-            numerical_aperture=0.48,
-            core_diameter_in_um=400.0,
-        )
-        dls_fiber = OpticalFiber(
-            name="dls_fiber",
+        optical_fiber = OpticalFiber(
+            name="optical_fiber",
             description="Fiber optic implants (Doric Lenses; 400 um, 0.48 NA) were placed above DMS (AP 0.8, ML 1.5, DV 2.8) and DLS (AP 0.1, ML 2.8, DV 3.5). The DMS implant was placed in the hemisphere receiving a medial SNc viral injection, while the DLS implant was placed in the hemisphere receiving a lateral SNc viral injection. Calcium signals from dopamine terminals in DMS and DLS were recorded during RI30, on the first and last days of RI60/RR20 training as well as on both footshock probes for each mouse. All recordings were done using a fiber photometry rig with optical components from Doric lenses controlled by a real-time processor from Tucker Davis Technologies (TDT; RZ5P). TDT Synapse software was used for data acquisition.",
             manufacturer="Doric Lenses",
             model="Fiber Optic Implant",
@@ -257,7 +249,7 @@ class Seiler2024FiberPhotometryInterface(BaseDataInterface):
                 coordinates=(0.8, 1.5, 2.8),
                 commanded_voltage_series=dms_commanded_signal_series,
                 indicator=dms_fluorophore,
-                optical_fiber=dms_fiber,
+                optical_fiber=optical_fiber,
                 excitation_source=dms_signal_excitation_source,
                 photodetector=photodetector,
                 excitation_filter=excitation_filter,
@@ -269,7 +261,7 @@ class Seiler2024FiberPhotometryInterface(BaseDataInterface):
                 coordinates=(0.8, 1.5, 2.8),
                 commanded_voltage_series=dms_commanded_reference_series,
                 indicator=dms_fluorophore,
-                optical_fiber=dms_fiber,
+                optical_fiber=optical_fiber,
                 excitation_source=dms_reference_excitation_source,
                 photodetector=photodetector,
                 excitation_filter=isosbestic_excitation_filter,
@@ -281,7 +273,7 @@ class Seiler2024FiberPhotometryInterface(BaseDataInterface):
                 coordinates=(0.1, 2.8, 3.5),
                 commanded_voltage_series=dls_commanded_signal_series,
                 indicator=dls_fluorophore,
-                optical_fiber=dls_fiber,
+                optical_fiber=optical_fiber,
                 excitation_source=dls_signal_excitation_source,
                 photodetector=photodetector,
                 excitation_filter=excitation_filter,
@@ -293,7 +285,7 @@ class Seiler2024FiberPhotometryInterface(BaseDataInterface):
                 coordinates=(0.1, 2.8, 3.5),
                 commanded_voltage_series=dls_commanded_reference_series,
                 indicator=dls_fluorophore,
-                optical_fiber=dls_fiber,
+                optical_fiber=optical_fiber,
                 excitation_source=dls_reference_excitation_source,
                 photodetector=photodetector,
                 excitation_filter=isosbestic_excitation_filter,
@@ -306,7 +298,7 @@ class Seiler2024FiberPhotometryInterface(BaseDataInterface):
                 coordinates=(0.8, 1.5, 2.8),
                 commanded_voltage_series=dms_commanded_voltage_series,
                 indicator=dms_fluorophore,
-                optical_fiber=dms_fiber,
+                optical_fiber=optical_fiber,
                 excitation_source=dms_signal_excitation_source,
                 photodetector=photodetector,
                 excitation_filter=excitation_filter,
@@ -318,7 +310,7 @@ class Seiler2024FiberPhotometryInterface(BaseDataInterface):
                 coordinates=(0.8, 1.5, 2.8),
                 commanded_voltage_series=dms_commanded_voltage_series,
                 indicator=dms_fluorophore,
-                optical_fiber=dms_fiber,
+                optical_fiber=optical_fiber,
                 excitation_source=dms_reference_excitation_source,
                 photodetector=photodetector,
                 excitation_filter=isosbestic_excitation_filter,
@@ -330,7 +322,7 @@ class Seiler2024FiberPhotometryInterface(BaseDataInterface):
                 coordinates=(0.1, 2.8, 3.5),
                 commanded_voltage_series=dls_commanded_voltage_series,
                 indicator=dls_fluorophore,
-                optical_fiber=dls_fiber,
+                optical_fiber=optical_fiber,
                 excitation_source=dls_signal_excitation_source,
                 photodetector=photodetector,
                 excitation_filter=excitation_filter,
@@ -342,7 +334,7 @@ class Seiler2024FiberPhotometryInterface(BaseDataInterface):
                 coordinates=(0.1, 2.8, 3.5),
                 commanded_voltage_series=dls_commanded_voltage_series,
                 indicator=dls_fluorophore,
-                optical_fiber=dls_fiber,
+                optical_fiber=optical_fiber,
                 excitation_source=dls_reference_excitation_source,
                 photodetector=photodetector,
                 excitation_filter=isosbestic_excitation_filter,
@@ -404,8 +396,7 @@ class Seiler2024FiberPhotometryInterface(BaseDataInterface):
             fiber_photometry_table_region=dls_reference_region,
         )
 
-        nwbfile.add_device(dms_fiber)
-        nwbfile.add_device(dls_fiber)
+        nwbfile.add_device(optical_fiber)
         nwbfile.add_device(dms_signal_excitation_source)
         nwbfile.add_device(dms_reference_excitation_source)
         nwbfile.add_device(dls_signal_excitation_source)
