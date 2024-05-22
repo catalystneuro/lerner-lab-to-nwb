@@ -9,6 +9,7 @@ import numpy as np
 from concurrent.futures import ProcessPoolExecutor, as_completed
 from pprint import pformat
 import traceback
+import re
 
 from lerner_lab_to_nwb.seiler_2024.seiler_2024_convert_session import session_to_nwb
 from lerner_lab_to_nwb.seiler_2024.medpc import get_medpc_variables
@@ -46,15 +47,14 @@ def dataset_to_nwb(
         stub_test=stub_test,
         verbose=verbose,
     )
-    # opto_session_to_nwb_args_per_session = opto_to_nwb(
-    #     data_dir_path=data_dir_path,
-    #     output_dir_path=output_dir_path,
-    #     start_variable=start_variable,
-    #     stub_test=stub_test,
-    #     verbose=verbose,
-    # )
-    # session_to_nwb_args_per_session = fp_session_to_nwb_args_per_session + opto_session_to_nwb_args_per_session
-    session_to_nwb_args_per_session = fp_session_to_nwb_args_per_session
+    opto_session_to_nwb_args_per_session = opto_to_nwb(
+        data_dir_path=data_dir_path,
+        output_dir_path=output_dir_path,
+        start_variable=start_variable,
+        stub_test=stub_test,
+        verbose=verbose,
+    )
+    session_to_nwb_args_per_session = fp_session_to_nwb_args_per_session + opto_session_to_nwb_args_per_session
 
     futures = []
     with ProcessPoolExecutor(max_workers=max_workers) as executor:
@@ -433,23 +433,23 @@ def opto_to_nwb(
         A list of dictionaries containing the arguments for session_to_nwb for each session.
     """
     experiment_type = "Opto"
-    experimental_groups = ["DLS-Excitatory", "DMS-Excitatory", "DMS-Inhibitory"]
     experimental_group_to_optogenetic_treatments = {
         "DLS-Excitatory": ["ChR2", "EYFP", "ChR2Scrambled"],
         "DMS-Excitatory": ["ChR2", "EYFP", "ChR2Scrambled"],
         "DMS-Inhibitory": ["NpHR", "EYFP", "NpHRScrambled"],
     }
+    experimental_groups = list(experimental_group_to_optogenetic_treatments.keys())
     optogenetic_treatment_to_folder_name = {
         "ChR2": "ChR2",
         "EYFP": "EYFP",
         "ChR2Scrambled": "Scrambled",
-        "NpHR": "Halo",
+        "NpHR": ["Halo", "NpHr"],
         "NpHRScrambled": "Scrambled",
     }
     experimental_group_to_subgroups = {
         "DLS-Excitatory": [""],
         "DMS-Excitatory": [""],
-        "DMS-Inhibitory": ["Group 1"],  # TODO: Get group 2 data from Lerner Lab
+        "DMS-Inhibitory": ["Group 1", "Group 2"],
     }
     opto_path = data_dir_path / f"{experiment_type} Experiments"
     session_to_nwb_args_per_session: list[dict] = []  # Each dict contains the args for session_to_nwb for a session
@@ -457,11 +457,15 @@ def opto_to_nwb(
 
     for experimental_group in experimental_groups:
         experimental_group_path = opto_path / experimental_group.replace("-", " ")
-        for subgroup in experimental_group_to_subgroups[experimental_group]:
+        for i, subgroup in enumerate(experimental_group_to_subgroups[experimental_group]):
             subgroup_path = experimental_group_path / subgroup if subgroup else experimental_group_path
             optogenetic_treatments = experimental_group_to_optogenetic_treatments[experimental_group]
             for optogenetic_treatment in optogenetic_treatments:
-                optogenetic_treatment_path = subgroup_path / optogenetic_treatment_to_folder_name[optogenetic_treatment]
+                if optogenetic_treatment == "NpHR":
+                    optogenetic_treatment_folder_name = optogenetic_treatment_to_folder_name[optogenetic_treatment][i]
+                else:
+                    optogenetic_treatment_folder_name = optogenetic_treatment_to_folder_name[optogenetic_treatment]
+                optogenetic_treatment_path = subgroup_path / optogenetic_treatment_folder_name
                 subject_paths = [
                     path
                     for path in optogenetic_treatment_path.iterdir()
@@ -472,9 +476,7 @@ def opto_to_nwb(
                     )
                 ]
                 for subject_path in subject_paths:
-                    subject_id = (
-                        subject_path.name.split(" ")[1] if "Subject" in subject_path.name else subject_path.name
-                    )
+                    subject_id = get_opto_subject_id(subject_path)
                     header_variables = get_opto_header_variables(subject_path)
                     start_dates, start_times, msns, file_paths, subjects, box_numbers = header_variables
                     for start_date, start_time, msn, file, subject, box_number in zip(
@@ -518,7 +520,149 @@ def opto_to_nwb(
                             continue
                         nwbfile_paths.add(nwbfile_path)
                         session_to_nwb_args_per_session.append(session_to_nwb_args)
+    # DLS Excitatory raw files by date
+    raw_files_by_date_path = data_dir_path / "Opto Experiments" / "DLS Excitatory"
+    start_dates, start_times, msns, file_paths, subjects, box_numbers = [], [], [], [], [], []
+    for file in raw_files_by_date_path.iterdir():
+        if (
+            file.name.startswith(".") or file.is_dir() or file.suffix == ".csv"
+        ):  # TODO: ask Lerner Lab about orphaned csvs
+            continue
+        info = get_medpc_variables(file_path=file, variable_names=["Subject", "Start Date", "Start Time", "MSN", "Box"])
+        for i in range(len(info["Subject"])):
+            start_dates.append(info["Start Date"][i])
+            start_times.append(info["Start Time"][i])
+            msns.append(info["MSN"][i])
+            file_paths.append(file)
+            subjects.append(info["Subject"][i])
+            box_numbers.append(info["Box"][i])
+    for start_date, start_time, msn, file, subject, box_number in zip(
+        start_dates, start_times, msns, file_paths, subjects, box_numbers
+    ):
+        if session_should_be_skipped(
+            start_date=start_date,
+            start_time=start_time,
+            subject_id=subject,
+            msn=msn,
+        ):
+            continue
+        session_conditions = {
+            "Start Date": start_date,
+            "Start Time": start_time,
+            "Subject": subject,
+            "Box": box_number,
+        }
+        start_datetime = datetime.strptime(f"{start_date} {start_time}", "%m/%d/%y %H:%M:%S")
+        session_to_nwb_args = dict(
+            data_dir_path=data_dir_path,
+            output_dir_path=output_dir_path,
+            behavior_file_path=file,
+            subject_id=subject,
+            session_conditions=session_conditions,
+            start_variable=start_variable,
+            start_datetime=start_datetime,
+            experiment_type=experiment_type,
+            experimental_group="DLS-Excitatory",
+            optogenetic_treatment="Unknown",
+            stub_test=stub_test,
+            verbose=verbose,
+        )
+        nwbfile_path = output_dir_path / f"{experiment_type}_DLS-Excitatory_{subject}_{start_datetime.isoformat()}.nwb"
+        if nwbfile_path in nwbfile_paths:
+            continue
+        nwbfile_paths.add(nwbfile_path)
+        session_to_nwb_args_per_session.append(session_to_nwb_args)
     return session_to_nwb_args_per_session
+
+
+def get_opto_subject_id(subject_path: Path):
+    """Get the subject ID from the subject path for the optogenetic portion of the dataset.
+
+    Parameters
+    ----------
+    subject_path : Path
+        The path to the subject medpc file or directory.
+
+    Returns
+    -------
+    str
+        The subject ID. Ex. '139.298'
+    """
+    partial_subject_ids_to_subject_id = {
+        "268": "268.476",
+        "266": "266.477",
+        "244": "244.465",
+        "343": "343.483",
+        "419": "419.404",
+        "245": "245.464",
+        "342": "342.483",
+        "202": "202.465",
+        "313": "313.403",
+        "418": "418.404",
+        "340": "340.483",
+        "259": "259.478",
+        "264": "264.478",
+        "421": "421.404",
+        "417": "417.404",
+        "233": "233.469",
+        "261": "261.478",
+        "265": "265.476",
+        "311": "311.403",
+        "206": "206.468",
+        "243": "243.468",
+        "263": "263.477",
+        "338": "338.398",
+        "414": "414.405",
+    }
+
+    # fmt: off
+    if re.match(r"([0-9]){2,3}\.([0-9]){3}", subject_path.name):
+        # ex. subject_path.name = '139.298'
+        subject_id = subject_path.name
+    elif "Subject" in subject_path.name:
+        # ex. subject_path.name = '2021-10-25_10h44m_Subject 266.477'
+        subject_id = subject_path.name.split(" ")[1]
+    elif re.match(r"[1-2]([0-9]){3}-[0-1][0-9]-[0-3][0-9]_([0-9]){2,3}_([0-9]){3}", subject_path.name):
+        # ex. subject_path.name = '2021-10-29_262_259 - Copy.478'
+        subject_id = (
+            f"{subject_path.name.split('_')[1]}.{subject_path.name.split('_')[2].split(' ')[0]}"
+        )
+    elif (
+        re.match(r"[1-2]([0-9]){3}-[0-1][0-9]-[0-3][0-9]_([0-9]){2,3}\.([0-9]){3}", subject_path.name) or
+        re.match(r"[1-2]([0-9]){3}[0-1][0-9][0-3][0-9]_([0-9]){2,3}\.([0-9]){3}", subject_path.name) or
+        re.match(r"[1-2]([0-9]){3}-[0-1][0-9]-[0-3][0-9]_([0-9]){2,3}", subject_path.name)
+    ):
+        # ex. subject_path.name = 2021-10-25_266.477 or 20211025_244.465 or 2021-11-01_202
+        subject_id = subject_path.name.split("_")[1]
+    elif re.match(r"[1-2]([0-9]){3}-[0-1][0-9]-[0-3][0-9]__", subject_path.name):
+        # ex. subject_path.name = 2021-10-29__340.483
+        subject_id = subject_path.name.split("__")[1]
+
+    elif re.match(r"[1-2]([0-9]){3}-[0-1][0-9]-[0-3][0-9]-", subject_path.name):
+        subject_id = subject_path.name.split("-")[-1]
+    elif (
+        re.match(r"([0-9]){3}_([0-9]){4}", subject_path.name) or
+        re.match(r"([0-9]){3}_([0-9]){2}_([0-9]){2}", subject_path.name)
+    ):
+        subject_id = subject_path.name.split("_")[0]
+    elif subject_path.is_dir():
+        subject_id = subject_path.name.replace("_", ".")
+    elif subject_path.name == "2021-10-29_262_259.478":
+        subject_id = "262.478"
+    else:
+        raise ValueError(f"Subject ID not found in {subject_path}")
+    # fmt: on
+    if subject_id.endswith(".txt"):
+        subject_id = subject_id[:-4]
+
+    if subject_id in partial_subject_ids_to_subject_id:
+        subject_id = partial_subject_ids_to_subject_id[subject_id]
+
+    assert re.match(
+        r"([0-9]){2,3}\.([0-9]){3}", subject_id
+    ), f"Subject ID {subject_id} with path {subject_path} does not match the expected format."
+
+    return subject_id
 
 
 def get_opto_header_variables(subject_path):
@@ -612,7 +756,10 @@ def session_should_be_skipped(*, start_date, start_time, subject_id, msn):
         "RR10_Left_AHJS",
         "Probe Test Habit Training CC",
         "FOOD_FR1 Hapit Training TTL",
+        "RK_C_FR1_BOTH_1hr",
     }
+    if subject_id == "":
+        return True
     if msn in msns_to_skip:
         return True
     if (
