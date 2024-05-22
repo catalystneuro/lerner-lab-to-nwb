@@ -161,16 +161,16 @@ class Seiler2024FiberPhotometryInterface(BaseDataInterface):
         )
 
         # Indicators (aka Fluorophores)
-        dms_fluorophore = Indicator(
-            name="dms_fluorophore",
+        dms_green_fluorophore = Indicator(
+            name="dms_green_fluorophore",
             description="Mice for fiber photometry experiments received infusions of 1ml of AAV5-CAG-FLEX-jGCaMP7b-WPRE (1.02e13 vg/mL, Addgene, lot 18-429) into lateral SNc (AP 3.1, ML 1.3, DV 4.2) in one hemisphere and medial SNc (AP 3.1, ML 0.8, DV 4.7) in the other. Hemispheres were counterbalanced between mice.",
             manufacturer="Addgene",
             label="GCaMP7b",
             injection_location="medial SNc",
             injection_coordinates_in_mm=(3.1, 0.8, 4.7),
         )
-        dls_fluorophore = Indicator(
-            name="dls_fluorophore",
+        dls_green_fluorophore = Indicator(
+            name="dls_green_fluorophore",
             description="Mice for fiber photometry experiments received infusions of 1ml of AAV5-CAG-FLEX-jGCaMP7b-WPRE (1.02e13 vg/mL, Addgene, lot 18-429) into lateral SNc (AP 3.1, ML 1.3, DV 4.2) in one hemisphere and medial SNc (AP 3.1, ML 0.8, DV 4.7) in the other. Hemispheres were counterbalanced between mice.",
             manufacturer="Addgene",
             label="GCaMP7b",
@@ -180,43 +180,43 @@ class Seiler2024FiberPhotometryInterface(BaseDataInterface):
 
         # Commanded Voltage Series
         if has_demodulated_commanded_voltages:
-            dms_commanded_signal_series = CommandedVoltageSeries(
-                name="dms_commanded_signal",
+            commanded_voltage_series_dms_calcium_signal = CommandedVoltageSeries(
+                name="commanded_voltage_series_dms_calcium_signal",
                 data=H5DataIO(tdt_photometry.streams["Fi1d"].data[0, :], compression=True),
                 unit="volts",
                 frequency=211.0,
                 rate=tdt_photometry.streams["Fi1d"].fs,
             )
-            dms_commanded_reference_series = CommandedVoltageSeries(
-                name="dms_commanded_reference",
+            commanded_voltage_series_dms_isosbestic_control = CommandedVoltageSeries(
+                name="commanded_voltage_series_dms_isosbestic_control",
                 data=H5DataIO(tdt_photometry.streams["Fi1d"].data[1, :], compression=True),
                 unit="volts",
                 frequency=330.0,
                 rate=tdt_photometry.streams["Fi1d"].fs,
             )
-            dls_commanded_signal_series = CommandedVoltageSeries(
-                name="dls_commanded_signal",
+            commanded_voltage_series_dls_calcium_signal = CommandedVoltageSeries(
+                name="commanded_voltage_series_dls_calcium_signal",
                 data=H5DataIO(tdt_photometry.streams["Fi1d"].data[3, :], compression=True),
                 unit="volts",
                 frequency=450.0,
                 rate=tdt_photometry.streams["Fi1d"].fs,
             )
-            dls_commanded_reference_series = CommandedVoltageSeries(
-                name="dls_commanded_reference",
+            commanded_voltage_series_dls_isosbestic_control = CommandedVoltageSeries(
+                name="commanded_voltage_series_dls_isosbestic_control",
                 data=H5DataIO(tdt_photometry.streams["Fi1d"].data[2, :], compression=True),
                 unit="volts",
                 frequency=270.0,
                 rate=tdt_photometry.streams["Fi1d"].fs,
             )
         else:
-            dms_commanded_voltage_series = CommandedVoltageSeries(
-                name="dms_commanded_voltage",
+            commanded_voltage_series_dms = CommandedVoltageSeries(
+                name="commanded_voltage_series_dms",
                 data=H5DataIO(tdt_photometry.streams["Fi1r"].data[0, :], compression=True),
                 unit="volts",
                 rate=tdt_photometry.streams["Fi1r"].fs,
             )
-            dls_commanded_voltage_series = CommandedVoltageSeries(
-                name="dls_commanded_voltage",
+            commanded_voltage_series_dls = CommandedVoltageSeries(
+                name="commanded_voltage_series_dls",
                 data=H5DataIO(tdt_photometry.streams["Fi1r"].data[1, :], compression=True),
                 unit="volts",
                 rate=tdt_photometry.streams["Fi1r"].fs,
@@ -231,8 +231,8 @@ class Seiler2024FiberPhotometryInterface(BaseDataInterface):
             fiber_photometry_table.add_row(
                 location="DMS",
                 coordinates=(0.8, 1.5, 2.8),
-                commanded_voltage_series=dms_commanded_signal_series,
-                indicator=dms_fluorophore,
+                commanded_voltage_series=commanded_voltage_series_dms_calcium_signal,
+                indicator=dms_green_fluorophore,
                 optical_fiber=optical_fiber,
                 excitation_source=excitation_source_calcium_signal,
                 photodetector=photodetector,
@@ -243,8 +243,8 @@ class Seiler2024FiberPhotometryInterface(BaseDataInterface):
             fiber_photometry_table.add_row(
                 location="DMS",
                 coordinates=(0.8, 1.5, 2.8),
-                commanded_voltage_series=dms_commanded_reference_series,
-                indicator=dms_fluorophore,
+                commanded_voltage_series=commanded_voltage_series_dms_isosbestic_control,
+                indicator=dms_green_fluorophore,
                 optical_fiber=optical_fiber,
                 excitation_source=excitation_source_isosbestic_control,
                 photodetector=photodetector,
@@ -255,8 +255,8 @@ class Seiler2024FiberPhotometryInterface(BaseDataInterface):
             fiber_photometry_table.add_row(
                 location="DLS",
                 coordinates=(0.1, 2.8, 3.5),
-                commanded_voltage_series=dls_commanded_signal_series,
-                indicator=dls_fluorophore,
+                commanded_voltage_series=commanded_voltage_series_dls_calcium_signal,
+                indicator=dls_green_fluorophore,
                 optical_fiber=optical_fiber,
                 excitation_source=excitation_source_calcium_signal,
                 photodetector=photodetector,
@@ -267,8 +267,8 @@ class Seiler2024FiberPhotometryInterface(BaseDataInterface):
             fiber_photometry_table.add_row(
                 location="DLS",
                 coordinates=(0.1, 2.8, 3.5),
-                commanded_voltage_series=dls_commanded_reference_series,
-                indicator=dls_fluorophore,
+                commanded_voltage_series=commanded_voltage_series_dls_isosbestic_control,
+                indicator=dls_green_fluorophore,
                 optical_fiber=optical_fiber,
                 excitation_source=excitation_source_isosbestic_control,
                 photodetector=photodetector,
@@ -280,8 +280,8 @@ class Seiler2024FiberPhotometryInterface(BaseDataInterface):
             fiber_photometry_table.add_row(
                 location="DMS",
                 coordinates=(0.8, 1.5, 2.8),
-                commanded_voltage_series=dms_commanded_voltage_series,
-                indicator=dms_fluorophore,
+                commanded_voltage_series=commanded_voltage_series_dms,
+                indicator=dms_green_fluorophore,
                 optical_fiber=optical_fiber,
                 excitation_source=excitation_source_calcium_signal,
                 photodetector=photodetector,
@@ -292,8 +292,8 @@ class Seiler2024FiberPhotometryInterface(BaseDataInterface):
             fiber_photometry_table.add_row(
                 location="DMS",
                 coordinates=(0.8, 1.5, 2.8),
-                commanded_voltage_series=dms_commanded_voltage_series,
-                indicator=dms_fluorophore,
+                commanded_voltage_series=commanded_voltage_series_dms,
+                indicator=dms_green_fluorophore,
                 optical_fiber=optical_fiber,
                 excitation_source=excitation_source_isosbestic_control,
                 photodetector=photodetector,
@@ -304,8 +304,8 @@ class Seiler2024FiberPhotometryInterface(BaseDataInterface):
             fiber_photometry_table.add_row(
                 location="DLS",
                 coordinates=(0.1, 2.8, 3.5),
-                commanded_voltage_series=dls_commanded_voltage_series,
-                indicator=dls_fluorophore,
+                commanded_voltage_series=commanded_voltage_series_dls,
+                indicator=dls_green_fluorophore,
                 optical_fiber=optical_fiber,
                 excitation_source=excitation_source_calcium_signal,
                 photodetector=photodetector,
@@ -316,8 +316,8 @@ class Seiler2024FiberPhotometryInterface(BaseDataInterface):
             fiber_photometry_table.add_row(
                 location="DLS",
                 coordinates=(0.1, 2.8, 3.5),
-                commanded_voltage_series=dls_commanded_voltage_series,
-                indicator=dls_fluorophore,
+                commanded_voltage_series=commanded_voltage_series_dls,
+                indicator=dls_green_fluorophore,
                 optical_fiber=optical_fiber,
                 excitation_source=excitation_source_isosbestic_control,
                 photodetector=photodetector,
@@ -388,16 +388,16 @@ class Seiler2024FiberPhotometryInterface(BaseDataInterface):
         nwbfile.add_device(isosbestic_excitation_filter)
         nwbfile.add_device(emission_filter)
         nwbfile.add_device(dichroic_mirror)
-        nwbfile.add_device(dms_fluorophore)
-        nwbfile.add_device(dls_fluorophore)
+        nwbfile.add_device(dms_green_fluorophore)
+        nwbfile.add_device(dls_green_fluorophore)
         if has_demodulated_commanded_voltages:
-            nwbfile.add_acquisition(dms_commanded_signal_series)
-            nwbfile.add_acquisition(dms_commanded_reference_series)
-            nwbfile.add_acquisition(dls_commanded_signal_series)
-            nwbfile.add_acquisition(dls_commanded_reference_series)
+            nwbfile.add_acquisition(commanded_voltage_series_dms_calcium_signal)
+            nwbfile.add_acquisition(commanded_voltage_series_dms_isosbestic_control)
+            nwbfile.add_acquisition(commanded_voltage_series_dls_calcium_signal)
+            nwbfile.add_acquisition(commanded_voltage_series_dls_isosbestic_control)
         else:
-            nwbfile.add_acquisition(dms_commanded_voltage_series)
-            nwbfile.add_acquisition(dls_commanded_voltage_series)
+            nwbfile.add_acquisition(commanded_voltage_series_dms)
+            nwbfile.add_acquisition(commanded_voltage_series_dls)
         nwbfile.add_lab_meta_data(fiber_photometry_table_metadata)
         nwbfile.add_acquisition(dms_signal_series)
         nwbfile.add_acquisition(dms_reference_series)
