@@ -325,21 +325,9 @@ class Seiler2024FiberPhotometryInterface(BaseDataInterface):
                 emission_filter=emission_filter,
                 dichroic_mirror=dichroic_mirror,
             )
-        dms_signal_region = fiber_photometry_table.create_fiber_photometry_table_region(
-            description="The region of the FiberPhotometryTable corresponding to the DMS signal.",
-            region=[0],
-        )
-        dms_reference_region = fiber_photometry_table.create_fiber_photometry_table_region(
-            description="The region of the FiberPhotometryTable corresponding to the DMS reference.",
-            region=[1],
-        )
-        dls_signal_region = fiber_photometry_table.create_fiber_photometry_table_region(
-            description="The region of the FiberPhotometryTable corresponding to the DLS signal.",
-            region=[2],
-        )
-        dls_reference_region = fiber_photometry_table.create_fiber_photometry_table_region(
-            description="The region of the FiberPhotometryTable corresponding to the DLS reference.",
-            region=[3],
+        fiber_photometry_table_region = fiber_photometry_table.create_fiber_photometry_table_region(
+            description="The region of the FiberPhotometryTable corresponding to the DMS calcium signal, DMS isosbestic control, DLS calcium signal, and DLS isosbestic control.",
+            region=[0, 1, 2, 3],
         )
         fiber_photometry_table_metadata = FiberPhotometry(
             name="fiber_photometry",
@@ -347,37 +335,21 @@ class Seiler2024FiberPhotometryInterface(BaseDataInterface):
         )
 
         # Fiber Photometry Response Series
-        dms_signal_series = FiberPhotometryResponseSeries(
-            name="dms_signal",
-            description="The fluorescence from the blue light excitation (465nm) corresponding to the calcium signal in the DMS.",
-            data=H5DataIO(tdt_photometry.streams["Dv1A"].data, compression=True),
+        fiber_photometry_data = np.column_stack(
+            (
+                tdt_photometry.streams["Dv1A"].data,
+                tdt_photometry.streams["Dv2A"].data,
+                tdt_photometry.streams["Dv3B"].data,
+                tdt_photometry.streams["Dv4B"].data,
+            ),
+        )
+        fiber_photometry_response_series = FiberPhotometryResponseSeries(
+            name="fiber_photometry_response_series",
+            description="The fluorescence from the DMS calcium signal, DMS isosbestic control, DLS calcium signal, and DLS isosbestic control.",
+            data=H5DataIO(fiber_photometry_data, compression=True),
             unit="a.u.",
             rate=tdt_photometry.streams["Dv1A"].fs,
-            fiber_photometry_table_region=dms_signal_region,
-        )
-        dms_reference_series = FiberPhotometryResponseSeries(
-            name="dms_reference",
-            description="The fluorescence from the UV light excitation (405nm) corresponding to the isosbestic reference in the DMS.",
-            data=H5DataIO(tdt_photometry.streams["Dv2A"].data, compression=True),
-            unit="a.u.",
-            rate=tdt_photometry.streams["Dv2A"].fs,
-            fiber_photometry_table_region=dms_reference_region,
-        )
-        dls_signal_series = FiberPhotometryResponseSeries(
-            name="dls_signal",
-            description="The fluorescence from the blue light excitation (465nm) corresponding to the calcium signal in the DLS.",
-            data=H5DataIO(tdt_photometry.streams["Dv3B"].data, compression=True),
-            unit="a.u.",
-            rate=tdt_photometry.streams["Dv3B"].fs,
-            fiber_photometry_table_region=dls_signal_region,
-        )
-        dls_reference_series = FiberPhotometryResponseSeries(
-            name="dls_reference",
-            description="The fluorescence from the UV light excitation (405nm) corresponding to the isosbestic reference in the DLS.",
-            data=H5DataIO(tdt_photometry.streams["Dv4B"].data, compression=True),
-            unit="a.u.",
-            rate=tdt_photometry.streams["Dv4B"].fs,
-            fiber_photometry_table_region=dls_reference_region,
+            fiber_photometry_table_region=fiber_photometry_table_region,
         )
 
         nwbfile.add_device(optical_fiber)
@@ -399,7 +371,4 @@ class Seiler2024FiberPhotometryInterface(BaseDataInterface):
             nwbfile.add_acquisition(commanded_voltage_series_dms)
             nwbfile.add_acquisition(commanded_voltage_series_dls)
         nwbfile.add_lab_meta_data(fiber_photometry_table_metadata)
-        nwbfile.add_acquisition(dms_signal_series)
-        nwbfile.add_acquisition(dms_reference_series)
-        nwbfile.add_acquisition(dls_signal_series)
-        nwbfile.add_acquisition(dls_reference_series)
+        nwbfile.add_acquisition(fiber_photometry_response_series)
