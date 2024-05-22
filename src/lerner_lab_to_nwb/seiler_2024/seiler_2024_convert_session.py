@@ -5,6 +5,8 @@ import shutil
 from neuroconv.utils import load_dict_from_file, dict_deep_update
 from datetime import datetime
 from pytz import timezone
+from tifffile import imread, imwrite
+import matplotlib.pyplot as plt
 
 from lerner_lab_to_nwb.seiler_2024 import Seiler2024NWBConverter, Seiler2024WesternBlotNWBConverter
 
@@ -207,6 +209,33 @@ def western_blot_to_nwb(
 
     # Run conversion
     converter.run_conversion(metadata=metadata, nwbfile_path=nwbfile_path, conversion_options=conversion_options)
+
+
+def split_western_blot(*, file_path: Union[str, Path]):
+    """Split tif file into WT and DAT-IRES-Cre-het then writes back to two separate files.
+
+    Parameters
+    ----------
+    file_path : Union[str, Path]
+        Path to the western blot .tif file.
+
+    Returns
+    -------
+    wt_file_path : Path
+        Path to the WT western blot .tif file.
+    dat_file_path : Path
+        Path to the DAT-IRES-Cre-het western blot .tif file.
+    """
+    file_path = Path(file_path)
+    western_blot = imread(file_path)
+    wt_western_blot = western_blot[:, :200]
+    dat_western_blot = western_blot[:, 200:]
+    wt_file_path = file_path.parent / f"{file_path.stem}_WT.tif"
+    dat_file_path = file_path.parent / f"{file_path.stem}_DAT-IRES-Cre-het.tif"
+    imwrite(wt_file_path, wt_western_blot)
+    imwrite(dat_file_path, dat_western_blot)
+
+    return wt_file_path, dat_file_path
 
 
 if __name__ == "__main__":
@@ -829,4 +858,6 @@ if __name__ == "__main__":
     # Western blot
     western_path = data_dir_path / "DATCre Western blot final images and analysis"
     file_path = western_path / "Female_DLS_Actin.tif"
-    western_blot_to_nwb(file_path=file_path, output_dir_path=output_dir_path)
+    wt_file_path, dat_file_path = split_western_blot(file_path=file_path)
+    western_blot_to_nwb(file_path=wt_file_path, output_dir_path=output_dir_path)
+    western_blot_to_nwb(file_path=dat_file_path, output_dir_path=output_dir_path)
