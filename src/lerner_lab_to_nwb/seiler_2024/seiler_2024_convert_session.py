@@ -226,10 +226,21 @@ def split_western_blot(*, file_path: Union[str, Path]):
     dat_file_path : Path
         Path to the DAT-IRES-Cre-het western blot .tif file.
     """
+    raw_western_file_names_to_slices = {
+        "Female_DLS_Actin.tif": (slice(None, 200), slice(200, None)),
+        "Female_DLS_DAT.tif": (slice(50, 235), slice(235, None)),
+        "Female_DMS_Actin.tif": (slice(None, 230), slice(230, None)),
+        "Female_DMS_DAT.tif": (slice(55, 245), slice(245, None)),
+        "Male_DLS_Actin.tif": (slice(None, 260), slice(260, None)),
+        "Male_DLS_DAT.tif": (slice(40, 290), slice(290, None)),
+        "Male_DMS_Actin.tif": (slice(None, 250), slice(250, None)),
+        "Male_DMS_DAT.tif": (slice(50, 300), slice(300, None)),
+    }
     file_path = Path(file_path)
     western_blot = imread(file_path)
-    wt_western_blot = western_blot[:, :200]
-    dat_western_blot = western_blot[:, 200:]
+    wt_slice, dat_slice = raw_western_file_names_to_slices[file_path.name]
+    wt_western_blot = western_blot[:, wt_slice]
+    dat_western_blot = western_blot[:, dat_slice]
     wt_file_path = file_path.parent / f"{file_path.stem}_WT.tif"
     dat_file_path = file_path.parent / f"{file_path.stem}_DAT-IRES-Cre-het.tif"
     imwrite(wt_file_path, wt_western_blot)
