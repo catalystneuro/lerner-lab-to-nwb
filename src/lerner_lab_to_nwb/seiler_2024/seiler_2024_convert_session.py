@@ -182,7 +182,7 @@ if __name__ == "__main__":
     # No-shock example session
     experiment_type = "FP"
     experimental_group = "RR20"
-    subject_id = "95.259"
+    subject_id = "96.259"
     start_datetime = datetime(2019, 4, 9, 10, 34, 30)
     behavior_file_path = (
         data_dir_path
@@ -213,8 +213,8 @@ if __name__ == "__main__":
     # Shock session
     experiment_type = "FP"
     experimental_group = "RR20"
-    subject_id = "95.259"
-    start_datetime = datetime(2019, 4, 18, 10, 41, 42)
+    subject_id = "96.259"
+    start_datetime = datetime(2019, 4, 18, 9, 28, 20)
     session_conditions = {
         "Start Date": start_datetime.strftime("%m/%d/%y"),
         "Start Time": start_datetime.strftime("%H:%M:%S"),
@@ -365,9 +365,9 @@ if __name__ == "__main__":
 
     # Fiber Photometry session
     experiment_type = "FP"
-    experimental_group = "PR"
-    subject_id = "028.392"
-    start_datetime = datetime(2020, 7, 9, 13, 1, 26)
+    experimental_group = "PS"
+    subject_id = "112.283"
+    start_datetime = datetime(2019, 6, 20, 9, 32, 4)
     session_conditions = {
         "Start Date": start_datetime.strftime("%m/%d/%y"),
         "Start Time": start_datetime.strftime("%H:%M:%S"),
@@ -385,15 +385,16 @@ if __name__ == "__main__":
         data_dir_path
         / f"{experiment_type} Experiments"
         / "Photometry"
-        / f"Punishment Resistant"
+        / f"Punishment Sensitive"
         / f"Early RI60"
-        / f"Photo_{subject_id.split('.')[0]}_{subject_id.split('.')[1]}-200709-130922"
+        / f"Photo_{subject_id.split('.')[0]}_{subject_id.split('.')[1]}-190620-093542"
     )
     session_to_nwb(
         data_dir_path=data_dir_path,
         output_dir_path=output_dir_path,
         behavior_file_path=behavior_file_path,
         fiber_photometry_folder_path=fiber_photometry_folder_path,
+        has_demodulated_commanded_voltages=False,
         subject_id=subject_id,
         session_conditions=session_conditions,
         start_variable=start_variable,
@@ -635,8 +636,8 @@ if __name__ == "__main__":
     experiment_type = "Opto"
     experimental_group = "DLS-Excitatory"
     optogenetic_treatment = "ChR2"
-    subject_id = "079.402"
-    start_datetime = datetime(2020, 6, 26, 13, 19, 27)
+    subject_id = "242.388"
+    start_datetime = datetime(2020, 6, 26, 12, 10, 40)
     session_conditions = {
         "Start Date": start_datetime.strftime("%m/%d/%y"),
         "Start Time": start_datetime.strftime("%H:%M:%S"),

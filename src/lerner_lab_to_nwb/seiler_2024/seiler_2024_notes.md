@@ -153,6 +153,7 @@ for that 1 session split across the two folders?
 ### Questions
 - Some of the subject_ids are not present in the metadata excel file -- pls provide
 - Some animals are missing the "Hemisphere with DMS" field -- pls provide
+- Looks like some of the mouse ids in the rr20 section of the excel file are incorrect (all XX.259 instead of XX.257)
 =======
     - Solution: Added missing MSNs; skipped RK_C_FR1_BOTH_1hr
 
