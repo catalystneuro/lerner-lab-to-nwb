@@ -4,6 +4,8 @@ from neuroconv.basedatainterface import BaseDataInterface
 from neuroconv.utils import DeepDict
 from datetime import datetime
 from pathlib import Path
+from tifffile import imread
+from pynwb.image import GrayscaleImage, Images
 
 
 class Seiler2024WesternBlotInterface(BaseDataInterface):
@@ -46,4 +48,16 @@ class Seiler2024WesternBlotInterface(BaseDataInterface):
         return metadata_schema
 
     def add_to_nwbfile(self, nwbfile: NWBFile, metadata: dict) -> None:
-        pass
+        western_blot_image = imread(self.source_data["file_path"])
+
+        western_blot_image = GrayscaleImage(
+            name="western_blot_image",
+            data=western_blot_image,
+            description="Western blot images (quantified in a separate dataset) showing DAT and β-actin bands for WT and DATCre-het mice in DMS and DLS.",
+        )
+        images = Images(
+            name="images",
+            images=[western_blot_image],
+            description="Western blot images (quantified in a separate dataset) showing DAT and β-actin bands for WT and DATCre-het mice in DMS and DLS.",
+        )
+        nwbfile.add_acquisition(images)
