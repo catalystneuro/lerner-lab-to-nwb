@@ -37,6 +37,22 @@ def dataset_to_nwb(
     verbose : bool, optional
         Whether to print verbose output, by default True
     """
+    subjects_to_skip = {
+        "289.407",
+        "244.464",
+        "264.477",
+        "102.260",
+        "262.478",
+        "289.408",
+        "264.475",
+        "129.425",
+        "250.427",
+        "95.259",
+        "309.399",
+        "433.421",
+        "416.405",
+        "364.426",
+    }
     start_variable = "Start Date"
     data_dir_path = Path(data_dir_path)
     output_dir_path = Path(output_dir_path)
@@ -55,51 +71,36 @@ def dataset_to_nwb(
         verbose=verbose,
     )
     session_to_nwb_args_per_session = fp_session_to_nwb_args_per_session + opto_session_to_nwb_args_per_session
-    unique_subject_ids = set()
-    for session_to_nwb_kwargs in session_to_nwb_args_per_session:
-        subject_id = session_to_nwb_kwargs["subject_id"]
-        unique_subject_ids.add(subject_id)
-    metadata_path = Path(data_dir_path / "MouseDemographics.xlsx")
-    df = pd.read_excel(
-        metadata_path,
-        sheet_name="Mouse Demographics",
-        dtype={"Mouse ID": str},
-    )
-    df["DNL"] = df["Mouse ID"].str.contains("(DNL)", regex=False)
-    df["Mouse ID"] = df["Mouse ID"].str.replace("(DNL)", "")
-    df["Mouse ID"] = df["Mouse ID"].str.strip()
-    mouse_ids = set(df["Mouse ID"])
-    missing_subject_ids = unique_subject_ids - mouse_ids
-    for missing_subject_id in missing_subject_ids:
-        print(f"Missing metadata for {missing_subject_id}")
 
-    # futures = []
-    # with ProcessPoolExecutor(max_workers=max_workers) as executor:
-    #     for session_to_nwb_kwargs in session_to_nwb_args_per_session:
-    #         experiment_type = session_to_nwb_kwargs["experiment_type"]
-    #         experimental_group = session_to_nwb_kwargs["experimental_group"]
-    #         subject_id = session_to_nwb_kwargs["subject_id"]
-    #         start_datetime = session_to_nwb_kwargs["start_datetime"]
-    #         optogenetic_treatment = session_to_nwb_kwargs.get("optogenetic_treatment", None)
-    #         if experiment_type == "FP":
-    #             exception_file_path = (
-    #                 output_dir_path
-    #                 / f"ERROR_{experiment_type}_{experimental_group}_{subject_id}_{start_datetime.isoformat().replace(':', '-')}.txt"
-    #             )
-    #         elif experiment_type == "Opto":
-    #             exception_file_path = (
-    #                 output_dir_path
-    #                 / f"ERROR_{experiment_type}_{experimental_group}_{optogenetic_treatment}_{subject_id}_{start_datetime.isoformat().replace(':', '-')}.txt"
-    #             )
-    #         futures.append(
-    #             executor.submit(
-    #                 safe_session_to_nwb,
-    #                 session_to_nwb_kwargs=session_to_nwb_kwargs,
-    #                 exception_file_path=exception_file_path,
-    #             )
-    #         )
-    #     for _ in tqdm(as_completed(futures), total=len(futures)):
-    #         pass
+    futures = []
+    with ProcessPoolExecutor(max_workers=max_workers) as executor:
+        for session_to_nwb_kwargs in session_to_nwb_args_per_session:
+            experiment_type = session_to_nwb_kwargs["experiment_type"]
+            experimental_group = session_to_nwb_kwargs["experimental_group"]
+            subject_id = session_to_nwb_kwargs["subject_id"]
+            if subject_id in subjects_to_skip:
+                continue
+            start_datetime = session_to_nwb_kwargs["start_datetime"]
+            optogenetic_treatment = session_to_nwb_kwargs.get("optogenetic_treatment", None)
+            if experiment_type == "FP":
+                exception_file_path = (
+                    output_dir_path
+                    / f"ERROR_{experiment_type}_{experimental_group}_{subject_id}_{start_datetime.isoformat().replace(':', '-')}.txt"
+                )
+            elif experiment_type == "Opto":
+                exception_file_path = (
+                    output_dir_path
+                    / f"ERROR_{experiment_type}_{experimental_group}_{optogenetic_treatment}_{subject_id}_{start_datetime.isoformat().replace(':', '-')}.txt"
+                )
+            futures.append(
+                executor.submit(
+                    safe_session_to_nwb,
+                    session_to_nwb_kwargs=session_to_nwb_kwargs,
+                    exception_file_path=exception_file_path,
+                )
+            )
+        for _ in tqdm(as_completed(futures), total=len(futures)):
+            pass
 
 
 def safe_session_to_nwb(*, session_to_nwb_kwargs: dict, exception_file_path: Union[Path, str]):
@@ -208,6 +209,7 @@ def fp_to_nwb(
         "418": "418.404",
         "299": "299.405",
         "276": "276.405",
+        "262.259.478": "262.478",
     }
     raw_file_to_info = get_raw_info(behavior_path)
 
@@ -487,6 +489,7 @@ def opto_to_nwb(
         "300": "300.405",
         "299": "299.405",
         "276": "276.405",
+        "262.259.478": "262.478",
     }
     experiment_type = "Opto"
     experimental_group_to_optogenetic_treatments = {
@@ -674,6 +677,7 @@ def get_opto_subject_id(subject_path: Path):
         "300": "300.405",
         "299": "299.405",
         "276": "276.405",
+        "262.259.478": "262.478",
     }
 
     # fmt: off

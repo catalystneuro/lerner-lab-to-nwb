@@ -134,7 +134,7 @@ def session_to_nwb(
         conversion_options.update(dict(Optogenetic={}))
 
     # Add Excel-based Metadata
-    metadata_path = data_dir_path / "MouseDemographics.xlsx"
+    metadata_path = data_dir_path / "MouseDemographicsCorrected.xlsx"
     source_data.update(
         dict(
             Metadata={
