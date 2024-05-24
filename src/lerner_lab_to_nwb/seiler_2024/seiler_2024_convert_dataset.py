@@ -55,34 +55,51 @@ def dataset_to_nwb(
         verbose=verbose,
     )
     session_to_nwb_args_per_session = fp_session_to_nwb_args_per_session + opto_session_to_nwb_args_per_session
+    unique_subject_ids = set()
+    for session_to_nwb_kwargs in session_to_nwb_args_per_session:
+        subject_id = session_to_nwb_kwargs["subject_id"]
+        unique_subject_ids.add(subject_id)
+    metadata_path = Path(data_dir_path / "MouseDemographics.xlsx")
+    df = pd.read_excel(
+        metadata_path,
+        sheet_name="Mouse Demographics",
+        dtype={"Mouse ID": str},
+    )
+    df["DNL"] = df["Mouse ID"].str.contains("(DNL)", regex=False)
+    df["Mouse ID"] = df["Mouse ID"].str.replace("(DNL)", "")
+    df["Mouse ID"] = df["Mouse ID"].str.strip()
+    mouse_ids = set(df["Mouse ID"])
+    missing_subject_ids = unique_subject_ids - mouse_ids
+    for missing_subject_id in missing_subject_ids:
+        print(f"Missing metadata for {missing_subject_id}")
 
-    futures = []
-    with ProcessPoolExecutor(max_workers=max_workers) as executor:
-        for session_to_nwb_kwargs in session_to_nwb_args_per_session:
-            experiment_type = session_to_nwb_kwargs["experiment_type"]
-            experimental_group = session_to_nwb_kwargs["experimental_group"]
-            subject_id = session_to_nwb_kwargs["subject_id"]
-            start_datetime = session_to_nwb_kwargs["start_datetime"]
-            optogenetic_treatment = session_to_nwb_kwargs.get("optogenetic_treatment", None)
-            if experiment_type == "FP":
-                exception_file_path = (
-                    output_dir_path
-                    / f"ERROR_{experiment_type}_{experimental_group}_{subject_id}_{start_datetime.isoformat().replace(':', '-')}.txt"
-                )
-            elif experiment_type == "Opto":
-                exception_file_path = (
-                    output_dir_path
-                    / f"ERROR_{experiment_type}_{experimental_group}_{optogenetic_treatment}_{subject_id}_{start_datetime.isoformat().replace(':', '-')}.txt"
-                )
-            futures.append(
-                executor.submit(
-                    safe_session_to_nwb,
-                    session_to_nwb_kwargs=session_to_nwb_kwargs,
-                    exception_file_path=exception_file_path,
-                )
-            )
-        for _ in tqdm(as_completed(futures), total=len(futures)):
-            pass
+    # futures = []
+    # with ProcessPoolExecutor(max_workers=max_workers) as executor:
+    #     for session_to_nwb_kwargs in session_to_nwb_args_per_session:
+    #         experiment_type = session_to_nwb_kwargs["experiment_type"]
+    #         experimental_group = session_to_nwb_kwargs["experimental_group"]
+    #         subject_id = session_to_nwb_kwargs["subject_id"]
+    #         start_datetime = session_to_nwb_kwargs["start_datetime"]
+    #         optogenetic_treatment = session_to_nwb_kwargs.get("optogenetic_treatment", None)
+    #         if experiment_type == "FP":
+    #             exception_file_path = (
+    #                 output_dir_path
+    #                 / f"ERROR_{experiment_type}_{experimental_group}_{subject_id}_{start_datetime.isoformat().replace(':', '-')}.txt"
+    #             )
+    #         elif experiment_type == "Opto":
+    #             exception_file_path = (
+    #                 output_dir_path
+    #                 / f"ERROR_{experiment_type}_{experimental_group}_{optogenetic_treatment}_{subject_id}_{start_datetime.isoformat().replace(':', '-')}.txt"
+    #             )
+    #         futures.append(
+    #             executor.submit(
+    #                 safe_session_to_nwb,
+    #                 session_to_nwb_kwargs=session_to_nwb_kwargs,
+    #                 exception_file_path=exception_file_path,
+    #             )
+    #         )
+    #     for _ in tqdm(as_completed(futures), total=len(futures)):
+    #         pass
 
 
 def safe_session_to_nwb(*, session_to_nwb_kwargs: dict, exception_file_path: Union[Path, str]):
@@ -185,6 +202,12 @@ def fp_to_nwb(
         "Photo_89_247-190308-095258",
         "Photo_140_306-190809-121107",
         "Photo_271_396-200707-125117",
+    }
+    partial_subject_ids_to_subject_id = {
+        "300": "300.405",
+        "418": "418.404",
+        "299": "299.405",
+        "276": "276.405",
     }
     raw_file_to_info = get_raw_info(behavior_path)
 
@@ -313,6 +336,8 @@ def fp_to_nwb(
                 if box_number is not None:
                     session_conditions["Box"] = box_number
                 start_datetime = datetime.strptime(f"{start_date} {start_time}", "%m/%d/%y %H:%M:%S")
+                if photometry_subject_id in partial_subject_ids_to_subject_id:
+                    photometry_subject_id = partial_subject_ids_to_subject_id[photometry_subject_id]
                 session_to_nwb_args = dict(
                     data_dir_path=data_dir_path,
                     output_dir_path=output_dir_path,
@@ -385,6 +410,8 @@ def fp_to_nwb(
                 if box_number is not None:
                     session_conditions["Box"] = box_number
                 start_datetime = datetime.strptime(f"{start_date} {start_time}", "%m/%d/%y %H:%M:%S")
+                if subject_id in partial_subject_ids_to_subject_id:
+                    subject_id = partial_subject_ids_to_subject_id[subject_id]
                 session_to_nwb_args = dict(
                     data_dir_path=data_dir_path,
                     output_dir_path=output_dir_path,
@@ -432,6 +459,35 @@ def opto_to_nwb(
     list[dict]
         A list of dictionaries containing the arguments for session_to_nwb for each session.
     """
+    partial_subject_ids_to_subject_id = {
+        "268": "268.476",
+        "266": "266.477",
+        "244": "244.465",
+        "343": "343.483",
+        "419": "419.404",
+        "245": "245.464",
+        "342": "342.483",
+        "202": "202.465",
+        "313": "313.403",
+        "418": "418.404",
+        "340": "340.483",
+        "259": "259.478",
+        "264": "264.478",
+        "421": "421.404",
+        "417": "417.404",
+        "233": "233.469",
+        "261": "261.478",
+        "265": "265.476",
+        "311": "311.403",
+        "206": "206.468",
+        "243": "243.468",
+        "263": "263.477",
+        "338": "338.398",
+        "414": "414.405",
+        "300": "300.405",
+        "299": "299.405",
+        "276": "276.405",
+    }
     experiment_type = "Opto"
     experimental_group_to_optogenetic_treatments = {
         "DLS-Excitatory": ["ChR2", "EYFP", "ChR2Scrambled"],
@@ -553,6 +609,8 @@ def opto_to_nwb(
             "Box": box_number,
         }
         start_datetime = datetime.strptime(f"{start_date} {start_time}", "%m/%d/%y %H:%M:%S")
+        if subject in partial_subject_ids_to_subject_id:
+            subject = partial_subject_ids_to_subject_id[subject]
         session_to_nwb_args = dict(
             data_dir_path=data_dir_path,
             output_dir_path=output_dir_path,
@@ -613,6 +671,9 @@ def get_opto_subject_id(subject_path: Path):
         "263": "263.477",
         "338": "338.398",
         "414": "414.405",
+        "300": "300.405",
+        "299": "299.405",
+        "276": "276.405",
     }
 
     # fmt: off
