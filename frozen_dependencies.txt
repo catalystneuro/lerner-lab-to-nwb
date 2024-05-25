@@ -2,6 +2,7 @@ aiobotocore==2.11.1
 aiohttp==3.9.2
 aioitertools==0.11.0
 aiosignal==1.3.1
+annotated-types==0.7.0
 appdirs==1.4.4
 appnope==0.1.4
 arrow==1.3.0
@@ -23,11 +24,12 @@ comm==0.2.1
 contourpy==1.2.0
 cycler==0.12.1
 dandi==0.59.1
-dandischema==0.8.4
+dandischema==0.8.2
 debugpy==1.8.1
 decorator==5.1.1
 distlib==0.3.8
 dnspython==2.5.0
+docstring_parser==0.16
 email-validator==2.1.0.post1
 entrypoints==0.4
 et-xmlfile==1.1.0
@@ -44,7 +46,7 @@ fsspec==2023.12.2
 gast==0.4.0
 h5py==3.10.0
 hdmf==3.13.0
-hdmf_zarr==0.5.0
+hdmf_zarr==0.7.0
 humanize==4.9.0
 identify==2.5.33
 idna==3.6
@@ -93,7 +95,7 @@ ndx-photometry @ git+https://github.com/catalystneuro/ndx-photometry.git@c1284c9
 ndx-spectrum==0.2.2
 nest-asyncio==1.6.0
 networkx==3.2.1
-neuroconv==0.4.7
+neuroconv @ git+https://github.com/catalystneuro/neuroconv.git@f45e77e152369916459a764c918d4c5cbbf1fad1
 nodeenv==1.8.0
 numcodecs==0.11.0
 numpy==1.26.3
@@ -116,9 +118,10 @@ ptyprocess==0.7.0
 pure-eval==0.2.2
 py2vega==0.6.1
 pycryptodomex==3.20.0
-pydantic==1.10.14
+pydantic==2.7.1
+pydantic_core==2.18.2
 Pygments==2.17.2
-pynwb==2.6.0
+pynwb==2.7.0
 pyout==0.7.3
 pyparsing==3.1.1
 pytest==8.1.1

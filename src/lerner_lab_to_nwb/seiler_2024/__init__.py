@@ -2,4 +2,5 @@ from .seiler_2024behaviorinterface import Seiler2024BehaviorInterface
 from .seiler_2024fiberphotometryinterface import Seiler2024FiberPhotometryInterface
 from .seiler_2024optogeneticinterface import Seiler2024OptogeneticInterface
 from .seiler_2024excelmetadatainterface import Seiler2024ExcelMetadataInterface
+from .medpcinterface import MedPCInterface
 from .seiler_2024nwbconverter import Seiler2024NWBConverter
