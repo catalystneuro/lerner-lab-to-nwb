@@ -27,6 +27,7 @@ class Seiler2024NWBConverter(NWBConverter):
         FiberPhotometry=Seiler2024FiberPhotometryInterface,
         Optogenetic=Seiler2024OptogeneticInterface,
         Metadata=Seiler2024ExcelMetadataInterface,
+        MedPC=MedPCInterface,
     )
 
     def temporally_align_data_interfaces(self, metadata: dict, conversion_options: dict):

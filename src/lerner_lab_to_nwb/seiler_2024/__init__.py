@@ -3,4 +3,5 @@ from .seiler_2024fiberphotometryinterface import Seiler2024FiberPhotometryInterf
 from .seiler_2024optogeneticinterface import Seiler2024OptogeneticInterface
 from .seiler_2024excelmetadatainterface import Seiler2024ExcelMetadataInterface
 from .seiler_2024westernblotinterface import Seiler2024WesternBlotInterface
+from .medpcinterface import MedPCInterface
 from .seiler_2024nwbconverter import Seiler2024NWBConverter, Seiler2024WesternBlotNWBConverter
