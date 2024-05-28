@@ -11,7 +11,11 @@ from pprint import pformat
 import traceback
 import re
 
-from lerner_lab_to_nwb.seiler_2024.seiler_2024_convert_session import session_to_nwb
+from lerner_lab_to_nwb.seiler_2024.seiler_2024_convert_session import (
+    session_to_nwb,
+    western_blot_to_nwb,
+    split_western_blot,
+)
 from lerner_lab_to_nwb.seiler_2024.medpc import get_medpc_variables
 from lerner_lab_to_nwb.seiler_2024.medpc import read_medpc_file
 
@@ -911,6 +915,36 @@ def get_raw_info(behavior_path):
     return raw_file_to_info
 
 
+def western_dataset_to_nwb(*, data_dir_path: Path, output_dir_path: Path, verbose: bool = True):
+    """Convert all Western Blot data to NWB.
+
+    Parameters
+    ----------
+    data_dir_path : Path
+        The path to the directory containing the raw data.
+    output_dir_path : Path
+        The path to the directory where the NWB files will be saved.
+    verbose : bool, optional
+        Whether to print verbose output, by default True
+    """
+    western_path = data_dir_path / "DATCre Western blot final images and analysis"
+    raw_western_file_names = [
+        "Female_DLS_Actin.tif",
+        "Female_DLS_DAT.tif",
+        "Female_DMS_Actin.tif",
+        "Female_DMS_DAT.tif",
+        "Male_DLS_Actin.tif",
+        "Male_DLS_DAT.tif",
+        "Male_DMS_Actin.tif",
+        "Male_DMS_DAT.tif",
+    ]
+    for raw_western_file_name in raw_western_file_names:
+        raw_western_file_path = western_path / raw_western_file_name
+        wt_file_path, dat_file_path = split_western_blot(file_path=raw_western_file_path)
+        western_blot_to_nwb(file_path=wt_file_path, output_dir_path=output_dir_path, verbose=verbose)
+        western_blot_to_nwb(file_path=dat_file_path, output_dir_path=output_dir_path, verbose=verbose)
+
+
 if __name__ == "__main__":
     data_dir_path = Path("/Volumes/T7/CatalystNeuro/NWB/Lerner/raw_data")
     output_dir_path = Path("/Volumes/T7/CatalystNeuro/NWB/Lerner/conversion_nwb")
@@ -926,3 +960,4 @@ if __name__ == "__main__":
         stub_test=False,
         verbose=False,
     )
+    western_dataset_to_nwb(data_dir_path=data_dir_path, output_dir_path=output_dir_path, verbose=False)

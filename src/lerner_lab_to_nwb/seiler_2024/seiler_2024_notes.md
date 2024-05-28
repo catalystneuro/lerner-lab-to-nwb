@@ -145,6 +145,14 @@ for that 1 session split across the two folders?
     - Solution: Metadata excel file has treatment info --> metadata["NWBFile"]["stimulus_notes"]
 - RI 60 LEFT_STIM, RI 30 LEFT_STIM, and RK_C_FR1_BOTH_1hr msns show up in opto data but don't have associated files -- assumed to be the same as their right counterparts?
 
+## Western Blot
+### Notes
+- Excel file has subject_ids for Female DLS Actin, Female DLS DAT, Female DMS Actin, Female DMS DAT and their
+    and their corresponding data (area, mean, min, max, white-sample, corrected sample-blank) BUT no male data.
+- Tif files have western blot images for male and female all conditions BUT only 1 subject/condition (Fig S3A has ~7animals/condition)
+- Tif files are combined WT on the left DAT on the right --> will need to split.
+- How to deal with this data? Western Blot extension? Skip? Just include the images?
+
 ## Metadata
 ### Notes
 - Some medpc filenames/sessions have incomplete or missing subject names (ex. 75 instead of 75.214) -- need to do some matching operation
