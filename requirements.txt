@@ -1,5 +1,5 @@
 hdmf
-neuroconv
+neuroconv @ git+https://github.com/catalystneuro/neuroconv.git@main
 nwbwidgets
 nwbinspector
 dandi

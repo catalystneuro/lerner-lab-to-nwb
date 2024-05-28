@@ -155,6 +155,8 @@ for that 1 session split across the two folders?
     (ChR2, EYFP, Scrambled).  Which treatment did these sessions receive?
     - Solution: Metadata excel file has treatment info --> metadata["NWBFile"]["stimulus_notes"]
 - RI 60 LEFT_STIM, RI 30 LEFT_STIM, and RK_C_FR1_BOTH_1hr msns show up in opto data but don't have associated files -- assumed to be the same as their right counterparts?
+
+### Active Questions
 - DMS-Excitatory has some csv files w/ only session-aggregated info (total right rewards but not right reward times) ex. ChR2/121_280.CSV -- do you have individual session info for these animals?
     - Lerner Lab does not have this data --> skip these sessions
 - Some csv files do not have any subject info (ex. DLS Excitatory/_08-28-20.csv) -- pls provide or we will need to skip these sessions
@@ -183,6 +185,59 @@ for that 1 session split across the two folders?
         start_date ='09/22/20' start_time ='12:43:27'
         start_date ='09/22/20' start_time ='12:43:27'
     - Lerner Lab does not have this metadata --> skip these sessions
+
+## Western Blot
+### Notes
+- Excel file has subject_ids for Female DLS Actin, Female DLS DAT, Female DMS Actin, Female DMS DAT and their
+    and their corresponding data (area, mean, min, max, white-sample, corrected sample-blank) BUT no male data.
+- Tif files have western blot images for male and female all conditions BUT only 1 subject/condition (Fig S3A has ~7animals/condition)
+- Tif files are combined WT on the left DAT on the right --> will need to split.
+- How to deal with this data? Western Blot extension? Skip? Just include the images?
+
+## Metadata
+### Notes
+- Some medpc filenames/sessions have incomplete or missing subject names (ex. 75 instead of 75.214) -- need to do some matching operation
+- Punishment Group has a typo for PR ('Punishment Resitant' instead of 'Punishment Resistant') -- I'll fix on my end
+
+### Questions
+- Some of the subject_ids are not present in the metadata excel file -- pls provide
+- Some animals are missing the "Hemisphere with DMS" field -- pls provide
+- Some of the mouse ids have typos (leading and trailing zeros) as well as some that appear incorrect (RR20 section)
+    So, I made the following corrections to metadata excel sheet:
+    Mouse ID corrections:
+        79.402 --> 079.402
+        344.4 --> 344.400
+        432.42 --> 432.420
+        48.392 --> 048.392
+        98.259 --> 98.257
+        101.259 --> 101.260
+        97.259 --> 97.257
+        99.259 --> 99.257
+        100.259 --> 100.258
+        359.43 --> 359.430
+        28.392 --> 028.392
+        227.43 --> 227.430
+        262.478 --> 262.259
+        354.43 --> 354.430
+        430.42 --> 430.420
+        342.483 --> 342.400
+    After these corrections the following mouse_ids are still missing from the excel sheet:
+    subjects_to_skip = {
+        "289.407",
+        "244.464",
+        "264.477",
+        "102.260",
+        "262.478",
+        "289.408",
+        "264.475",
+        "129.425",
+        "250.427",
+        "95.259",
+        "309.399",
+        "433.421",
+        "416.405",
+        "364.426",
+    }
 
 ### Active Questions
 None

@@ -9,6 +9,7 @@ from lerner_lab_to_nwb.seiler_2024 import (
     Seiler2024FiberPhotometryInterface,
     Seiler2024OptogeneticInterface,
     Seiler2024ExcelMetadataInterface,
+    Seiler2024WesternBlotInterface,
 )
 from .medpc import read_medpc_file
 import numpy as np
@@ -153,3 +154,11 @@ class Seiler2024NWBConverter(NWBConverter):
             verbose=self.verbose,
         ) as nwbfile_out:
             self.add_to_nwbfile(nwbfile_out, metadata, conversion_options)
+
+
+class Seiler2024WesternBlotNWBConverter(NWBConverter):
+    """Western Blot conversion class."""
+
+    data_interface_classes = dict(
+        WesternBlot=Seiler2024WesternBlotInterface,
+    )

@@ -5,8 +5,10 @@ import shutil
 from neuroconv.utils import load_dict_from_file, dict_deep_update
 from datetime import datetime
 from pytz import timezone
+from tifffile import imread, imwrite
+import matplotlib.pyplot as plt
 
-from lerner_lab_to_nwb.seiler_2024 import Seiler2024NWBConverter
+from lerner_lab_to_nwb.seiler_2024 import Seiler2024NWBConverter, Seiler2024WesternBlotNWBConverter
 
 
 def session_to_nwb(
@@ -134,7 +136,7 @@ def session_to_nwb(
         conversion_options.update(dict(Optogenetic={}))
 
     # Add Excel-based Metadata
-    metadata_path = data_dir_path / "MouseDemographics.xlsx"
+    metadata_path = data_dir_path / "MouseDemographicsCorrected.xlsx"
     source_data.update(
         dict(
             Metadata={
@@ -169,6 +171,85 @@ def session_to_nwb(
     converter.run_conversion(metadata=metadata, nwbfile_path=nwbfile_path, conversion_options=conversion_options)
 
 
+def western_blot_to_nwb(
+    *,
+    file_path: Union[str, Path],
+    output_dir_path: Union[str, Path],
+    verbose: bool = True,
+):
+    """Convert a western blot to NWB.
+
+    Parameters
+    ----------
+    file_path : Union[str, Path]
+        Path to the western blot .tif file.
+    output_dir_path : Union[str, Path]
+        Path to the directory to save the NWB file.
+    verbose : bool, optional
+        Whether to print verbose output, by default True
+    """
+    file_path = Path(file_path)
+    output_dir_path = Path(output_dir_path)
+    output_dir_path.mkdir(parents=True, exist_ok=True)
+
+    source_data = dict(WesternBlot={"file_path": str(file_path), "verbose": verbose})
+    conversion_options = dict(WesternBlot={})
+
+    converter = Seiler2024WesternBlotNWBConverter(source_data=source_data, verbose=verbose)
+    metadata = converter.get_metadata()
+
+    # Update default metadata with the editable in the corresponding yaml file
+    editable_metadata_path = Path(__file__).parent / "seiler_2024_metadata.yaml"
+    editable_metadata = load_dict_from_file(editable_metadata_path)
+    metadata = dict_deep_update(metadata, editable_metadata)
+
+    cst = timezone("US/Central")
+    metadata["NWBFile"]["session_start_time"] = metadata["NWBFile"]["session_start_time"].replace(tzinfo=cst)
+
+    nwbfile_path = output_dir_path / f"{file_path.stem}.nwb"
+
+    # Run conversion
+    converter.run_conversion(metadata=metadata, nwbfile_path=nwbfile_path, conversion_options=conversion_options)
+
+
+def split_western_blot(*, file_path: Union[str, Path]):
+    """Split tif file into WT and DAT-IRES-Cre-het then writes back to two separate files.
+
+    Parameters
+    ----------
+    file_path : Union[str, Path]
+        Path to the western blot .tif file.
+
+    Returns
+    -------
+    wt_file_path : Path
+        Path to the WT western blot .tif file.
+    dat_file_path : Path
+        Path to the DAT-IRES-Cre-het western blot .tif file.
+    """
+    raw_western_file_names_to_slices = {
+        "Female_DLS_Actin.tif": (slice(None, 200), slice(200, None)),
+        "Female_DLS_DAT.tif": (slice(50, 235), slice(235, None)),
+        "Female_DMS_Actin.tif": (slice(None, 230), slice(230, None)),
+        "Female_DMS_DAT.tif": (slice(55, 245), slice(245, None)),
+        "Male_DLS_Actin.tif": (slice(None, 260), slice(260, None)),
+        "Male_DLS_DAT.tif": (slice(40, 290), slice(290, None)),
+        "Male_DMS_Actin.tif": (slice(None, 250), slice(250, None)),
+        "Male_DMS_DAT.tif": (slice(50, 300), slice(300, None)),
+    }
+    file_path = Path(file_path)
+    western_blot = imread(file_path)
+    wt_slice, dat_slice = raw_western_file_names_to_slices[file_path.name]
+    wt_western_blot = western_blot[:, wt_slice]
+    dat_western_blot = western_blot[:, dat_slice]
+    wt_file_path = file_path.parent / f"{file_path.stem}_WT.tif"
+    dat_file_path = file_path.parent / f"{file_path.stem}_DAT-IRES-Cre-het.tif"
+    imwrite(wt_file_path, wt_western_blot)
+    imwrite(dat_file_path, dat_western_blot)
+
+    return wt_file_path, dat_file_path
+
+
 if __name__ == "__main__":
     # Parameters for conversion
     data_dir_path = Path("/Volumes/T7/CatalystNeuro/NWB/Lerner/raw_data")
@@ -183,7 +264,7 @@ if __name__ == "__main__":
     # No-shock example session
     experiment_type = "FP"
     experimental_group = "RR20"
-    subject_id = "95.259"
+    subject_id = "96.259"
     start_datetime = datetime(2019, 4, 9, 10, 34, 30)
     behavior_file_path = (
         data_dir_path
@@ -214,8 +295,8 @@ if __name__ == "__main__":
     # Shock session
     experiment_type = "FP"
     experimental_group = "RR20"
-    subject_id = "95.259"
-    start_datetime = datetime(2019, 4, 18, 10, 41, 42)
+    subject_id = "96.259"
+    start_datetime = datetime(2019, 4, 18, 9, 28, 20)
     session_conditions = {
         "Start Date": start_datetime.strftime("%m/%d/%y"),
         "Start Time": start_datetime.strftime("%H:%M:%S"),
@@ -366,9 +447,9 @@ if __name__ == "__main__":
 
     # Fiber Photometry session
     experiment_type = "FP"
-    experimental_group = "PR"
-    subject_id = "028.392"
-    start_datetime = datetime(2020, 7, 9, 13, 1, 26)
+    experimental_group = "PS"
+    subject_id = "112.283"
+    start_datetime = datetime(2019, 6, 20, 9, 32, 4)
     session_conditions = {
         "Start Date": start_datetime.strftime("%m/%d/%y"),
         "Start Time": start_datetime.strftime("%H:%M:%S"),
@@ -386,15 +467,16 @@ if __name__ == "__main__":
         data_dir_path
         / f"{experiment_type} Experiments"
         / "Photometry"
-        / f"Punishment Resistant"
+        / f"Punishment Sensitive"
         / f"Early RI60"
-        / f"Photo_{subject_id.split('.')[0]}_{subject_id.split('.')[1]}-200709-130922"
+        / f"Photo_{subject_id.split('.')[0]}_{subject_id.split('.')[1]}-190620-093542"
     )
     session_to_nwb(
         data_dir_path=data_dir_path,
         output_dir_path=output_dir_path,
         behavior_file_path=behavior_file_path,
         fiber_photometry_folder_path=fiber_photometry_folder_path,
+        has_demodulated_commanded_voltages=False,
         subject_id=subject_id,
         session_conditions=session_conditions,
         start_variable=start_variable,
@@ -680,8 +762,8 @@ if __name__ == "__main__":
     experiment_type = "Opto"
     experimental_group = "DLS-Excitatory"
     optogenetic_treatment = "ChR2"
-    subject_id = "079.402"
-    start_datetime = datetime(2020, 6, 26, 13, 19, 27)
+    subject_id = "242.388"
+    start_datetime = datetime(2020, 6, 26, 12, 10, 40)
     session_conditions = {
         "Start Date": start_datetime.strftime("%m/%d/%y"),
         "Start Time": start_datetime.strftime("%H:%M:%S"),
@@ -829,3 +911,10 @@ if __name__ == "__main__":
         optogenetic_treatment=optogenetic_treatment,
         stub_test=stub_test,
     )
+
+    # Western blot
+    western_path = data_dir_path / "DATCre Western blot final images and analysis"
+    file_path = western_path / "Female_DLS_Actin.tif"
+    wt_file_path, dat_file_path = split_western_blot(file_path=file_path)
+    western_blot_to_nwb(file_path=wt_file_path, output_dir_path=output_dir_path)
+    western_blot_to_nwb(file_path=dat_file_path, output_dir_path=output_dir_path)

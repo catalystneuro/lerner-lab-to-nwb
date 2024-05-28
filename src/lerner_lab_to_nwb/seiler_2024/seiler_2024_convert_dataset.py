@@ -11,7 +11,11 @@ from pprint import pformat
 import traceback
 import re
 
-from lerner_lab_to_nwb.seiler_2024.seiler_2024_convert_session import session_to_nwb
+from lerner_lab_to_nwb.seiler_2024.seiler_2024_convert_session import (
+    session_to_nwb,
+    western_blot_to_nwb,
+    split_western_blot,
+)
 from lerner_lab_to_nwb.seiler_2024.medpc import get_medpc_variables
 from lerner_lab_to_nwb.seiler_2024.medpc import read_medpc_file
 
@@ -37,6 +41,22 @@ def dataset_to_nwb(
     verbose : bool, optional
         Whether to print verbose output, by default True
     """
+    subjects_to_skip = {
+        "289.407",
+        "244.464",
+        "264.477",
+        "102.260",
+        "262.478",
+        "289.408",
+        "264.475",
+        "129.425",
+        "250.427",
+        "95.259",
+        "309.399",
+        "433.421",
+        "416.405",
+        "364.426",
+    }
     start_variable = "Start Date"
     data_dir_path = Path(data_dir_path)
     output_dir_path = Path(output_dir_path)
@@ -62,6 +82,8 @@ def dataset_to_nwb(
             experiment_type = session_to_nwb_kwargs["experiment_type"]
             experimental_group = session_to_nwb_kwargs["experimental_group"]
             subject_id = session_to_nwb_kwargs["subject_id"]
+            if subject_id in subjects_to_skip:
+                continue
             start_datetime = session_to_nwb_kwargs["start_datetime"]
             optogenetic_treatment = session_to_nwb_kwargs.get("optogenetic_treatment", None)
             if experiment_type == "FP":
@@ -195,6 +217,13 @@ def fp_to_nwb(
         "Photo_100_258-190509-133212",
         "Photo_101_260-190425-120029",
     }
+    partial_subject_ids_to_subject_id = {
+        "300": "300.405",
+        "418": "418.404",
+        "299": "299.405",
+        "276": "276.405",
+        "262.259.478": "262.478",
+    }
     raw_file_to_info = get_raw_info(behavior_path)
 
     # Iterate through file system to get necessary information for converting each session
@@ -327,6 +356,8 @@ def fp_to_nwb(
                 if box_number is not None:
                     session_conditions["Box"] = box_number
                 start_datetime = datetime.strptime(f"{start_date} {start_time}", "%m/%d/%y %H:%M:%S")
+                if photometry_subject_id in partial_subject_ids_to_subject_id:
+                    photometry_subject_id = partial_subject_ids_to_subject_id[photometry_subject_id]
                 session_to_nwb_args = dict(
                     data_dir_path=data_dir_path,
                     output_dir_path=output_dir_path,
@@ -399,6 +430,8 @@ def fp_to_nwb(
                 if box_number is not None:
                     session_conditions["Box"] = box_number
                 start_datetime = datetime.strptime(f"{start_date} {start_time}", "%m/%d/%y %H:%M:%S")
+                if subject_id in partial_subject_ids_to_subject_id:
+                    subject_id = partial_subject_ids_to_subject_id[subject_id]
                 session_to_nwb_args = dict(
                     data_dir_path=data_dir_path,
                     output_dir_path=output_dir_path,
@@ -446,6 +479,36 @@ def opto_to_nwb(
     list[dict]
         A list of dictionaries containing the arguments for session_to_nwb for each session.
     """
+    partial_subject_ids_to_subject_id = {
+        "268": "268.476",
+        "266": "266.477",
+        "244": "244.465",
+        "343": "343.483",
+        "419": "419.404",
+        "245": "245.464",
+        "342": "342.483",
+        "202": "202.465",
+        "313": "313.403",
+        "418": "418.404",
+        "340": "340.483",
+        "259": "259.478",
+        "264": "264.478",
+        "421": "421.404",
+        "417": "417.404",
+        "233": "233.469",
+        "261": "261.478",
+        "265": "265.476",
+        "311": "311.403",
+        "206": "206.468",
+        "243": "243.468",
+        "263": "263.477",
+        "338": "338.398",
+        "414": "414.405",
+        "300": "300.405",
+        "299": "299.405",
+        "276": "276.405",
+        "262.259.478": "262.478",
+    }
     experiment_type = "Opto"
     experimental_group_to_optogenetic_treatments = {
         "DLS-Excitatory": ["ChR2", "EYFP", "ChR2Scrambled"],
@@ -567,6 +630,8 @@ def opto_to_nwb(
             "Box": box_number,
         }
         start_datetime = datetime.strptime(f"{start_date} {start_time}", "%m/%d/%y %H:%M:%S")
+        if subject in partial_subject_ids_to_subject_id:
+            subject = partial_subject_ids_to_subject_id[subject]
         session_to_nwb_args = dict(
             data_dir_path=data_dir_path,
             output_dir_path=output_dir_path,
@@ -627,6 +692,10 @@ def get_opto_subject_id(subject_path: Path):
         "263": "263.477",
         "338": "338.398",
         "414": "414.405",
+        "300": "300.405",
+        "299": "299.405",
+        "276": "276.405",
+        "262.259.478": "262.478",
     }
 
     # fmt: off
@@ -923,6 +992,36 @@ def get_raw_info(behavior_path):
     return raw_file_to_info
 
 
+def western_dataset_to_nwb(*, data_dir_path: Path, output_dir_path: Path, verbose: bool = True):
+    """Convert all Western Blot data to NWB.
+
+    Parameters
+    ----------
+    data_dir_path : Path
+        The path to the directory containing the raw data.
+    output_dir_path : Path
+        The path to the directory where the NWB files will be saved.
+    verbose : bool, optional
+        Whether to print verbose output, by default True
+    """
+    western_path = data_dir_path / "DATCre Western blot final images and analysis"
+    raw_western_file_names = [
+        "Female_DLS_Actin.tif",
+        "Female_DLS_DAT.tif",
+        "Female_DMS_Actin.tif",
+        "Female_DMS_DAT.tif",
+        "Male_DLS_Actin.tif",
+        "Male_DLS_DAT.tif",
+        "Male_DMS_Actin.tif",
+        "Male_DMS_DAT.tif",
+    ]
+    for raw_western_file_name in raw_western_file_names:
+        raw_western_file_path = western_path / raw_western_file_name
+        wt_file_path, dat_file_path = split_western_blot(file_path=raw_western_file_path)
+        western_blot_to_nwb(file_path=wt_file_path, output_dir_path=output_dir_path, verbose=verbose)
+        western_blot_to_nwb(file_path=dat_file_path, output_dir_path=output_dir_path, verbose=verbose)
+
+
 if __name__ == "__main__":
     data_dir_path = Path("/Volumes/T7/CatalystNeuro/NWB/Lerner/raw_data")
     output_dir_path = Path("/Volumes/T7/CatalystNeuro/NWB/Lerner/conversion_nwb")
@@ -938,3 +1037,4 @@ if __name__ == "__main__":
         stub_test=False,
         verbose=False,
     )
+    western_dataset_to_nwb(data_dir_path=data_dir_path, output_dir_path=output_dir_path, verbose=False)
