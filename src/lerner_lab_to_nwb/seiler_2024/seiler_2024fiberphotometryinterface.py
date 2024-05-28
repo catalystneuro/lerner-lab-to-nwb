@@ -182,6 +182,7 @@ class Seiler2024FiberPhotometryInterface(BaseDataInterface):
         if has_demodulated_commanded_voltages:
             commanded_voltage_series_dms_calcium_signal = CommandedVoltageSeries(
                 name="commanded_voltage_series_dms_calcium_signal",
+                description="The commanded voltage for the DMS calcium signal.",
                 data=H5DataIO(tdt_photometry.streams["Fi1d"].data[0, :], compression=True),
                 unit="volts",
                 frequency=211.0,
@@ -190,6 +191,7 @@ class Seiler2024FiberPhotometryInterface(BaseDataInterface):
             )
             commanded_voltage_series_dms_isosbestic_control = CommandedVoltageSeries(
                 name="commanded_voltage_series_dms_isosbestic_control",
+                description="The commanded voltage for the DMS isosbestic control.",
                 data=H5DataIO(tdt_photometry.streams["Fi1d"].data[1, :], compression=True),
                 unit="volts",
                 frequency=330.0,
@@ -198,6 +200,7 @@ class Seiler2024FiberPhotometryInterface(BaseDataInterface):
             )
             commanded_voltage_series_dls_calcium_signal = CommandedVoltageSeries(
                 name="commanded_voltage_series_dls_calcium_signal",
+                description="The commanded voltage for the DLS calcium signal.",
                 data=H5DataIO(tdt_photometry.streams["Fi1d"].data[3, :], compression=True),
                 unit="volts",
                 frequency=450.0,
@@ -206,6 +209,7 @@ class Seiler2024FiberPhotometryInterface(BaseDataInterface):
             )
             commanded_voltage_series_dls_isosbestic_control = CommandedVoltageSeries(
                 name="commanded_voltage_series_dls_isosbestic_control",
+                description="The commanded voltage for the DLS isosbestic control.",
                 data=H5DataIO(tdt_photometry.streams["Fi1d"].data[2, :], compression=True),
                 unit="volts",
                 frequency=270.0,
@@ -215,6 +219,7 @@ class Seiler2024FiberPhotometryInterface(BaseDataInterface):
         else:
             commanded_voltage_series_dms = CommandedVoltageSeries(
                 name="commanded_voltage_series_dms",
+                description="The commanded voltage for the frequency-modulated DMS calcium signal and DMS isosbestic control.",
                 data=H5DataIO(tdt_photometry.streams["Fi1r"].data[0, :], compression=True),
                 unit="volts",
                 starting_time=0.0,
@@ -222,6 +227,7 @@ class Seiler2024FiberPhotometryInterface(BaseDataInterface):
             )
             commanded_voltage_series_dls = CommandedVoltageSeries(
                 name="commanded_voltage_series_dls",
+                description="The commanded voltage for the frequency-modulated DLS calcium signal and DLS isosbestic control.",
                 data=H5DataIO(tdt_photometry.streams["Fi1r"].data[1, :], compression=True),
                 unit="volts",
                 starting_time=0.0,
