@@ -97,11 +97,11 @@ def session_to_nwb(
     # )
     # conversion_options.update(dict(Behavior={}))
     metadata_medpc_name_to_info_dict = {
-        "Start Date": {"name": "start_date", "type": "date"},
-        "Subject": {"name": "subject", "type": "str"},
-        "Box": {"name": "box", "type": "str"},
-        "Start Time": {"name": "start_time", "type": "time"},
-        "MSN": {"name": "MSN", "type": "str"},
+        "Start Date": {"name": "start_date", "is_array": False},
+        "Subject": {"name": "subject", "is_array": False},
+        "Box": {"name": "box", "is_array": False},
+        "Start Time": {"name": "start_time", "is_array": False},
+        "MSN": {"name": "MSN", "is_array": False},
     }
     source_data.update(
         dict(
@@ -172,8 +172,9 @@ def session_to_nwb(
     editable_metadata = load_dict_from_file(editable_metadata_path)
     metadata = dict_deep_update(metadata, editable_metadata)
 
-    start_date = metadata["MedPC"]["start_date"]
-    start_time = metadata["MedPC"]["start_time"]
+    datetime.strptime(metadata["MedPC"]["start_date"], "%m/%d/%y").date()
+    start_date = datetime.strptime(metadata["MedPC"]["start_date"], "%m/%d/%y").date()
+    start_time = datetime.strptime(metadata["MedPC"]["start_time"], "%H:%M:%S").time()
     session_start_time = datetime.combine(start_date, start_time)
     if optogenetic_treatment is None:
         session_id = f"{experiment_type}_{experimental_group}_{session_start_time.isoformat().replace(':', '-')}"
