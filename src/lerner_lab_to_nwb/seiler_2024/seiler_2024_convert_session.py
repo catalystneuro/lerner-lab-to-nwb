@@ -174,15 +174,16 @@ def session_to_nwb(
     editable_metadata = load_dict_from_file(editable_metadata_path)
     metadata = dict_deep_update(metadata, editable_metadata)
 
-    metadata["NWBFile"]["session_description"] = metadata["Behavior"]["session_description"]
-    session_start_time = metadata["NWBFile"]["session_start_time"]
+    start_date = metadata["MedPC"]["start_date"]
+    start_time = metadata["MedPC"]["start_time"]
+    session_start_time = datetime.combine(start_date, start_time)
     if optogenetic_treatment is None:
         session_id = f"{experiment_type}_{experimental_group}_{session_start_time.isoformat().replace(':', '-')}"
     else:
         session_id = f"{experiment_type}-{experimental_group}-{optogenetic_treatment}-{session_start_time.isoformat().replace(':', '-')}"
     metadata["NWBFile"]["session_id"] = session_id
     cst = timezone("US/Central")
-    metadata["NWBFile"]["session_start_time"] = metadata["NWBFile"]["session_start_time"].replace(tzinfo=cst)
+    metadata["NWBFile"]["session_start_time"] = session_start_time.replace(tzinfo=cst)
     nwbfile_path = output_dir_path / f"sub-{subject_id}_ses-{session_id}.nwb"
 
     # Run conversion

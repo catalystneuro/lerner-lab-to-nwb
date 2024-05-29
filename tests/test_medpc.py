@@ -13,21 +13,21 @@ def test_read_medpc_file():
     session_contions = {"Start Date": "04/17/19", "Start Time": "12:41:30"}
     start_variable = "Start Date"
     medpc_name_to_info_dict = {
-        "Start Date": {"name": "start_date", "type": "date"},
-        "End Date": {"name": "end_date", "type": "date"},
-        "Subject": {"name": "subject", "type": "str"},
-        "Experiment": {"name": "experiment", "type": "str"},
-        "Group": {"name": "group", "type": "str"},
-        "Box": {"name": "box", "type": "str"},
-        "Start Time": {"name": "start_time", "type": "time"},
-        "End Time": {"name": "end_time", "type": "time"},
-        "MSN": {"name": "MSN", "type": "str"},
-        "G": {"name": "port_entry_times", "type": "numpy.ndarray"},
-        "E": {"name": "duration_of_port_entry", "type": "numpy.ndarray"},
-        "A": {"name": "left_nose_poke_times", "type": "numpy.ndarray"},
-        "C": {"name": "right_nose_poke_times", "type": "numpy.ndarray"},
-        "D": {"name": "right_reward_times", "type": "numpy.ndarray"},
-        "B": {"name": "left_reward_times", "type": "numpy.ndarray"},
+        "Start Date": {"name": "start_date", "is_array": False},
+        "End Date": {"name": "end_date", "is_array": False},
+        "Subject": {"name": "subject", "is_array": False},
+        "Experiment": {"name": "experiment", "is_array": False},
+        "Group": {"name": "group", "is_array": False},
+        "Box": {"name": "box", "is_array": False},
+        "Start Time": {"name": "start_time", "is_array": False},
+        "End Time": {"name": "end_time", "is_array": False},
+        "MSN": {"name": "MSN", "is_array": False},
+        "G": {"name": "port_entry_times", "is_array": True},
+        "E": {"name": "duration_of_port_entry", "is_array": True},
+        "A": {"name": "left_nose_poke_times", "is_array": True},
+        "C": {"name": "right_nose_poke_times", "is_array": True},
+        "D": {"name": "right_reward_times", "is_array": True},
+        "B": {"name": "left_reward_times", "is_array": True},
     }
     session_dict = read_medpc_file(
         file_path=file_path,
@@ -44,12 +44,13 @@ def test_read_medpc_file():
     right_reward_times = np.trim_zeros(session_df["RightRewardTs"].dropna().values, trim="b")
     left_reward_times = np.trim_zeros(session_df["LeftRewardTs"].dropna().values, trim="b")
 
-    assert session_dict["start_date"] == date(2019, 4, 17), "start_date is not correct"
-    assert session_dict["end_date"] == date(2019, 4, 17), "end_date is not correct"
+    print(session_dict["start_date"])
+    assert session_dict["start_date"] == "04/17/19", "start_date is not correct"
+    assert session_dict["end_date"] == "04/17/19", "end_date is not correct"
     assert session_dict["subject"] == "95.259", "subject is not correct"
     assert session_dict["box"] == "1", "box is not correct"
-    assert session_dict["start_time"] == time(12, 41, 30), "start_time is not correct"
-    assert session_dict["end_time"] == time(13, 38, 14), "end_time is not correct"
+    assert session_dict["start_time"] == "12:41:30", "start_time is not correct"
+    assert session_dict["end_time"] == "13:38:14", "end_time is not correct"
     assert session_dict["MSN"] == "RR20_Left", "MSN is not correct"
     assert np.array_equal(session_dict["port_entry_times"], port_entry_times), "port_entry_times is not correct"
     assert np.array_equal(
