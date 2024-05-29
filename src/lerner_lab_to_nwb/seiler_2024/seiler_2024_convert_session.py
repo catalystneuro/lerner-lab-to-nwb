@@ -435,7 +435,7 @@ if __name__ == "__main__":
         output_dir_path=output_dir_path,
         behavior_file_path=behavior_file_path,
         has_port_entry_durations=False,
-        # fiber_photometry_folder_path=fiber_photometry_folder_path,
+        fiber_photometry_folder_path=fiber_photometry_folder_path,
         subject_id=subject_id,
         session_conditions=session_conditions,
         start_variable=start_variable,
