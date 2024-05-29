@@ -11,6 +11,7 @@ from lerner_lab_to_nwb.seiler_2024 import (
     Seiler2024WesternBlotInterface,
 )
 from neuroconv.datainterfaces import MedPCInterface
+from neuroconv.datainterfaces.behavior.medpc.medpc_helpers import read_medpc_file
 import numpy as np
 from tdt import read_block
 import os
@@ -46,15 +47,17 @@ class Seiler2024NWBConverter(NWBConverter):
             return  # No need to align if there is no fiber photometry data
 
         # Read Behavior Data
-        msn = metadata["Behavior"]["msn"]
-        medpc_name_to_dict_name = metadata["Behavior"]["msn_to_medpc_name_to_dict_name"][msn]
-        dict_name_to_type = {dict_name: np.ndarray for dict_name in medpc_name_to_dict_name.values()}
+        msn = metadata["MedPC"]["MSN"]
+        medpc_name_to_output_name = metadata["MedPC"]["msn_to_medpc_name_to_output_name"][msn]
+        medpc_name_to_info_dict = {
+            medpc_name: {"name": output_name, "is_array": True}
+            for medpc_name, output_name in medpc_name_to_output_name.items()
+        }
         session_dict = read_medpc_file(
-            file_path=self.data_interface_objects["Behavior"].source_data["file_path"],
-            medpc_name_to_dict_name=medpc_name_to_dict_name,
-            dict_name_to_type=dict_name_to_type,
-            session_conditions=self.data_interface_objects["Behavior"].source_data["session_conditions"],
-            start_variable=self.data_interface_objects["Behavior"].source_data["start_variable"],
+            file_path=self.data_interface_objects["MedPC"].source_data["file_path"],
+            medpc_name_to_info_dict=medpc_name_to_info_dict,
+            session_conditions=self.data_interface_objects["MedPC"].source_data["session_conditions"],
+            start_variable=self.data_interface_objects["MedPC"].source_data["start_variable"],
         )
 
         # Read Fiber Photometry Data
@@ -74,14 +77,14 @@ class Seiler2024NWBConverter(NWBConverter):
             "LNPS": "left_nose_poke_times",
             "RNRW": "right_reward_times",
             "RNnR": "right_nose_poke_times",
-            "PrtN": "port_entry_times",
+            "PrtN": "reward_port_entry_times",
             "Sock": "footshock_times",
         }
         left_ttl_names_to_behavior_names = {
             "RNPS": "right_nose_poke_times",
             "LNRW": "left_reward_times",
             "LNnR": "left_nose_poke_times",
-            "PrtN": "port_entry_times",
+            "PrtN": "reward_port_entry_times",
             "Sock": "footshock_times",
         }
         msn_is_right = "RIGHT" in msn or "Right" in msn or "right" in msn
@@ -99,7 +102,7 @@ class Seiler2024NWBConverter(NWBConverter):
         if folder_path.name == "Photo_332_393-200728-122403":
             ttl_names_to_behavior_names = {  # This special session only has 2 TTLs bc it is split into 2 folders
                 "RNnR": "right_nose_poke_times",
-                "PrtN": "port_entry_times",
+                "PrtN": "reward_port_entry_times",
             }
         for ttl_name, behavior_name in ttl_names_to_behavior_names.items():
             if ttl_name == "Sock" and "ShockProbe" not in metadata["NWBFile"]["session_id"]:
@@ -112,7 +115,7 @@ class Seiler2024NWBConverter(NWBConverter):
                 ttl_timestamps2 = self.get_ttl_timestamps(ttl_name, tdt_photometry2)
                 ttl_timestamps = np.concatenate((ttl_timestamps, ttl_timestamps2))
             session_dict[behavior_name] = ttl_timestamps
-        self.data_interface_objects["Behavior"].source_data["session_dict"] = session_dict
+        self.data_interface_objects["MedPC"].source_data["session_dict"] = session_dict
 
     def get_ttl_timestamps(self, ttl_name, tdt_photometry):
         if ttl_name == "PrtN":
