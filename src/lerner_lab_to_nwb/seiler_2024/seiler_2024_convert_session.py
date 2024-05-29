@@ -184,6 +184,12 @@ def session_to_nwb(
     cst = timezone("US/Central")
     metadata["NWBFile"]["session_start_time"] = session_start_time.replace(tzinfo=cst)
     nwbfile_path = output_dir_path / f"sub-{subject_id}_ses-{session_id}.nwb"
+    msn = metadata["MedPC"]["MSN"]
+    medpc_name_to_output_name = metadata["msn_to_medpc_name_to_output_name"][msn]
+    metadata["MedPC"]["medpc_name_to_info_dict"] = {
+        medpc_name: {"name": output_name, "is_array": True}
+        for medpc_name, output_name in medpc_name_to_output_name.items()
+    }
 
     # Run conversion
     converter.run_conversion(metadata=metadata, nwbfile_path=nwbfile_path, conversion_options=conversion_options)

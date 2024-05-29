@@ -5,13 +5,11 @@ from pynwb import NWBFile
 from neuroconv.tools.nwb_helpers import make_or_load_nwbfile
 
 from lerner_lab_to_nwb.seiler_2024 import (
-    Seiler2024BehaviorInterface,
     Seiler2024FiberPhotometryInterface,
     Seiler2024OptogeneticInterface,
     Seiler2024ExcelMetadataInterface,
-    MedPCInterface,
 )
-from .medpc import read_medpc_file
+from neuroconv.datainterfaces import MedPCInterface
 import numpy as np
 from tdt import read_block
 import os
@@ -23,7 +21,6 @@ class Seiler2024NWBConverter(NWBConverter):
     """Primary conversion class."""
 
     data_interface_classes = dict(
-        Behavior=Seiler2024BehaviorInterface,
         FiberPhotometry=Seiler2024FiberPhotometryInterface,
         Optogenetic=Seiler2024OptogeneticInterface,
         Metadata=Seiler2024ExcelMetadataInterface,
@@ -44,7 +41,7 @@ class Seiler2024NWBConverter(NWBConverter):
             The conversion options for the session.
         """
         if not "FiberPhotometry" in self.data_interface_objects.keys():
-            self.data_interface_objects["Behavior"].source_data["session_dict"] = None
+            self.data_interface_objects["MedPC"].source_data["session_dict"] = None
             return  # No need to align if there is no fiber photometry data
 
         # Read Behavior Data

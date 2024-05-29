@@ -36,8 +36,8 @@ Subject:
   strain: C57BL/6J
   genotype: "DAT-IRES-Cre: B6.SJLSlc6a3tm1.1(cre)Bkmn/J"
 
-Behavior:
-  msn_to_medpc_name_to_dict_name:
+MedPC:
+  msn_to_medpc_name_to_output_name:
     20sOmissions_TTL:
       A: left_nose_poke_times
       B: left_reward_times
