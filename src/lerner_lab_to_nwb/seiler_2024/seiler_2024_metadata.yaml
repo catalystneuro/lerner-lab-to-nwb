@@ -48,6 +48,23 @@ Subject:
   genotype: "DAT-IRES-Cre: B6.SJLSlc6a3tm1.1(cre)Bkmn/J"
 
 MedPC:
+  Events:
+    - name: left_nose_poke_times
+      description: Left nose poke times
+    - name: left_reward_times
+      description: Left reward times
+    - name: right_nose_poke_times
+      description: Right nose poke times
+    - name: right_reward_times
+      description: Right reward times
+    - name: footshock_times
+      description: Footshock times
+  IntervalSeries:
+    - name: reward_port_intervals
+      description: Interval of time spent in reward port (1 is entry, -1 is exit)
+      onset_name: port_entry_times
+      duration_name: duration_of_port_entry
+
   msn_to_medpc_name_to_output_name:
     20sOmissions_TTL:
       A: left_nose_poke_times
