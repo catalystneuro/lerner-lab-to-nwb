@@ -11,95 +11,56 @@ from pynwb.behavior import BehavioralEpochs, IntervalSeries
 from hdmf.backends.hdf5.h5_utils import H5DataIO
 from pathlib import Path
 
-from .medpc import read_medpc_file
 
-
-class Seiler2024BehaviorInterface(BaseDataInterface):
+class Seiler2024CSVBehaviorInterface(BaseDataInterface):
     """Behavior interface for seiler_2024 conversion"""
 
     keywords = ["behavior"]
 
-    def __init__(self, file_path: str, session_conditions: dict, start_variable: str, verbose: bool = True):
+    def __init__(self, file_path: str, has_port_entry_durations: bool = True, verbose: bool = True):
         """Initialize Seiler2024BehaviorInterface.
 
         Parameters
         ----------
         file_path : str
-            Path to the MedPC file. Or path to the CSV file.
-        session_conditions : dict
-            The conditions that define the session. The keys are the names of the single-line variables (ex. 'Start Date')
-            and the values are the values of those variables for the desired session (ex. '11/09/18').
-        start_variable : str
-            The name of the variable that starts the session (ex. 'Start Date').
+            Path to the CSV file.
         verbose : bool, optional
             Whether to print verbose output, by default True
         """
-        from_csv = file_path.endswith(".csv")
         super().__init__(
             file_path=file_path,
-            session_conditions=session_conditions,
-            start_variable=start_variable,
-            from_csv=from_csv,
+            has_port_entry_durations=has_port_entry_durations,
             verbose=verbose,
         )
 
     def get_metadata(self) -> DeepDict:
         metadata = super().get_metadata()
-        medpc_name_to_dict_name = {
-            "Start Date": "start_date",
-            "Subject": "subject",
-            "Box": "box",
-            "Start Time": "start_time",
-            "MSN": "MSN",
-        }
-        dict_name_to_type = {
-            "start_date": date,
-            "subject": str,
-            "box": str,
-            "start_time": time,
+        session_dtypes = {
+            "Start Date": str,
+            "End Date": str,
+            "Start Time": str,
+            "End Time": str,
             "MSN": str,
+            "Experiment": str,
+            "Subject": str,
+            "Box": str,
         }
-        if self.source_data["from_csv"]:
-            session_dtypes = {
-                "Start Date": str,
-                "End Date": str,
-                "Start Time": str,
-                "End Time": str,
-                "MSN": str,
-                "Experiment": str,
-                "Subject": str,
-                "Box": str,
-            }
-            session_df = pd.read_csv(self.source_data["file_path"], dtype=session_dtypes)
-            start_date = (
-                session_df["Start Date"][0]
-                if "Start Date" in session_df.columns
-                else Path(self.source_data["file_path"]).stem.split("_")[1].replace("-", "/")
-            )
-            start_date = datetime.strptime(start_date, "%m/%d/%y").date()
-            start_time = session_df["Start Time"][0] if "Start Time" in session_df.columns else "00:00:00"
-            start_time = datetime.strptime(start_time, "%H:%M:%S").time()
-            msn = session_df["MSN"][0] if "MSN" in session_df.columns else "Unknown"
-            box = session_df["Box"][0] if "Box" in session_df.columns else "Unknown"
-        else:
-            session_dict = read_medpc_file(
-                file_path=self.source_data["file_path"],
-                medpc_name_to_dict_name=medpc_name_to_dict_name,
-                dict_name_to_type=dict_name_to_type,
-                session_conditions=self.source_data["session_conditions"],
-                start_variable=self.source_data["start_variable"],
-            )
-            start_date = session_dict["start_date"]
-            start_time = session_dict["start_time"]
-            msn = session_dict["MSN"]
-            box = session_dict["box"]
+        session_df = pd.read_csv(self.source_data["file_path"], dtype=session_dtypes)
+        start_date = (
+            session_df["Start Date"][0]
+            if "Start Date" in session_df.columns
+            else Path(self.source_data["file_path"]).stem.split("_")[1].replace("-", "/")
+        )
+        start_time = session_df["Start Time"][0] if "Start Time" in session_df.columns else "00:00:00"
+        msn = session_df["MSN"][0] if "MSN" in session_df.columns else "Unknown"
+        box = session_df["Box"][0] if "Box" in session_df.columns else "Unknown"
 
-        session_start_time = datetime.combine(start_date, start_time)
-        metadata["NWBFile"]["session_start_time"] = session_start_time
-
-        metadata["Behavior"] = {}
-        metadata["Behavior"]["box"] = box
-        metadata["Behavior"]["msn"] = msn
+        metadata["Behavior"] = {
+            "Box": box,
+            "MSN": msn,
+            "start_date": start_date,
+            "start_time": start_time,
+        }
 
         return metadata
 
@@ -108,26 +69,14 @@ class Seiler2024BehaviorInterface(BaseDataInterface):
         metadata_schema["properties"]["Behavior"] = {
             "type": "object",
             "properties": {
-                "box": {"type": "string"},
-                "msn": {"type": "string"},
+                "Box": {"type": "string"},
+                "MSN": {"type": "string"},
             },
         }
         return metadata_schema
 
     def add_to_nwbfile(self, nwbfile: NWBFile, metadata: dict) -> None:
-        from_csv = self.source_data["from_csv"]
-        if self.source_data["session_dict"] is None and not from_csv:
-            msn = metadata["Behavior"]["msn"]
-            medpc_name_to_dict_name = metadata["Behavior"]["msn_to_medpc_name_to_dict_name"][msn]
-            dict_name_to_type = {dict_name: np.ndarray for dict_name in medpc_name_to_dict_name.values()}
-            session_dict = read_medpc_file(
-                file_path=self.source_data["file_path"],
-                medpc_name_to_dict_name=medpc_name_to_dict_name,
-                dict_name_to_type=dict_name_to_type,
-                session_conditions=self.source_data["session_conditions"],
-                start_variable=self.source_data["start_variable"],
-            )
-        elif self.source_data["session_dict"] is None and from_csv:
+        if self.source_data["session_dict"] is None:
             csv_name_to_dict_name = {
                 "portEntryTs": "port_entry_times",
                 "DurationOfPE": "duration_of_port_entry",
@@ -165,11 +114,9 @@ class Seiler2024BehaviorInterface(BaseDataInterface):
         )
 
         # Port Entry
-        if (
-            len(session_dict["duration_of_port_entry"]) == 0
-        ):  # some sessions are missing port entry durations ex. FP Experiments/Behavior/PR/028.392/07-09-20
-            if self.verbose:
-                print(f"No port entry durations found for {metadata['NWBFile']['session_id']}")
+        if not self.source_data[
+            "has_port_entry_durations"
+        ]:  # some sessions are missing port entry durations ex. FP Experiments/Behavior/PR/028.392/07-09-20
             reward_port_entry_times = Events(
                 name="reward_port_entry_times",
                 description="Reward port entry times",

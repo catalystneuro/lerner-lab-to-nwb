@@ -8,6 +8,7 @@ from lerner_lab_to_nwb.seiler_2024 import (
     Seiler2024FiberPhotometryInterface,
     Seiler2024OptogeneticInterface,
     Seiler2024ExcelMetadataInterface,
+    Seiler2024CSVBehaviorInterface,
 )
 from neuroconv.datainterfaces import MedPCInterface
 from neuroconv.datainterfaces.behavior.medpc.medpc_helpers import read_medpc_file
@@ -26,6 +27,7 @@ class Seiler2024NWBConverter(NWBConverter):
         Optogenetic=Seiler2024OptogeneticInterface,
         Metadata=Seiler2024ExcelMetadataInterface,
         MedPC=MedPCInterface,
+        Behavior=Seiler2024CSVBehaviorInterface,
     )
 
     def temporally_align_data_interfaces(self, metadata: dict, conversion_options: dict):
@@ -42,7 +44,10 @@ class Seiler2024NWBConverter(NWBConverter):
             The conversion options for the session.
         """
         if not "FiberPhotometry" in self.data_interface_objects.keys():
-            self.data_interface_objects["MedPC"].source_data["session_dict"] = None
+            if "MedPC" in self.data_interface_objects.keys():
+                self.data_interface_objects["MedPC"].source_data["session_dict"] = None
+            elif "Behavior" in self.data_interface_objects.keys():
+                self.data_interface_objects["Behavior"].source_data["session_dict"] = None
             return  # No need to align if there is no fiber photometry data
 
         # Read Behavior Data
