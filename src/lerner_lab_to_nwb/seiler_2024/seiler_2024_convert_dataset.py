@@ -20,6 +20,7 @@ from lerner_lab_to_nwb.seiler_2024.medpc import get_medpc_variables
 from lerner_lab_to_nwb.seiler_2024.medpc import read_medpc_file
 
 
+# TODO: Add list of sessions w/o port_entry_durations
 def dataset_to_nwb(
     *,
     data_dir_path: Union[str, Path],

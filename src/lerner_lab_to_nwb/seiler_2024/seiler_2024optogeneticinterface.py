@@ -11,7 +11,7 @@ from datetime import datetime, time
 from pathlib import Path
 import pandas as pd
 
-from .medpc import read_medpc_file
+from neuroconv.datainterfaces.behavior.medpc.medpc_helpers import read_medpc_file
 
 
 class Seiler2024OptogeneticInterface(BaseDataInterface):
