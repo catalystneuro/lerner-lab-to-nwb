@@ -67,10 +67,10 @@ class MedPCInterface(BaseDataInterface):
 
     def get_metadata_schema(self) -> dict:
         metadata_schema = super().get_metadata_schema()
-        dict_name_to_type = self.source_data["metadata_dict_name_to_type"]
+        medpc_name_to_info_dict = self.source_data["metadata_medpc_name_to_info_dict"]
         metadata_schema["properties"]["MedPC"] = {
             "type": "object",
-            "properties": {dict_name: {"type": var_type} for dict_name, var_type in dict_name_to_type.items()},
+            "properties": {info_dict["name"]: {"type": "string"} for info_dict in medpc_name_to_info_dict.values()},
         }
         return metadata_schema
 
