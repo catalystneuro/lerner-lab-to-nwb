@@ -88,7 +88,7 @@ more-itertools==10.2.0
 multidict==6.0.4
 natsort==8.4.0
 ndx-events==0.2.0
-ndx-fiber-photometry @ git+https://github.com/catalystneuro/ndx-fiber-photometry.git@14e05cda86026db694c1c577918284f435b7ec10
+ndx-fiber-photometry @ git+https://github.com/catalystneuro/ndx-fiber-photometry.git@94d80c2996cf3c71bd7e6f2b2c83f9b3fb9906ff
 ndx-grayscalevolume==0.0.2
 ndx-icephys-meta==0.1.0
 ndx-photometry @ git+https://github.com/catalystneuro/ndx-photometry.git@c1284c91a7e0a5dfd19f84bbf683e17fa607d4ec
@@ -99,7 +99,7 @@ neuroconv @ git+https://github.com/catalystneuro/neuroconv.git@f45e77e1523699164
 nodeenv==1.8.0
 numcodecs==0.11.0
 numpy==1.26.3
-nwbinspector==0.4.35
+-e git+https://github.com/catalystneuro/nwbinspector.git@9d5306b5be40af3175d40ab79ac274b9b79a0a7e#egg=nwbinspector
 nwbwidgets==0.11.3
 openpyxl==3.1.2
 packaging==23.2

@@ -23,8 +23,7 @@ class MedPCInterface(BaseDataInterface):
         file_path: str,
         session_conditions: dict,
         start_variable: str,
-        metadata_medpc_name_to_dict_name: dict,
-        metadata_dict_name_to_type: dict,
+        metadata_medpc_name_to_info_dict: dict,
         verbose: bool = True,
     ):
         """Initialize MedpcInterface.
@@ -38,10 +37,10 @@ class MedPCInterface(BaseDataInterface):
             and the values are the values of those variables for the desired session (ex. '11/09/18').
         start_variable : str
             The name of the variable that starts the session (ex. 'Start Date').
-        metadata_medpc_name_to_dict_name : dict
-            A dictionary mapping the names of the desired variables in the MedPC file to the names of the variables in the metadata.
-        metadata_dict_name_to_type : dict
-            A dictionary mapping the names of the variables in the metadata to their types.
+        metadata_medpc_name_to_info_dict : dict
+            A dictionary mapping the names of the desired variables in the MedPC file
+            to an info dictionary with the names of the variables in the metadata and their types.
+            ex. {"Start Date": {"name": "start_date", "type": "date"}}
         verbose : bool, optional
             Whether to print verbose output, by default True
         """
@@ -49,6 +48,7 @@ class MedPCInterface(BaseDataInterface):
             file_path=file_path,
             session_conditions=session_conditions,
             start_variable=start_variable,
+            metadata_medpc_name_to_info_dict=metadata_medpc_name_to_info_dict,
             verbose=verbose,
         )
 
@@ -56,8 +56,7 @@ class MedPCInterface(BaseDataInterface):
         metadata = super().get_metadata()
         session_dict = read_medpc_file(
             file_path=self.source_data["file_path"],
-            medpc_name_to_dict_name=self.source_data["metadata_medpc_name_to_dict_name"],
-            dict_name_to_type=self.source_data["metadata_dict_name_to_type"],
+            medpc_name_to_info_dict=self.source_data["metadata_medpc_name_to_info_dict"],
             session_conditions=self.source_data["session_conditions"],
             start_variable=self.source_data["start_variable"],
         )

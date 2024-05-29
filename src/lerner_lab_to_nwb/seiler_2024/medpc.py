@@ -81,8 +81,7 @@ def get_session_lines(lines: list, session_conditions: dict, start_variable: str
 
 def read_medpc_file(
     file_path: str,
-    medpc_name_to_dict_name: dict,
-    dict_name_to_type: dict,
+    medpc_name_to_info_dict: dict,
     session_conditions: dict,
     start_variable: str,
 ) -> dict:
@@ -104,9 +103,10 @@ def read_medpc_file(
         if line.find(":") == 6:  # multiline variable
             if medpc_name == "     0":  # first line of multiline variable
                 multiline_variable_name = session_lines[i - 1].split(":")[0]
-                if multiline_variable_name in medpc_name_to_dict_name:
-                    session_dict[medpc_name_to_dict_name[multiline_variable_name]] = []
-            if multiline_variable_name not in medpc_name_to_dict_name:
+                if multiline_variable_name in medpc_name_to_info_dict:
+                    output_name = medpc_name_to_info_dict[multiline_variable_name]["name"]
+                    session_dict[output_name] = []
+            if multiline_variable_name not in medpc_name_to_info_dict:
                 continue
             data = data.split(" ")
             for datum in data:
@@ -117,30 +117,33 @@ def read_medpc_file(
                     "\t" in datum
                 ):  # some sessions have a bunch of garbage after the last datum in the line separated by tabs
                     datum = datum.split("\t")[0]  # TODO: Make sure this is generalizable for neuroconv
-                session_dict[medpc_name_to_dict_name[multiline_variable_name]].append(datum)
+                output_name = medpc_name_to_info_dict[multiline_variable_name]["name"]
+                session_dict[output_name].append(datum)
 
         # single line variable
-        elif medpc_name in medpc_name_to_dict_name:
-            dict_name = medpc_name_to_dict_name[medpc_name]
-            session_dict[dict_name] = data
+        elif medpc_name in medpc_name_to_info_dict:
+            output_name = medpc_name_to_info_dict[medpc_name]["name"]
+            session_dict[output_name] = data
 
     # Convert the data types
-    for dict_name, data_type in dict_name_to_type.items():
-        if dict_name in session_dict:
-            if data_type == date:
-                session_dict[dict_name] = datetime.strptime(session_dict[dict_name], "%m/%d/%y").date()
-            elif data_type == time:
-                session_dict[dict_name] = datetime.strptime(session_dict[dict_name], "%H:%M:%S").time()
-            elif data_type == np.ndarray:
-                if session_dict[dict_name] == "":
-                    session_dict[dict_name] = np.array([], dtype=float)
-                elif type(session_dict[dict_name]) == str:  # not a multiline variable
+    for output_name, info in medpc_name_to_info_dict.items():
+        output_name = info["name"]
+        data_type = info["type"]
+        if output_name in session_dict:
+            if data_type == "date":
+                session_dict[output_name] = datetime.strptime(session_dict[output_name], "%m/%d/%y").date()
+            elif data_type == "time":
+                session_dict[output_name] = datetime.strptime(session_dict[output_name], "%H:%M:%S").time()
+            elif data_type == "numpy.ndarray":
+                if session_dict[output_name] == "":
+                    session_dict[output_name] = np.array([], dtype=float)
+                elif type(session_dict[output_name]) == "str":  # not a multiline variable
                     raise ValueError(
-                        f"Expected {dict_name} to be a multiline variable, but found a single line variable."
+                        f"Expected {output_name} to be a multiline variable, but found a single line variable."
                     )
                 else:
-                    session_dict[dict_name] = np.array(session_dict[dict_name], dtype=float)
-                    session_dict[dict_name] = np.trim_zeros(
-                        session_dict[dict_name], trim="b"
+                    session_dict[output_name] = np.array(session_dict[output_name], dtype=float)
+                    session_dict[output_name] = np.trim_zeros(
+                        session_dict[output_name], trim="b"
                     )  # MEDPC adds extra zeros to the end of the array
     return session_dict

@@ -96,19 +96,12 @@ def session_to_nwb(
     #     )
     # )
     # conversion_options.update(dict(Behavior={}))
-    metadata_medpc_name_to_dict_name = {
-        "Start Date": "start_date",
-        "Subject": "subject",
-        "Box": "box",
-        "Start Time": "start_time",
-        "MSN": "MSN",
-    }
-    metadata_dict_name_to_type = {
-        "start_date": date,
-        "subject": str,
-        "box": str,
-        "start_time": time,
-        "MSN": str,
+    metadata_medpc_name_to_info_dict = {
+        "Start Date": {"name": "start_date", "type": "date"},
+        "Subject": {"name": "subject", "type": "str"},
+        "Box": {"name": "box", "type": "str"},
+        "Start Time": {"name": "start_time", "type": "time"},
+        "MSN": {"name": "MSN", "type": "str"},
     }
     source_data.update(
         dict(
@@ -116,8 +109,7 @@ def session_to_nwb(
                 "file_path": str(behavior_file_path),
                 "session_conditions": session_conditions,
                 "start_variable": start_variable,
-                "metadata_medpc_name_to_dict_name": metadata_medpc_name_to_dict_name,
-                "metadata_dict_name_to_type": metadata_dict_name_to_type,
+                "metadata_medpc_name_to_info_dict": metadata_medpc_name_to_info_dict,
                 "verbose": verbose,
             }
         )
