@@ -30,6 +30,7 @@ def session_to_nwb(
     fiber_photometry_t2: Optional[float] = None,
     has_demodulated_commanded_voltages: bool = True,
     flip_ttls_lr: bool = False,
+    has_port_entry_durations: bool = True,
     stub_test: bool = False,
     verbose: bool = True,
 ):
@@ -197,6 +198,14 @@ def session_to_nwb(
         if event["name"] in medpc_name_to_output_name.values():
             events.append(event)
     metadata["MedPC"]["Events"] = events
+    if not has_port_entry_durations:
+        metadata["MedPC"]["IntervalSeries"] = []
+        metadata["MedPC"]["Events"].append(
+            {
+                "name": "reward_port_entry_times",
+                "description": "Reward port entry times",
+            }
+        )
 
     # Run conversion
     converter.run_conversion(metadata=metadata, nwbfile_path=nwbfile_path, conversion_options=conversion_options)

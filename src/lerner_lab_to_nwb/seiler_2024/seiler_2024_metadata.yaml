@@ -62,7 +62,7 @@ MedPC:
   IntervalSeries:
     - name: reward_port_intervals
       description: Interval of time spent in reward port (1 is entry, -1 is exit)
-      onset_name: port_entry_times
+      onset_name: reward_port_entry_times
       duration_name: duration_of_port_entry
 
   msn_to_medpc_name_to_output_name:
@@ -72,77 +72,77 @@ MedPC:
       C: right_nose_poke_times
       D: right_reward_times
       E: duration_of_port_entry
-      G: port_entry_times
+      G: reward_port_entry_times
     20sOmissions:
       A: left_nose_poke_times
       B: left_reward_times
       C: right_nose_poke_times
       D: right_reward_times
       E: duration_of_port_entry
-      G: port_entry_times
+      G: reward_port_entry_times
     FOOD_FR1 Habit Training TTL:
       A: left_nose_poke_times
       B: left_reward_times
       C: right_nose_poke_times
       D: right_reward_times
       E: duration_of_port_entry
-      G: port_entry_times
+      G: reward_port_entry_times
     FOOD_FR1 HT TTL (Both):
       A: left_nose_poke_times
       B: left_reward_times
       C: right_nose_poke_times
       D: right_reward_times
       E: duration_of_port_entry
-      G: port_entry_times
+      G: reward_port_entry_times
     FOOD_FR1 TTL Left:
       A: left_nose_poke_times
       B: left_reward_times
       C: right_nose_poke_times
       D: right_reward_times
       E: duration_of_port_entry
-      G: port_entry_times
+      G: reward_port_entry_times
     FOOD_FR1 TTL Right:
       A: left_nose_poke_times
       B: left_reward_times
       C: right_nose_poke_times
       D: right_reward_times
       E: duration_of_port_entry
-      G: port_entry_times
+      G: reward_port_entry_times
     FOOD_RI 30 LEFT:
       A: left_nose_poke_times
       B: left_reward_times
       C: right_nose_poke_times
       D: right_reward_times
       E: duration_of_port_entry
-      G: port_entry_times
+      G: reward_port_entry_times
     FOOD_RI 30 RIGHT TTL:
       A: left_nose_poke_times
       B: left_reward_times
       C: right_nose_poke_times
       D: right_reward_times
       E: duration_of_port_entry
-      G: port_entry_times
+      G: reward_port_entry_times
     FOOD_RI 60 LEFT TTL:
       A: left_nose_poke_times
       B: left_reward_times
       C: right_nose_poke_times
       D: right_reward_times
       E: duration_of_port_entry
-      G: port_entry_times
+      G: reward_port_entry_times
     FOOD_RI 60 RIGHT TTL:
       A: left_nose_poke_times
       B: left_reward_times
       C: right_nose_poke_times
       D: right_reward_times
       E: duration_of_port_entry
-      G: port_entry_times
+      G: reward_port_entry_times
     Footshock Degradation Left:
       A: left_nose_poke_times
       B: left_reward_times
       C: right_nose_poke_times
       D: right_reward_times
       E: duration_of_port_entry
-      G: port_entry_times
+      G: reward_port_entry_times
       H: footshock_times
     Footshock Degradation right:
       A: left_nose_poke_times
@@ -150,7 +150,7 @@ MedPC:
       C: right_nose_poke_times
       D: right_reward_times
       E: duration_of_port_entry
-      G: port_entry_times
+      G: reward_port_entry_times
       H: footshock_times
     FR1_BOTH_SCRAMBLED:
       A: left_nose_poke_times
@@ -158,7 +158,7 @@ MedPC:
       C: right_nose_poke_times
       D: right_reward_times
       E: duration_of_port_entry
-      G: port_entry_times
+      G: reward_port_entry_times
       Z: optogenetic_stimulation_times
     FR1_BOTH_WStim:
       A: left_nose_poke_times
@@ -166,14 +166,14 @@ MedPC:
       C: right_nose_poke_times
       D: right_reward_times
       E: duration_of_port_entry
-      G: port_entry_times
+      G: reward_port_entry_times
     FR1_LEFT_SCRAM:
       A: left_nose_poke_times
       B: left_reward_times
       C: right_nose_poke_times
       D: right_reward_times
       E: duration_of_port_entry
-      G: port_entry_times
+      G: reward_port_entry_times
       Z: optogenetic_stimulation_times
     FR1_LEFT_STIM:
       A: left_nose_poke_times
@@ -181,14 +181,14 @@ MedPC:
       C: right_nose_poke_times
       D: right_reward_times
       E: duration_of_port_entry
-      G: port_entry_times
+      G: reward_port_entry_times
     FR1_RIGHT_SCRAMBLED:
       A: left_nose_poke_times
       B: left_reward_times
       C: right_nose_poke_times
       D: right_reward_times
       E: duration_of_port_entry
-      G: port_entry_times
+      G: reward_port_entry_times
       Z: optogenetic_stimulation_times
     FR1_RIGHT_STIM:
       A: left_nose_poke_times
@@ -196,49 +196,49 @@ MedPC:
       C: right_nose_poke_times
       D: right_reward_times
       E: duration_of_port_entry
-      G: port_entry_times
+      G: reward_port_entry_times
     Probe Test Habit Training TTL:
       A: left_nose_poke_times
       B: left_reward_times
       C: right_nose_poke_times
       D: right_reward_times
       U: duration_of_port_entry
-      G: port_entry_times
+      G: reward_port_entry_times
     RI 30 RIGHT_STIM:
       A: left_nose_poke_times
       B: left_reward_times
       C: right_nose_poke_times
       D: right_reward_times
       E: duration_of_port_entry
-      G: port_entry_times
+      G: reward_port_entry_times
     RI 60 RIGHT STIM:
       A: left_nose_poke_times
       B: left_reward_times
       C: right_nose_poke_times
       D: right_reward_times
       E: duration_of_port_entry
-      G: port_entry_times
+      G: reward_port_entry_times
     RI 60 LEFT_STIM:
       A: left_nose_poke_times
       B: left_reward_times
       C: right_nose_poke_times
       D: right_reward_times
       E: duration_of_port_entry
-      G: port_entry_times
+      G: reward_port_entry_times
     RI 30 LEFT_STIM:
       A: left_nose_poke_times
       B: left_reward_times
       C: right_nose_poke_times
       D: right_reward_times
       E: duration_of_port_entry
-      G: port_entry_times
+      G: reward_port_entry_times
     RI30 Left Scrambled:
       A: left_nose_poke_times
       B: left_reward_times
       C: right_nose_poke_times
       D: right_reward_times
       E: duration_of_port_entry
-      G: port_entry_times
+      G: reward_port_entry_times
       Z: optogenetic_stimulation_times
     RI30 Right SCRAMBLED:
       A: left_nose_poke_times
@@ -246,7 +246,7 @@ MedPC:
       C: right_nose_poke_times
       D: right_reward_times
       E: duration_of_port_entry
-      G: port_entry_times
+      G: reward_port_entry_times
       Z: optogenetic_stimulation_times
     RI60_LEFT_SCRAM:
       A: left_nose_poke_times
@@ -254,7 +254,7 @@ MedPC:
       C: right_nose_poke_times
       D: right_reward_times
       E: duration_of_port_entry
-      G: port_entry_times
+      G: reward_port_entry_times
       Z: optogenetic_stimulation_times
     RI60_RIGHT_SCRAM:
       A: left_nose_poke_times
@@ -262,7 +262,7 @@ MedPC:
       C: right_nose_poke_times
       D: right_reward_times
       E: duration_of_port_entry
-      G: port_entry_times
+      G: reward_port_entry_times
       Z: optogenetic_stimulation_times
     RR5_Left_CVC:
       A: left_nose_poke_times
@@ -270,7 +270,7 @@ MedPC:
       C: right_nose_poke_times
       D: right_reward_times
       E: duration_of_port_entry
-      G: port_entry_times
+      G: reward_port_entry_times
       H: footshock_times
     RR20Left:
       A: left_nose_poke_times
@@ -278,7 +278,7 @@ MedPC:
       C: right_nose_poke_times
       D: right_reward_times
       E: duration_of_port_entry
-      G: port_entry_times
+      G: reward_port_entry_times
       H: footshock_times
     RR20_Left:
       A: left_nose_poke_times
@@ -294,7 +294,7 @@ MedPC:
       C: right_nose_poke_times
       D: right_reward_times
       E: duration_of_port_entry
-      G: port_entry_times
+      G: reward_port_entry_times
       H: footshock_times
     RR20_Right_AHJS:
       A: left_nose_poke_times
