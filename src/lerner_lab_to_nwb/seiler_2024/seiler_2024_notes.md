@@ -48,6 +48,11 @@ In FP Experiments/Behavior/PS/140.306,
 - one of the sessions (ex. 09/06/19) has a bunch of garbage to the right of the 'A' variable
 - Solution: Handled by reader
 
+### Active Questions
+- In FP Experiments/Behavior/RR20/95.259/95.259, some of the sessions (ex. 04/09/19) have non-ascending reward port intervals
+ex. reward port entry = 985.750, reward port exit = 985.850 (duration = 0.1), next reward port entry = 985.800 (before previous exit)
+how is this possible?
+
 ### Resolved Questions
 In FP Experiments/Behavior/PS/139.298,
 - one of the sessions (ex. 09/20/19) is actually from subject 144.306
@@ -116,10 +121,16 @@ PrtN, RNnR, PrtR, LNPS, RNRW -- why is this mismatched with the expected epocs?
 for that 1 session split across the two folders?
     - Answer: Yes, occasionally the computer freezes or something and I need to restart the TDT recording while the MED program is unaffected. For my analysis I basically just stitched them together.
     - Solution: Added stitching functionality for optional second_folder_path
+- For DPR/334.394/07/21/20, 3 right nosepokes were made BUT photometry object still doesn't have a RNPS object
+    - Skip this session bc it is corrupted
+- RR20/99.257 on 04/16/19 has a photometry session but no matching behavior session on that day -- pls provide?
+    - Skip this session bc Lerner Lab can't find it
 
 ### Active Questions
-- For DPR/334.394/07/21/20, 3 right nosepokes were made BUT photometry object still doesn't have a RNPS object
-- RR20/99.257 on 04/16/19 has a photometry session but no matching behavior session on that day -- pls provide?
+- Some fiber photometry sessions (ex. FP_RR20_96.259_2019-04-17T16-03-52) have msns that I was told to skip (ex. RR20_Right_AHJS)
+  Should I still skip these, or just treat them like RR20Right?
+- In one of those sessions, FP Experiments/Photometry/RR20/late/Photo_96_259-190506-105642, doesn't have any RNnR TTLs,
+  even though it has plenty of right nose pokes in the behavioral file. Can you look into this?
 
 ## Optogenetics
 ### Notes
@@ -144,6 +155,36 @@ for that 1 session split across the two folders?
     (ChR2, EYFP, Scrambled).  Which treatment did these sessions receive?
     - Solution: Metadata excel file has treatment info --> metadata["NWBFile"]["stimulus_notes"]
 - RI 60 LEFT_STIM, RI 30 LEFT_STIM, and RK_C_FR1_BOTH_1hr msns show up in opto data but don't have associated files -- assumed to be the same as their right counterparts?
+
+### Active Questions
+- DMS-Excitatory has some csv files w/ only session-aggregated info (total right rewards but not right reward times) ex. ChR2/121_280.CSV -- do you have individual session info for these animals?
+    - Lerner Lab does not have this data --> skip these sessions
+- Some csv files do not have any subject info (ex. DLS Excitatory/_08-28-20.csv) -- pls provide or we will need to skip these sessions
+    - Lerner Lab does not have this metadata --> skip these sessions
+- Some of the sessions in the DLS Excitatory medpc files organized by date don't have subject info -- pls provide or we will need to skip these sessions
+    Full List:
+        start_date ='08/28/20' start_time ='14:02:02'
+        start_date ='08/28/20' start_time ='15:19:38'
+        start_date ='08/28/20' start_time ='15:53:16'
+        start_date ='08/28/20' start_time ='16:02:33'
+        start_date ='08/28/20' start_time ='16:33:16'
+        start_date ='08/28/20' start_time ='16:38:51'
+        start_date ='09/03/20' start_time ='12:39:34'
+        start_date ='09/03/20' start_time ='12:39:34'
+        start_date ='09/03/20' start_time ='12:39:34'
+        start_date ='09/03/20' start_time ='12:39:34'
+        start_date ='08/31/20' start_time ='13:02:03'
+        start_date ='08/31/20' start_time ='13:02:03'
+        start_date ='08/31/20' start_time ='13:02:03'
+        start_date ='08/31/20' start_time ='13:02:03'
+        start_date ='08/31/20' start_time ='14:53:03'
+        start_date ='08/31/20' start_time ='14:53:03'
+        start_date ='08/31/20' start_time ='14:53:03'
+        start_date ='08/31/20' start_time ='15:34:14'
+        start_date ='09/22/20' start_time ='12:43:27'
+        start_date ='09/22/20' start_time ='12:43:27'
+        start_date ='09/22/20' start_time ='12:43:27'
+    - Lerner Lab does not have this metadata --> skip these sessions
 
 ## Western Blot
 ### Notes
@@ -199,28 +240,16 @@ for that 1 session split across the two folders?
     }
 
 ### Active Questions
-- DMS-Excitatory has some csv files w/ only session-aggregated info (total right rewards but not right reward times) ex. ChR2/121_280.CSV -- do you have individual session info for these animals?
-- Some csv files do not have any subject info (ex. DLS Excitatory/_08-28-20.csv) -- pls provide or we will need to skip these sessions
-- Some of the sessions in the DLS Excitatory medpc files organized by date don't have subject info -- pls provide or we will need to skip these sessions
-    Full List:
-        start_date ='08/28/20' start_time ='14:02:02'
-        start_date ='08/28/20' start_time ='15:19:38'
-        start_date ='08/28/20' start_time ='15:53:16'
-        start_date ='08/28/20' start_time ='16:02:33'
-        start_date ='08/28/20' start_time ='16:33:16'
-        start_date ='08/28/20' start_time ='16:38:51'
-        start_date ='09/03/20' start_time ='12:39:34'
-        start_date ='09/03/20' start_time ='12:39:34'
-        start_date ='09/03/20' start_time ='12:39:34'
-        start_date ='09/03/20' start_time ='12:39:34'
-        start_date ='08/31/20' start_time ='13:02:03'
-        start_date ='08/31/20' start_time ='13:02:03'
-        start_date ='08/31/20' start_time ='13:02:03'
-        start_date ='08/31/20' start_time ='13:02:03'
-        start_date ='08/31/20' start_time ='14:53:03'
-        start_date ='08/31/20' start_time ='14:53:03'
-        start_date ='08/31/20' start_time ='14:53:03'
-        start_date ='08/31/20' start_time ='15:34:14'
-        start_date ='09/22/20' start_time ='12:43:27'
-        start_date ='09/22/20' start_time ='12:43:27'
-        start_date ='09/22/20' start_time ='12:43:27'
+None
+
+## Metadata
+### Notes
+- Some medpc filenames/sessions have incomplete or missing subject names (ex. 75 instead of 75.214) -- need to do some matching operation
+- Punishment Group has a typo for PR ('Punishment Resitant' instead of 'Punishment Resistant') -- I'll fix on my end
+
+### Resolved Questions
+- Some animals are missing the "Hemisphere with DMS" field -- pls provide
+    - Solution: Added missing MSNs; skipped RK_C_FR1_BOTH_1hr
+
+### Active Questions
+- Some of the subject_ids are not present in the metadata excel file -- pls provide

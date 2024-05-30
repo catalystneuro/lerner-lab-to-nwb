@@ -207,6 +207,15 @@ def fp_to_nwb(
         "Photo_89_247-190308-095258",
         "Photo_140_306-190809-121107",
         "Photo_271_396-200707-125117",
+        "Photo_96_259-190417-160333",
+        "Photo_97_257-190417-134643",
+        "Photo_97_257-190506-120133",
+        "Photo_98_257-190424-114024",
+        "Photo_98_257-190510-095056",
+        "Photo_99_257-190506-130951",
+        "Photo_100_258-190423-122632",
+        "Photo_100_258-190509-133212",
+        "Photo_101_260-190425-120029",
     }
     partial_subject_ids_to_subject_id = {
         "300": "300.405",
@@ -274,11 +283,11 @@ def fp_to_nwb(
                 if (
                     (
                         photometry_subject_id == "334.394" and photometry_start_date == "07/21/20"
-                    )  # TODO: Ask Lerner Lab about this session
+                    )  # Skipping this session bc photometry data is corrupted
                     or (
                         photometry_subject_id == "99.257"
                         and photometry_start_date == "04/16/19"
-                        # TODO: Ask Lerner Lab about this session
+                        # Skipping this session bc missing behavior data
                     )
                     or (
                         photometry_subject_id == "64.205"
@@ -320,6 +329,11 @@ def fp_to_nwb(
                         and photometry_start_date == "10/31/18"
                         and experimental_subgroup.name == "Late RI60"
                     )
+                    or (
+                        photometry_subject_id == "96.259"
+                        and photometry_start_date == "05/06/19"
+                        and experimental_subgroup.name == "late"
+                    )  # This session is missing RNnR TTLs
                 ):
                     continue
                 assert (
@@ -535,7 +549,7 @@ def opto_to_nwb(
                     if not (
                         path.name.startswith(".")
                         or path.name.endswith(".csv")
-                        or path.name.endswith(".CSV")  # TODO: add support for session-aggregated CSV files
+                        or path.name.endswith(".CSV")  # session-aggregated CSV files are skipped
                     )
                 ]
                 for subject_path in subject_paths:
@@ -589,7 +603,7 @@ def opto_to_nwb(
     for file in raw_files_by_date_path.iterdir():
         if (
             file.name.startswith(".") or file.is_dir() or file.suffix == ".csv"
-        ):  # TODO: ask Lerner Lab about orphaned csvs
+        ):  # These .csv files are skipped bc they don't have subject info
             continue
         info = get_medpc_variables(file_path=file, variable_names=["Subject", "Start Date", "Start Time", "MSN", "Box"])
         for i in range(len(info["Subject"])):
@@ -819,8 +833,6 @@ def session_should_be_skipped(*, start_date, start_time, subject_id, msn):
         "FOOD_Magazine Training 1 hr",
         "RI_60_Left_Probability_AH_050619",
         "RI_60_Right_Probability_AH_050619",
-        "RR20_Right_AHJS",
-        "RR20_Left",
         "Extinction - 1 HR",
         "RR10_Left_AHJS",
         "Probe Test Habit Training CC",

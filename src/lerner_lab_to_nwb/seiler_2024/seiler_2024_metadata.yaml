@@ -1,7 +1,7 @@
 NWBFile:
   related_publications:
     - https://doi.org/10.1016/j.cub.2022.01.055
-  session_description:
+  experiment_description:
     Compulsive behavior is a defining feature of disorders such as substance use disorders.
     Current evidence suggests that corticostriatal circuits control the expression of established compulsions,
     but little is known about the mechanisms regulating the development of compulsions.
@@ -23,6 +23,17 @@ NWBFile:
     - Bianco, Joseph M.
     - Bridgemohan, Abigael S.
     - Lerner, Talia N.
+  keywords:
+    - dorsal striatum
+    - dopamine
+    - substantia nigra
+    - reward learning
+    - habit formation
+    - compulsive behavior
+    - punishment-resistant reward seeking
+    - fiber photometry
+    - optogenetics
+
 Subject:
   species: Mus musculus
   age: P10W/  # in ISO 8601, such as "P1W2D"
@@ -252,7 +263,23 @@ Behavior:
       E: duration_of_port_entry
       G: port_entry_times
       H: footshock_times
+    RR20_Left:
+      A: left_nose_poke_times
+      B: left_reward_times
+      C: right_nose_poke_times
+      D: right_reward_times
+      E: duration_of_port_entry
+      G: port_entry_times
+      H: footshock_times
     RR20Right:
+      A: left_nose_poke_times
+      B: left_reward_times
+      C: right_nose_poke_times
+      D: right_reward_times
+      E: duration_of_port_entry
+      G: port_entry_times
+      H: footshock_times
+    RR20_Right_AHJS:
       A: left_nose_poke_times
       B: left_reward_times
       C: right_nose_poke_times

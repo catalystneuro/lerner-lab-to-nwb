@@ -44,6 +44,41 @@ class Seiler2024BehaviorInterface(BaseDataInterface):
         )
 
     def get_metadata(self) -> DeepDict:
+        msn_to_session_description = {
+            "20sOmissions_TTL": "Omission Probe with concurrent fiber photometry",
+            "20sOmissions": "Omission Probe",
+            "FOOD_FR1 Habit Training TTL": "FR1 Habit Training with concurrent fiber photometry",
+            "FOOD_FR1 HT TTL (Both)": "FR1 Habit Training with concurrent fiber photometry, rewards delivered on both left and right nose pokes",
+            "FOOD_FR1 TTL Left": "FR1 Training with concurrent fiber photometry, rewards delivered on left nose pokes",
+            "FOOD_FR1 TTL Right": "FR1 Training with concurrent fiber photometry, rewards delivered on right nose pokes",
+            "FOOD_RI 30 LEFT": "RI30 Training, rewards delivered on left nose pokes",
+            "FOOD_RI 30 RIGHT TTL": "RI30 Training with concurrent fiber photometry, rewards delivered on right nose pokes",
+            "FOOD_RI 60 LEFT TTL": "RI60 Training with concurrent fiber photometry, rewards delivered on left nose pokes",
+            "FOOD_RI 60 RIGHT TTL": "RI60 Training with concurrent fiber photometry, rewards delivered on right nose pokes",
+            "Footshock Degradation Left": "Footshock Probe, shocks delivered on left nose pokes",
+            "Footshock Degradation right": "Footshock Probe, shocks delivered on right nose pokes",
+            "FR1_BOTH_SCRAMBLED": "FR1 Training with optogenetic stimulation, rewards delivered on both left and right nose pokes, optogenetic stimulation delivered on random nose pokes",
+            "FR1_BOTH_WStim": "FR1 Training with optogenetic stimulation, rewards delivered on both left and right nose pokes, optogenetic stimulation delivered on all nose pokes",
+            "FR1_LEFT_SCRAM": "FR1 Training with optogenetic stimulation, rewards delivered on left nose pokes, optogenetic stimulation delivered on random nose pokes",
+            "FR1_LEFT_STIM": "FR1 Training with optogenetic stimulation, rewards delivered on left nose pokes, optogenetic stimulation delivered on left nose pokes",
+            "FR1_RIGHT_SCRAMBLED": "FR1 Training with optogenetic stimulation, rewards delivered on right nose pokes, optogenetic stimulation delivered on random nose pokes",
+            "FR1_RIGHT_STIM": "FR1 Training with optogenetic stimulation, rewards delivered on right nose pokes, optogenetic stimulation delivered on right nose pokes",
+            "Probe Test Habit Training TTL": "Probe Test",
+            "RI 30 RIGHT_STIM": "RI30 Training with optogenetic stimulation, rewards delivered on right nose pokes, optogenetic stimulation delivered on right nose pokes",
+            "RI 60 RIGHT STIM": "RI60 Training with optogenetic stimulation, rewards delivered on right nose pokes, optogenetic stimulation delivered on right nose pokes",
+            "RI 60 LEFT_STIM": "RI60 Training with optogenetic stimulation, rewards delivered on left nose pokes, optogenetic stimulation delivered on left nose pokes",
+            "RI 30 LEFT_STIM": "RI30 Training with optogenetic stimulation, rewards delivered on left nose pokes, optogenetic stimulation delivered on left nose pokes",
+            "RI30 Left Scrambled": "RI30 Training with optogenetic stimulation, rewards delivered on left nose pokes, optogenetic stimulation delivered on random nose pokes",
+            "RI30 Right SCRAMBLED": "RI30 Training with optogenetic stimulation, rewards delivered on right nose pokes, optogenetic stimulation delivered on random nose pokes",
+            "RI60_LEFT_SCRAM": "RI60 Training with optogenetic stimulation, rewards delivered on left nose pokes, optogenetic stimulation delivered on random nose pokes",
+            "RI60_RIGHT_SCRAM": "RI60 Training with optogenetic stimulation, rewards delivered on right nose pokes, optogenetic stimulation delivered on random nose pokes",
+            "RR5_Left_CVC": "RR5 Training",
+            "RR20Left": "RR20 Training, rewards delivered on left nose pokes",
+            "RR20_Left": "RR20 Training, rewards delivered on left nose pokes",
+            "RR20Right": "RR20 Training, rewards delivered on right nose pokes",
+            "RR20_Right_AHJS": "RR20 Training, rewards delivered on right nose pokes",
+            "Unknown": "Unknown",
+        }
         metadata = super().get_metadata()
         medpc_name_to_dict_name = {
             "Start Date": "start_date",
@@ -100,6 +135,7 @@ class Seiler2024BehaviorInterface(BaseDataInterface):
         metadata["Behavior"] = {}
         metadata["Behavior"]["box"] = box
         metadata["Behavior"]["msn"] = msn
+        metadata["Behavior"]["session_description"] = msn_to_session_description[msn]
 
         return metadata
 
@@ -152,6 +188,18 @@ class Seiler2024BehaviorInterface(BaseDataInterface):
                 session_dict[dict_name] = np.trim_zeros(session_df[csv_name].dropna().values, trim="b")
         else:
             session_dict = self.source_data["session_dict"]
+            msn = metadata["Behavior"]["msn"]
+            medpc_name_to_dict_name = metadata["Behavior"]["msn_to_medpc_name_to_dict_name"][msn]
+            dict_name_to_type = {dict_name: np.ndarray for dict_name in medpc_name_to_dict_name.values()}
+            medpc_session_dict = read_medpc_file(
+                file_path=self.source_data["file_path"],
+                medpc_name_to_dict_name=medpc_name_to_dict_name,
+                dict_name_to_type=dict_name_to_type,
+                session_conditions=self.source_data["session_conditions"],
+                start_variable=self.source_data["start_variable"],
+            )
+            if "duration_of_port_entry" in medpc_session_dict:
+                session_dict["duration_of_port_entry"] = medpc_session_dict["duration_of_port_entry"]
 
         # Add behavior data to nwbfile
         behavior_module = nwb_helpers.get_module(
@@ -170,13 +218,14 @@ class Seiler2024BehaviorInterface(BaseDataInterface):
         ):  # some sessions are missing port entry durations ex. FP Experiments/Behavior/PR/028.392/07-09-20
             if self.verbose:
                 print(f"No port entry durations found for {metadata['NWBFile']['session_id']}")
-            reward_port_entry_times = Events(
-                name="reward_port_entry_times",
-                description="Reward port entry times",
-                timestamps=H5DataIO(session_dict["port_entry_times"], compression=True),
-            )
-            behavior_module.add(reward_port_entry_times)
-        else:
+            if len(session_dict["port_entry_times"]) > 0:
+                reward_port_entry_times = Events(
+                    name="reward_port_entry_times",
+                    description="Reward port entry times",
+                    timestamps=H5DataIO(session_dict["port_entry_times"], compression=True),
+                )
+                behavior_module.add(reward_port_entry_times)
+        elif len(session_dict["port_entry_times"]) > 0:
             port_times, data = [], []
             for port_entry_time, duration in zip(
                 session_dict["port_entry_times"], session_dict["duration_of_port_entry"]
@@ -196,18 +245,20 @@ class Seiler2024BehaviorInterface(BaseDataInterface):
             behavior_module.add(behavioral_epochs)
 
         # Left/Right Nose pokes
-        left_nose_poke_times = Events(
-            name="left_nose_poke_times",
-            description="Left nose poke times",
-            timestamps=H5DataIO(session_dict["left_nose_poke_times"], compression=True),
-        )
-        right_nose_poke_times = Events(
-            name="right_nose_poke_times",
-            description="Right nose poke times",
-            timestamps=H5DataIO(session_dict["right_nose_poke_times"], compression=True),
-        )
-        behavior_module.add(left_nose_poke_times)
-        behavior_module.add(right_nose_poke_times)
+        if len(session_dict["left_nose_poke_times"]) > 0:
+            left_nose_poke_times = Events(
+                name="left_nose_poke_times",
+                description="Left nose poke times",
+                timestamps=H5DataIO(session_dict["left_nose_poke_times"], compression=True),
+            )
+            behavior_module.add(left_nose_poke_times)
+        if len(session_dict["right_nose_poke_times"]) > 0:
+            right_nose_poke_times = Events(
+                name="right_nose_poke_times",
+                description="Right nose poke times",
+                timestamps=H5DataIO(session_dict["right_nose_poke_times"], compression=True),
+            )
+            behavior_module.add(right_nose_poke_times)
 
         # Left/Right Rewards -- Interleaved for most sessions
         if len(session_dict["left_reward_times"]) > 0:
@@ -226,7 +277,7 @@ class Seiler2024BehaviorInterface(BaseDataInterface):
             behavior_module.add(right_reward_times)
 
         # Footshock
-        if "footshock_times" in session_dict:
+        if "footshock_times" in session_dict and len(session_dict["footshock_times"]) > 0:
             footshock_times = Events(
                 name="footshock_times",
                 description="Footshock times",
