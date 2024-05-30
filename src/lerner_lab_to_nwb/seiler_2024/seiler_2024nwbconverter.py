@@ -8,11 +8,16 @@ from lerner_lab_to_nwb.seiler_2024 import (
     Seiler2024FiberPhotometryInterface,
     Seiler2024OptogeneticInterface,
     Seiler2024ExcelMetadataInterface,
+<<<<<<< HEAD
     Seiler2024CSVBehaviorInterface,
     Seiler2024WesternBlotInterface,
 )
 from neuroconv.datainterfaces import MedPCInterface
 from neuroconv.datainterfaces.behavior.medpc.medpc_helpers import read_medpc_file
+=======
+)
+from neuroconv.datainterfaces import MedPCInterface
+>>>>>>> 09ef968 (moved to neuroconv version of medpcinterface)
 import numpy as np
 from tdt import read_block
 import os
