@@ -9,6 +9,7 @@ from lerner_lab_to_nwb.seiler_2024 import (
     Seiler2024OptogeneticInterface,
     Seiler2024ExcelMetadataInterface,
     Seiler2024CSVBehaviorInterface,
+    Seiler2024WesternBlotInterface,
 )
 from neuroconv.datainterfaces import MedPCInterface
 from neuroconv.datainterfaces.behavior.medpc.medpc_helpers import read_medpc_file
@@ -160,3 +161,11 @@ class Seiler2024NWBConverter(NWBConverter):
             verbose=self.verbose,
         ) as nwbfile_out:
             self.add_to_nwbfile(nwbfile_out, metadata, conversion_options)
+
+
+class Seiler2024WesternBlotNWBConverter(NWBConverter):
+    """Western Blot conversion class."""
+
+    data_interface_classes = dict(
+        WesternBlot=Seiler2024WesternBlotInterface,
+    )
