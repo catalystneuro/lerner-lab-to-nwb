@@ -128,13 +128,9 @@ def read_medpc_file(
     # Convert the data types
     for output_name, info in medpc_name_to_info_dict.items():
         output_name = info["name"]
-        data_type = info["type"]
+        is_array = info["is_array"]
         if output_name in session_dict:
-            if data_type == "date":
-                session_dict[output_name] = datetime.strptime(session_dict[output_name], "%m/%d/%y").date()
-            elif data_type == "time":
-                session_dict[output_name] = datetime.strptime(session_dict[output_name], "%H:%M:%S").time()
-            elif data_type == "numpy.ndarray":
+            if is_array:
                 if session_dict[output_name] == "":
                     session_dict[output_name] = np.array([], dtype=float)
                 elif type(session_dict[output_name]) == "str":  # not a multiline variable
