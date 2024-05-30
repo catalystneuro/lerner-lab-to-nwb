@@ -201,6 +201,14 @@ def session_to_nwb(
         if event["name"] in medpc_name_to_output_name.values():
             events.append(event)
     metadata["MedPC"]["Events"] = events
+    if not has_port_entry_durations:
+        metadata["MedPC"]["IntervalSeries"] = []
+        metadata["MedPC"]["Events"].append(
+            {
+                "name": "reward_port_entry_times",
+                "description": "Reward port entry times",
+            }
+        )
 
     if not from_csv:
         msn = metadata["MedPC"]["MSN"]
