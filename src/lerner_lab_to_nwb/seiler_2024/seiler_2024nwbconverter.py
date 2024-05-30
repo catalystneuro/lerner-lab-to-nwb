@@ -8,8 +8,8 @@ from lerner_lab_to_nwb.seiler_2024 import (
     Seiler2024FiberPhotometryInterface,
     Seiler2024OptogeneticInterface,
     Seiler2024ExcelMetadataInterface,
-    Seiler2024WesternBlotInterface,
     Seiler2024CSVBehaviorInterface,
+    Seiler2024WesternBlotInterface,
 )
 from neuroconv.datainterfaces import MedPCInterface
 from neuroconv.datainterfaces.behavior.medpc.medpc_helpers import read_medpc_file
