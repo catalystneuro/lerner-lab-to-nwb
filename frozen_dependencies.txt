@@ -99,7 +99,11 @@ networkx==3.2.1
 nodeenv==1.8.0
 numcodecs==0.11.0
 numpy==1.26.3
+<<<<<<< HEAD
 -e git+https://github.com/catalystneuro/nwbinspector.git@91c1fcd069703b5f96355d7d09dba0ee5cbaf5c2#egg=nwbinspector
+=======
+-e git+https://github.com/catalystneuro/nwbinspector.git@9d5306b5be40af3175d40ab79ac274b9b79a0a7e#egg=nwbinspector
+>>>>>>> c08c754 (refactored read_medpc to use an info dict for json serialization)
 nwbwidgets==0.11.3
 openpyxl==3.1.2
 packaging==23.2
