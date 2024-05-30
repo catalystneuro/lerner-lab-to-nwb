@@ -99,7 +99,7 @@ networkx==3.2.1
 nodeenv==1.8.0
 numcodecs==0.11.0
 numpy==1.26.3
--e git+https://github.com/catalystneuro/nwbinspector.git@1f88732833709fc194ec46ebb82b0427137a2825#egg=nwbinspector
+-e git+https://github.com/catalystneuro/nwbinspector.git@9d5306b5be40af3175d40ab79ac274b9b79a0a7e#egg=nwbinspector
 nwbwidgets==0.11.3
 openpyxl==3.1.2
 packaging==23.2
