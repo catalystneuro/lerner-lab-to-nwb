@@ -10,17 +10,16 @@ from concurrent.futures import ProcessPoolExecutor, as_completed
 from pprint import pformat
 import traceback
 import re
+import yaml
 
 from lerner_lab_to_nwb.seiler_2024.seiler_2024_convert_session import (
     session_to_nwb,
     western_blot_to_nwb,
     split_western_blot,
 )
-from lerner_lab_to_nwb.seiler_2024.medpc import get_medpc_variables
-from lerner_lab_to_nwb.seiler_2024.medpc import read_medpc_file
+from neuroconv.datainterfaces.behavior.medpc.medpc_helpers import get_medpc_variables, read_medpc_file
 
 
-# TODO: Add list of sessions w/o port_entry_durations
 def dataset_to_nwb(
     *,
     data_dir_path: Union[str, Path],
@@ -76,10 +75,19 @@ def dataset_to_nwb(
         verbose=verbose,
     )
     session_to_nwb_args_per_session = fp_session_to_nwb_args_per_session + opto_session_to_nwb_args_per_session
+    port_entry_duration_path = data_dir_path / "sessions_without_port_entry_durations.yaml"
+    no_port_entry_duration_sessions = get_no_port_entry_duration_sessions(
+        port_entry_file_path=port_entry_duration_path,
+        session_to_nwb_args_per_session=session_to_nwb_args_per_session,
+        overwrite=False,
+    )
 
     futures = []
     with ProcessPoolExecutor(max_workers=max_workers) as executor:
         for session_to_nwb_kwargs in session_to_nwb_args_per_session:
+            session_key = get_session_key_from_kwargs(session_to_nwb_kwargs)
+            if session_key in no_port_entry_duration_sessions:
+                session_to_nwb_kwargs["has_port_entry_durations"] = False
             experiment_type = session_to_nwb_kwargs["experiment_type"]
             experimental_group = session_to_nwb_kwargs["experimental_group"]
             subject_id = session_to_nwb_kwargs["subject_id"]
@@ -106,6 +114,76 @@ def dataset_to_nwb(
             )
         for _ in tqdm(as_completed(futures), total=len(futures)):
             pass
+
+
+def get_no_port_entry_duration_sessions(
+    *,
+    port_entry_file_path: str,
+    session_to_nwb_args_per_session: list[dict],
+    overwrite: bool = True,
+):
+    if not overwrite and port_entry_file_path.exists():
+        with open(port_entry_file_path, mode="r") as f:
+            no_port_entry_duration_sessions = yaml.safe_load(f)
+        return no_port_entry_duration_sessions
+
+    no_port_entry_duration_sessions = set()
+    for session_to_nwb_kwargs in tqdm(session_to_nwb_args_per_session, desc="Reading port entry durations"):
+        behavior_file_path = session_to_nwb_kwargs["behavior_file_path"]
+        session_key = get_session_key_from_kwargs(session_to_nwb_kwargs)
+
+        if behavior_file_path.suffix == ".csv":
+            csv_name_to_dict_name = {
+                "DurationOfPE": "duration_of_port_entry",
+            }
+            session_dtypes = {
+                "Start Date": str,
+                "End Date": str,
+                "Start Time": str,
+                "End Time": str,
+                "MSN": str,
+                "Experiment": str,
+                "Subject": str,
+                "Box": str,
+            }
+            session_df = pd.read_csv(behavior_file_path, dtype=session_dtypes)
+            session_dict = {}
+            for csv_name, dict_name in csv_name_to_dict_name.items():
+                session_dict[dict_name] = np.trim_zeros(session_df[csv_name].dropna().values, trim="b")
+        else:
+            session_conditions = session_to_nwb_kwargs["session_conditions"]
+            start_variable = session_to_nwb_kwargs["start_variable"]
+            medpc_name_to_info_dict = {"E": {"name": "duration_of_port_entry", "is_array": True}}
+            try:
+                session_dict = read_medpc_file(
+                    file_path=behavior_file_path,
+                    medpc_name_to_info_dict=medpc_name_to_info_dict,
+                    session_conditions=session_conditions,
+                    start_variable=start_variable,
+                )
+            except TypeError:
+                medpc_name_to_info_dict = {"U": {"name": "duration_of_port_entry", "is_array": True}}
+                session_dict = read_medpc_file(
+                    file_path=behavior_file_path,
+                    medpc_name_to_info_dict=medpc_name_to_info_dict,
+                    session_conditions=session_conditions,
+                    start_variable=start_variable,
+                )
+        if len(session_dict["duration_of_port_entry"]) == 0:
+            no_port_entry_duration_sessions.add(session_key)
+
+    with open(port_entry_file_path, mode="w") as f:
+        yaml.dump(no_port_entry_duration_sessions, f)
+    return no_port_entry_duration_sessions
+
+
+def get_session_key_from_kwargs(session_to_nwb_kwargs: dict):
+    behavior_file_path = session_to_nwb_kwargs["behavior_file_path"]
+    session_conditions = session_to_nwb_kwargs["session_conditions"]
+    session_key = f"behavior_file_path={behavior_file_path}"
+    for key, value in session_conditions.items():
+        session_key += f"_{key}={value}"
+    return session_key
 
 
 def safe_session_to_nwb(*, session_to_nwb_kwargs: dict, exception_file_path: Union[Path, str]):
@@ -962,10 +1040,7 @@ def match_csv_session_to_medpc_session(*, raw_file_to_info, csv_date, port_entry
         ):
             if start_date != csv_date:
                 continue
-            medpc_name_to_dict_name = {"G": "port_entry_times"}
-            dict_name_to_type = {
-                "port_entry_times": np.ndarray,
-            }
+            medpc_name_to_info_dict = {"G": {"name": "port_entry_times", "is_array": True}}
             session_conditions = {
                 "Start Date": start_date,
                 "Start Time": start_time,
@@ -973,8 +1048,7 @@ def match_csv_session_to_medpc_session(*, raw_file_to_info, csv_date, port_entry
             }
             session_dict = read_medpc_file(
                 file_path=file,
-                medpc_name_to_dict_name=medpc_name_to_dict_name,
-                dict_name_to_type=dict_name_to_type,
+                medpc_name_to_info_dict=medpc_name_to_info_dict,
                 session_conditions=session_conditions,
                 start_variable=start_variable,
             )
