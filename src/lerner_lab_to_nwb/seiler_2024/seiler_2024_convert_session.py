@@ -212,27 +212,6 @@ def session_to_nwb(
                 }
             )
 
-    if not from_csv:
-        msn = metadata["MedPC"]["MSN"]
-        medpc_name_to_output_name = metadata[behavioral_metadata_key]["msn_to_medpc_name_to_output_name"][msn]
-        metadata["MedPC"]["medpc_name_to_info_dict"] = {
-            medpc_name: {"name": output_name, "is_array": True}
-            for medpc_name, output_name in medpc_name_to_output_name.items()
-        }
-        events = []
-        for event in metadata["MedPC"]["Events"]:
-            if event["name"] in medpc_name_to_output_name.values():
-                events.append(event)
-        metadata["MedPC"]["Events"] = events
-        if not has_port_entry_durations:
-            metadata["MedPC"]["IntervalSeries"] = []
-            metadata["MedPC"]["Events"].append(
-                {
-                    "name": "reward_port_entry_times",
-                    "description": "Reward port entry times",
-                }
-            )
-
     # Run conversion
     converter.run_conversion(metadata=metadata, nwbfile_path=nwbfile_path, conversion_options=conversion_options)
 
@@ -541,7 +520,6 @@ if __name__ == "__main__":
         data_dir_path=data_dir_path,
         output_dir_path=output_dir_path,
         behavior_file_path=behavior_file_path,
-        has_port_entry_durations=False,
         fiber_photometry_folder_path=fiber_photometry_folder_path,
         has_demodulated_commanded_voltages=False,
         subject_id=subject_id,
