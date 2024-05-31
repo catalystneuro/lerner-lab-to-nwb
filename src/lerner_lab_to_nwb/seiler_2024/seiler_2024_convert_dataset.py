@@ -122,6 +122,22 @@ def get_no_port_entry_duration_sessions(
     session_to_nwb_args_per_session: list[dict],
     overwrite: bool = True,
 ):
+    """Get the sessions that do not have port entry durations.
+
+    Parameters
+    ----------
+    port_entry_file_path : str
+        The path to the yaml file where the sessions without port entry durations will be saved.
+    session_to_nwb_args_per_session : list[dict]
+        A list of dictionaries containing the arguments for session_to_nwb for each session.
+    overwrite : bool, optional
+        Whether to overwrite the port entry file, by default True
+
+    Returns
+    -------
+    set
+        A set of session keys for sessions that do not have port entry durations.
+    """
     if not overwrite and port_entry_file_path.exists():
         with open(port_entry_file_path, mode="r") as f:
             no_port_entry_duration_sessions = yaml.safe_load(f)
@@ -178,6 +194,21 @@ def get_no_port_entry_duration_sessions(
 
 
 def get_session_key_from_kwargs(session_to_nwb_kwargs: dict):
+    """Get a string session key from the session_to_nwb_kwargs.
+
+    Specifically, the session key is created from the behavior_file_path and session_conditions.
+    For example, session_key = 'behavior_file_path=..._Start Date=..._Start Time=...'
+
+    Parameters
+    ----------
+    session_to_nwb_kwargs : dict
+        The arguments for session_to_nwb.
+
+    Returns
+    -------
+    str
+        The session key.
+    """
     behavior_file_path = session_to_nwb_kwargs["behavior_file_path"]
     session_conditions = session_to_nwb_kwargs["session_conditions"]
     session_key = f"behavior_file_path={behavior_file_path}"
