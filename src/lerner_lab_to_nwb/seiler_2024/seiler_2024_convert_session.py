@@ -193,6 +193,8 @@ def session_to_nwb(
 
     if not from_csv:
         msn = metadata["MedPC"]["MSN"]
+        box = metadata["MedPC"]["box"]
+        metadata["MedPC"]["module_description"] += f"\nMSN = {msn} \nBox = {box}"
         medpc_name_to_output_name = metadata[behavioral_metadata_key]["msn_to_medpc_name_to_output_name"][msn]
         metadata["MedPC"]["medpc_name_to_info_dict"] = {
             medpc_name: {"name": output_name, "is_array": True}

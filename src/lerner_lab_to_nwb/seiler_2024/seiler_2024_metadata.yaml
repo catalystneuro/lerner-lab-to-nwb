@@ -48,6 +48,8 @@ Subject:
   genotype: "DAT-IRES-Cre: B6.SJLSlc6a3tm1.1(cre)Bkmn/J"
 
 MedPC:
+  module_name: behavior
+  module_description: Operant behavioral data from MedPC.
   Events:
     - name: left_nose_poke_times
       description: Left nose poke times
