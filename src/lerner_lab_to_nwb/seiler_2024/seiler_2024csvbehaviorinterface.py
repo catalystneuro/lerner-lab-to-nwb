@@ -111,43 +111,34 @@ class Seiler2024CSVBehaviorInterface(BaseDataInterface):
         return metadata_schema
 
     def add_to_nwbfile(self, nwbfile: NWBFile, metadata: dict) -> None:
+        csv_name_to_dict_name = {
+            "portEntryTs": "port_entry_times",
+            "DurationOfPE": "duration_of_port_entry",
+            "LeftNoseTs": "left_nose_poke_times",
+            "RightNoseTs": "right_nose_poke_times",
+            "RightRewardTs": "right_reward_times",
+            "LeftRewardTs": "left_reward_times",
+        }
+        session_dtypes = {
+            "Start Date": str,
+            "End Date": str,
+            "Start Time": str,
+            "End Time": str,
+            "MSN": str,
+            "Experiment": str,
+            "Subject": str,
+            "Box": str,
+        }
+        session_df = pd.read_csv(self.source_data["file_path"], dtype=session_dtypes)
+        csv_session_dict = {}
+        for csv_name, dict_name in csv_name_to_dict_name.items():
+            csv_session_dict[dict_name] = np.trim_zeros(session_df[csv_name].dropna().values, trim="b")
         if self.source_data["session_dict"] is None:
-            csv_name_to_dict_name = {
-                "portEntryTs": "port_entry_times",
-                "DurationOfPE": "duration_of_port_entry",
-                "LeftNoseTs": "left_nose_poke_times",
-                "RightNoseTs": "right_nose_poke_times",
-                "RightRewardTs": "right_reward_times",
-                "LeftRewardTs": "left_reward_times",
-            }
-            session_dtypes = {
-                "Start Date": str,
-                "End Date": str,
-                "Start Time": str,
-                "End Time": str,
-                "MSN": str,
-                "Experiment": str,
-                "Subject": str,
-                "Box": str,
-            }
-            session_df = pd.read_csv(self.source_data["file_path"], dtype=session_dtypes)
-            session_dict = {}
-            for csv_name, dict_name in csv_name_to_dict_name.items():
-                session_dict[dict_name] = np.trim_zeros(session_df[csv_name].dropna().values, trim="b")
+            session_dict = csv_session_dict
         else:
             session_dict = self.source_data["session_dict"]
-            msn = metadata["Behavior"]["msn"]
-            medpc_name_to_dict_name = metadata["Behavior"]["msn_to_medpc_name_to_dict_name"][msn]
-            dict_name_to_type = {dict_name: np.ndarray for dict_name in medpc_name_to_dict_name.values()}
-            medpc_session_dict = read_medpc_file(
-                file_path=self.source_data["file_path"],
-                medpc_name_to_dict_name=medpc_name_to_dict_name,
-                dict_name_to_type=dict_name_to_type,
-                session_conditions=self.source_data["session_conditions"],
-                start_variable=self.source_data["start_variable"],
-            )
-            if "duration_of_port_entry" in medpc_session_dict:
-                session_dict["duration_of_port_entry"] = medpc_session_dict["duration_of_port_entry"]
+            if "duration_of_port_entry" in csv_session_dict:
+                session_dict["duration_of_port_entry"] = csv_session_dict["duration_of_port_entry"]
 
         # Add behavior data to nwbfile
         behavior_module = nwb_helpers.get_module(

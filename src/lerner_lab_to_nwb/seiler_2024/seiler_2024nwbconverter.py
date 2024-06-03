@@ -120,7 +120,10 @@ class Seiler2024NWBConverter(NWBConverter):
                 ttl_timestamps2 = self.get_ttl_timestamps(ttl_name, tdt_photometry2)
                 ttl_timestamps = np.concatenate((ttl_timestamps, ttl_timestamps2))
             session_dict[behavior_name] = ttl_timestamps
-        self.data_interface_objects["MedPC"].source_data["session_dict"] = session_dict
+        if "MedPC" in self.data_interface_objects.keys():
+            self.data_interface_objects["MedPC"].source_data["session_dict"] = session_dict
+        elif "Behavior" in self.data_interface_objects.keys():
+            self.data_interface_objects["Behavior"].source_data["session_dict"] = session_dict
 
     def get_ttl_timestamps(self, ttl_name, tdt_photometry):
         if ttl_name == "PrtN":
