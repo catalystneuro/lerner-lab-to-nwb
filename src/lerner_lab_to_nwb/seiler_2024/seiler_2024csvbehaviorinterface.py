@@ -1,7 +1,7 @@
 """Primary class for converting experiment-specific behavior."""
 from pynwb.file import NWBFile
 from datetime import datetime, date, time
-from neuroconv.basedatainterface import BaseDataInterface
+from neuroconv.basetemporalalignmentinterface import BaseTemporalAlignmentInterface
 from neuroconv.utils import DeepDict
 from neuroconv.tools import nwb_helpers
 import numpy as np
@@ -10,28 +10,43 @@ from ndx_events import Events
 from pynwb.behavior import BehavioralEpochs, IntervalSeries
 from hdmf.backends.hdf5.h5_utils import H5DataIO
 from pathlib import Path
+from typing import Optional
 
 
-class Seiler2024CSVBehaviorInterface(BaseDataInterface):
+class Seiler2024CSVBehaviorInterface(BaseTemporalAlignmentInterface):
     """Behavior interface for seiler_2024 conversion"""
 
     keywords = ["behavior"]
 
-    def __init__(self, file_path: str, has_port_entry_durations: bool = True, verbose: bool = True):
+    def __init__(
+        self,
+        file_path: str,
+        aligned_timestamp_names: Optional[list] = None,
+        has_port_entry_durations: bool = True,
+        verbose: bool = True,
+    ):
         """Initialize Seiler2024BehaviorInterface.
 
         Parameters
         ----------
         file_path : str
             Path to the CSV file.
+        has_port_entry_durations : bool, optional
+            Whether the CSV file has port entry durations, by default True
+        aligned_timestamp_names: list, optional
+            List of names of timestamps that should be aligned with the fiber photometry data.
         verbose : bool, optional
             Whether to print verbose output, by default True
         """
+        if aligned_timestamp_names is None:
+            aligned_timestamp_names = []
         super().__init__(
             file_path=file_path,
+            aligned_timestamp_names=aligned_timestamp_names,
             has_port_entry_durations=has_port_entry_durations,
             verbose=verbose,
         )
+        self.timestamps_dict = {}
 
     def get_metadata(self) -> DeepDict:
         msn_to_session_description = {
@@ -110,6 +125,79 @@ class Seiler2024CSVBehaviorInterface(BaseDataInterface):
         }
         return metadata_schema
 
+    def get_original_timestamps(self, csv_name_to_dict_name: dict, session_dtypes: dict) -> dict[str, np.ndarray]:
+        """
+        Retrieve the original unaltered timestamps dictionary for the data in this interface.
+
+        This function retrieves the data on-demand by re-reading the medpc file.
+
+        Parameters
+        ----------
+        csv_name_to_dict_name : dict
+            A dictionary mapping the names of the variables in the CSV file to the names of the variables in the dictionary.
+        session_dtypes : dict
+            A dictionary mapping the names of the variables in the CSV file to their data types.
+
+        Returns
+        -------
+        timestamps_dict: dict
+            A dictionary mapping the names of the variables to the original csv timestamps.
+        """
+        session_df = pd.read_csv(self.source_data["file_path"], dtype=session_dtypes)
+        timestamps_dict = {}
+        for csv_name, dict_name in csv_name_to_dict_name.items():
+            timestamps_dict[dict_name] = np.trim_zeros(session_df[csv_name].dropna().values, trim="b")
+        return timestamps_dict
+
+    def get_timestamps(self) -> dict[str, np.ndarray]:
+        """
+        Retrieve the timestamps dictionary for the data in this interface.
+
+        Returns
+        -------
+        timestamps_dict: dict
+            A dictionary mapping the names of the variables to the timestamps.
+        """
+        return self.timestamps_dict
+
+    def set_aligned_timestamps(self, aligned_timestamps_dict: dict[str, np.ndarray]) -> None:
+        """
+        Replace all timestamps for this interface with those aligned to the common session start time.
+
+        Must be in units seconds relative to the common 'session_start_time'.
+
+        Parameters
+        ----------
+        aligned_timestamps_dict : dict
+            A dictionary mapping the names of the variables to the synchronized timestamps for data in this interface.
+        """
+        self.timestamps_dict = aligned_timestamps_dict
+
+    def set_aligned_starting_time(
+        self, aligned_starting_time: float, csv_name_to_dict_name: dict, session_dtypes: dict
+    ) -> None:
+        """
+        Align the starting time for this interface relative to the common session start time.
+
+        Must be in units seconds relative to the common 'session_start_time'.
+
+        Parameters
+        ----------
+        aligned_starting_time : float
+            The starting time for all temporal data in this interface.
+        csv_name_to_dict_name : dict
+            A dictionary mapping the names of the variables in the CSV file to the names of the variables in the dictionary.
+        session_dtypes : dict
+            A dictionary mapping the names of the variables in the CSV file to their data types.
+        """
+        original_timestamps_dict = self.get_original_timestamps(
+            csv_name_to_dict_name=csv_name_to_dict_name, session_dtypes=session_dtypes
+        )
+        aligned_timestamps_dict = {}
+        for name, original_timestamps in original_timestamps_dict.items():
+            aligned_timestamps_dict[name] = original_timestamps + aligned_starting_time
+        self.set_aligned_timestamps(aligned_timestamps_dict=aligned_timestamps_dict)
+
     def add_to_nwbfile(self, nwbfile: NWBFile, metadata: dict) -> None:
         csv_name_to_dict_name = {
             "portEntryTs": "port_entry_times",
@@ -130,15 +218,12 @@ class Seiler2024CSVBehaviorInterface(BaseDataInterface):
             "Box": str,
         }
         session_df = pd.read_csv(self.source_data["file_path"], dtype=session_dtypes)
-        csv_session_dict = {}
+        session_dict = {}
         for csv_name, dict_name in csv_name_to_dict_name.items():
-            csv_session_dict[dict_name] = np.trim_zeros(session_df[csv_name].dropna().values, trim="b")
-        if self.source_data["session_dict"] is None:
-            session_dict = csv_session_dict
-        else:
-            session_dict = self.source_data["session_dict"]
-            if "duration_of_port_entry" in csv_session_dict:
-                session_dict["duration_of_port_entry"] = csv_session_dict["duration_of_port_entry"]
+            session_dict[dict_name] = np.trim_zeros(session_df[csv_name].dropna().values, trim="b")
+        aligned_timestamps_dict = self.get_timestamps()
+        for name in self.source_data["aligned_timestamp_names"]:
+            session_dict[name] = aligned_timestamps_dict[name]
 
         # Add behavior data to nwbfile
         behavior_module = nwb_helpers.get_module(

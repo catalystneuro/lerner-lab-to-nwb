@@ -45,10 +45,6 @@ class Seiler2024NWBConverter(NWBConverter):
             The conversion options for the session.
         """
         if not "FiberPhotometry" in self.data_interface_objects.keys():
-            if "MedPC" in self.data_interface_objects.keys():
-                self.data_interface_objects["MedPC"].source_data["session_dict"] = None
-            elif "Behavior" in self.data_interface_objects.keys():
-                self.data_interface_objects["Behavior"].source_data["session_dict"] = None
             return  # No need to align if there is no fiber photometry data
 
         # Read Behavior Data
@@ -121,9 +117,13 @@ class Seiler2024NWBConverter(NWBConverter):
                 ttl_timestamps = np.concatenate((ttl_timestamps, ttl_timestamps2))
             session_dict[behavior_name] = ttl_timestamps
         if "MedPC" in self.data_interface_objects.keys():
-            self.data_interface_objects["MedPC"].source_data["session_dict"] = session_dict
+            behavioral_interface = "MedPC"
         elif "Behavior" in self.data_interface_objects.keys():
-            self.data_interface_objects["Behavior"].source_data["session_dict"] = session_dict
+            behavioral_interface = "Behavior"
+        self.data_interface_objects[behavioral_interface].set_aligned_timestamps(session_dict)
+        self.data_interface_objects[behavioral_interface].source_data["aligned_timestamp_names"] = list(
+            session_dict.keys()
+        )
 
     def get_ttl_timestamps(self, ttl_name, tdt_photometry):
         if ttl_name == "PrtN":
