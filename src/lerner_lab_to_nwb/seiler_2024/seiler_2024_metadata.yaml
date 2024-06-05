@@ -307,6 +307,41 @@ MedPC:
       G: port_entry_times
       H: footshock_times
 
+  msn_to_session_description:
+    20sOmissions_TTL: "Omission Probe with concurrent fiber photometry"
+    20sOmissions: "Omission Probe"
+    FOOD_FR1 Habit Training TTL: "FR1 Habit Training with concurrent fiber photometry"
+    FOOD_FR1 HT TTL (Both): "FR1 Habit Training with concurrent fiber photometry, rewards delivered on both left and right nose pokes"
+    FOOD_FR1 TTL Left: "FR1 Training with concurrent fiber photometry, rewards delivered on left nose pokes"
+    FOOD_FR1 TTL Right: "FR1 Training with concurrent fiber photometry, rewards delivered on right nose pokes"
+    FOOD_RI 30 LEFT: "RI30 Training, rewards delivered on left nose pokes"
+    FOOD_RI 30 RIGHT TTL: "RI30 Training with concurrent fiber photometry, rewards delivered on right nose pokes"
+    FOOD_RI 60 LEFT TTL: "RI60 Training with concurrent fiber photometry, rewards delivered on left nose pokes"
+    FOOD_RI 60 RIGHT TTL: "RI60 Training with concurrent fiber photometry, rewards delivered on right nose pokes"
+    Footshock Degradation Left: "Footshock Probe, shocks delivered on left nose pokes"
+    Footshock Degradation right: "Footshock Probe, shocks delivered on right nose pokes"
+    FR1_BOTH_SCRAMBLED: "FR1 Training with optogenetic stimulation, rewards delivered on both left and right nose pokes, optogenetic stimulation delivered on random nose pokes"
+    FR1_BOTH_WStim: "FR1 Training with optogenetic stimulation, rewards delivered on both left and right nose pokes, optogenetic stimulation delivered on all nose pokes"
+    FR1_LEFT_SCRAM: "FR1 Training with optogenetic stimulation, rewards delivered on left nose pokes, optogenetic stimulation delivered on random nose pokes"
+    FR1_LEFT_STIM: "FR1 Training with optogenetic stimulation, rewards delivered on left nose pokes, optogenetic stimulation delivered on left nose pokes"
+    FR1_RIGHT_SCRAMBLED: "FR1 Training with optogenetic stimulation, rewards delivered on right nose pokes, optogenetic stimulation delivered on random nose pokes"
+    FR1_RIGHT_STIM: "FR1 Training with optogenetic stimulation, rewards delivered on right nose pokes, optogenetic stimulation delivered on right nose pokes"
+    Probe Test Habit Training TTL: "Probe Test"
+    RI 30 RIGHT_STIM: "RI30 Training with optogenetic stimulation, rewards delivered on right nose pokes, optogenetic stimulation delivered on right nose pokes"
+    RI 60 RIGHT STIM: "RI60 Training with optogenetic stimulation, rewards delivered on right nose pokes, optogenetic stimulation delivered on right nose pokes"
+    RI 60 LEFT_STIM: "RI60 Training with optogenetic stimulation, rewards delivered on left nose pokes, optogenetic stimulation delivered on left nose pokes"
+    RI 30 LEFT_STIM: "RI30 Training with optogenetic stimulation, rewards delivered on left nose pokes, optogenetic stimulation delivered on left nose pokes"
+    RI30 Left Scrambled: "RI30 Training with optogenetic stimulation, rewards delivered on left nose pokes, optogenetic stimulation delivered on random nose pokes"
+    RI30 Right SCRAMBLED: "RI30 Training with optogenetic stimulation, rewards delivered on right nose pokes, optogenetic stimulation delivered on random nose pokes"
+    RI60_LEFT_SCRAM: "RI60 Training with optogenetic stimulation, rewards delivered on left nose pokes, optogenetic stimulation delivered on random nose pokes"
+    RI60_RIGHT_SCRAM: "RI60 Training with optogenetic stimulation, rewards delivered on right nose pokes, optogenetic stimulation delivered on random nose pokes"
+    RR5_Left_CVC: "RR5 Training"
+    RR20Left: "RR20 Training, rewards delivered on left nose pokes"
+    RR20_Left: "RR20 Training, rewards delivered on left nose pokes"
+    RR20Right: "RR20 Training, rewards delivered on right nose pokes"
+    RR20_Right_AHJS: "RR20 Training, rewards delivered on right nose pokes"
+    Unknown: "Unknown"
+
 Optogenetics:
   experimental_group_to_metadata:
     DMS-Excitatory:

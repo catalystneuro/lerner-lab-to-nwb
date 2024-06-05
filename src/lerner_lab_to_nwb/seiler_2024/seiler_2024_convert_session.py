@@ -189,6 +189,8 @@ def session_to_nwb(
     metadata["NWBFile"]["session_id"] = session_id
     cst = timezone("US/Central")
     metadata["NWBFile"]["session_start_time"] = session_start_time.replace(tzinfo=cst)
+    msn = metadata[behavioral_metadata_key]["MSN"]
+    metadata["NWBFile"]["session_description"] = metadata["MedPC"]["msn_to_session_description"][msn]
     nwbfile_path = output_dir_path / f"sub-{subject_id}_ses-{session_id}.nwb"
 
     if not from_csv:
