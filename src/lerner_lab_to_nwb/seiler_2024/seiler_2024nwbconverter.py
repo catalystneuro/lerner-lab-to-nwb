@@ -11,8 +11,8 @@ from lerner_lab_to_nwb.seiler_2024 import (
     Seiler2024CSVBehaviorInterface,
     Seiler2024WesternBlotInterface,
 )
-from neuroconv.datainterfaces import MedPCInterface
-from neuroconv.datainterfaces.behavior.medpc.medpc_helpers import read_medpc_file
+from .medpcdatainterface import MedPCInterface
+from .medpc_helpers import read_medpc_file
 import numpy as np
 from tdt import read_block
 import os
