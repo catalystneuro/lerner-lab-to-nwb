@@ -95,7 +95,7 @@ ndx-photometry @ git+https://github.com/catalystneuro/ndx-photometry.git@c1284c9
 ndx-spectrum==0.2.2
 nest-asyncio==1.6.0
 networkx==3.2.1
-neuroconv @ git+https://github.com/catalystneuro/neuroconv.git@cd271d66244f6141c2b303ada10d345ffc1959e1
+neuroconv @ git+https://github.com/catalystneuro/neuroconv.git@337ce2ae9979b8ec3dada0b7994afb105afb5919
 nodeenv==1.8.0
 numcodecs==0.11.0
 numpy==1.26.3

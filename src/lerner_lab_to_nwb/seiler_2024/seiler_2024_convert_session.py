@@ -11,7 +11,6 @@ import matplotlib.pyplot as plt
 from lerner_lab_to_nwb.seiler_2024 import Seiler2024NWBConverter, Seiler2024WesternBlotNWBConverter
 
 
-# TODO: Add box number and msn to behavior module description
 def session_to_nwb(
     *,
     data_dir_path: Union[str, Path],
