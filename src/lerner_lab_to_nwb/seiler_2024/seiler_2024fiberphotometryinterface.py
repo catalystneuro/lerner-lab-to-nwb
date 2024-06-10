@@ -349,10 +349,10 @@ class Seiler2024FiberPhotometryInterface(BaseDataInterface):
         # Fiber Photometry Response Series
         fiber_photometry_data = np.column_stack(
             (
-                tdt_photometry.streams["Dv1A"].data,
                 tdt_photometry.streams["Dv2A"].data,
-                tdt_photometry.streams["Dv3B"].data,
+                tdt_photometry.streams["Dv1A"].data,
                 tdt_photometry.streams["Dv4B"].data,
+                tdt_photometry.streams["Dv3B"].data,
             ),
         )
         fiber_photometry_response_series = FiberPhotometryResponseSeries(
