@@ -134,10 +134,11 @@ class Seiler2024NWBConverter(NWBConverter):
                 continue  # If the session is not a shock probe session the tdt file will not have the appropriate TTL
             if len(session_dict[behavior_name]) == 0:
                 continue  # If behavior is not present the tdt file will not have the appropriate TTL
+            len_behavior = len(session_dict[behavior_name])
 
-            ttl_timestamps = self.get_ttl_timestamps(ttl_name, tdt_photometry)
+            ttl_timestamps = self.get_ttl_timestamps(ttl_name, tdt_photometry, len_behavior)
             if second_folder_path is not None:
-                ttl_timestamps2 = self.get_ttl_timestamps(ttl_name, tdt_photometry2)
+                ttl_timestamps2 = self.get_ttl_timestamps(ttl_name, tdt_photometry2, len_behavior)
                 ttl_timestamps = np.concatenate((ttl_timestamps, ttl_timestamps2))
             session_dict[behavior_name] = ttl_timestamps
         if "MedPC" in self.data_interface_objects.keys():
@@ -149,7 +150,7 @@ class Seiler2024NWBConverter(NWBConverter):
             session_dict.keys()
         )
 
-    def get_ttl_timestamps(self, ttl_name, tdt_photometry):
+    def get_ttl_timestamps(self, ttl_name, tdt_photometry, len_behavior):
         if ttl_name == "PrtN":
             ttl_timestamps = []
             if "PrtN" in tdt_photometry.epocs.keys():
@@ -159,6 +160,36 @@ class Seiler2024NWBConverter(NWBConverter):
                 for timestamp in tdt_photometry.epocs["PrtR"].onset:
                     ttl_timestamps.append(timestamp)
             ttl_timestamps = np.sort(ttl_timestamps)
+        elif ttl_name == "RNnR" or ttl_name == "LNnR" and len(tdt_photometry.epocs[ttl_name].onset) != len_behavior:
+            rewarded_ttl_name = ttl_name[:2] + "RW"  # RNRW or LNRW
+            if (
+                len(tdt_photometry.epocs[ttl_name].onset) + len(tdt_photometry.epocs[rewarded_ttl_name].onset)
+                == len_behavior
+            ):
+                ttl_timestamps = []
+                for timestamp in tdt_photometry.epocs[ttl_name].onset:
+                    ttl_timestamps.append(timestamp)
+                for timestamp in tdt_photometry.epocs[rewarded_ttl_name].onset:
+                    ttl_timestamps.append(timestamp)
+                ttl_timestamps = np.sort(ttl_timestamps)
+            else:  # TTLs and behavior do not match
+                print("WARNING: TTLs and behavior do not match")
+                NnR_has_all_nose_pokes = all_close_contains(
+                    query_array=tdt_photometry.epocs[rewarded_ttl_name].onset,
+                    target_array=tdt_photometry.epocs[ttl_name].onset,
+                    tolerance=0.1,
+                )
+                if NnR_has_all_nose_pokes:
+                    print("NnR has all nose pokes")
+                    ttl_timestamps = tdt_photometry.epocs[ttl_name].onset
+                else:
+                    print("NnR does not have all nose pokes")
+                    ttl_timestamps = []
+                    for timestamp in tdt_photometry.epocs[ttl_name].onset:
+                        ttl_timestamps.append(timestamp)
+                    for timestamp in tdt_photometry.epocs[rewarded_ttl_name].onset:
+                        ttl_timestamps.append(timestamp)
+                    ttl_timestamps = np.sort(ttl_timestamps)
         else:
             ttl_timestamps = tdt_photometry.epocs[ttl_name].onset
         return ttl_timestamps
@@ -196,3 +227,29 @@ class Seiler2024WesternBlotNWBConverter(NWBConverter):
     data_interface_classes = dict(
         WesternBlot=Seiler2024WesternBlotInterface,
     )
+
+
+def all_close_contains(*, query_array: np.ndarray, target_array: np.ndarray, tolerance: float) -> bool:
+    """Check if all elements in query_array are present (up to some tolerance) in target_array.
+
+    Parameters
+    ----------
+    query_array : np.ndarray
+        The array to check.
+    target_array : np.ndarray
+        The array to check against.
+    tolerance : float
+        The tolerance for closeness.
+
+    Returns
+    -------
+    bool
+        Whether all elements in query_array are within tolerance of any element in target_array.
+    """
+    for query_element in query_array:
+        if np.min(np.abs(target_array - query_element)) > tolerance:
+            assert (
+                np.min(np.abs(target_array - query_element)) > 10 * tolerance
+            ), f"Edge case TTLs need investigation (<tolerance but >10 x tolerance)."
+            return False
+    return True
