@@ -5,14 +5,16 @@ from pynwb import NWBFile
 from neuroconv.tools.nwb_helpers import make_or_load_nwbfile
 
 from lerner_lab_to_nwb.seiler_2024 import (
-    Seiler2024BehaviorInterface,
     Seiler2024FiberPhotometryInterface,
     Seiler2024OptogeneticInterface,
     Seiler2024ExcelMetadataInterface,
+    Seiler2024CSVBehaviorInterface,
     Seiler2024WesternBlotInterface,
 )
-from .medpc import read_medpc_file
+from .medpcdatainterface import MedPCInterface
+from .medpc_helpers import read_medpc_file
 import numpy as np
+import pandas as pd
 from tdt import read_block
 import os
 from contextlib import redirect_stdout
@@ -23,10 +25,11 @@ class Seiler2024NWBConverter(NWBConverter):
     """Primary conversion class."""
 
     data_interface_classes = dict(
-        Behavior=Seiler2024BehaviorInterface,
         FiberPhotometry=Seiler2024FiberPhotometryInterface,
         Optogenetic=Seiler2024OptogeneticInterface,
         Metadata=Seiler2024ExcelMetadataInterface,
+        MedPC=MedPCInterface,
+        Behavior=Seiler2024CSVBehaviorInterface,
     )
 
     def temporally_align_data_interfaces(self, metadata: dict, conversion_options: dict):
@@ -43,20 +46,44 @@ class Seiler2024NWBConverter(NWBConverter):
             The conversion options for the session.
         """
         if not "FiberPhotometry" in self.data_interface_objects.keys():
-            self.data_interface_objects["Behavior"].source_data["session_dict"] = None
             return  # No need to align if there is no fiber photometry data
 
         # Read Behavior Data
-        msn = metadata["Behavior"]["msn"]
-        medpc_name_to_dict_name = metadata["Behavior"]["msn_to_medpc_name_to_dict_name"][msn]
-        dict_name_to_type = {dict_name: np.ndarray for dict_name in medpc_name_to_dict_name.values()}
-        session_dict = read_medpc_file(
-            file_path=self.data_interface_objects["Behavior"].source_data["file_path"],
-            medpc_name_to_dict_name=medpc_name_to_dict_name,
-            dict_name_to_type=dict_name_to_type,
-            session_conditions=self.data_interface_objects["Behavior"].source_data["session_conditions"],
-            start_variable=self.data_interface_objects["Behavior"].source_data["start_variable"],
-        )
+        if "MedPC" in self.data_interface_objects.keys():
+            msn = metadata["MedPC"]["MSN"]
+            medpc_name_to_output_name = metadata["MedPC"]["msn_to_medpc_name_to_output_name"][msn]
+            medpc_name_to_info_dict = {
+                medpc_name: {"name": output_name, "is_array": True}
+                for medpc_name, output_name in medpc_name_to_output_name.items()
+            }
+            session_dict = read_medpc_file(
+                file_path=self.data_interface_objects["MedPC"].source_data["file_path"],
+                medpc_name_to_info_dict=medpc_name_to_info_dict,
+                session_conditions=self.data_interface_objects["MedPC"].source_data["session_conditions"],
+                start_variable=self.data_interface_objects["MedPC"].source_data["start_variable"],
+            )
+        elif "Behavior" in self.data_interface_objects.keys():
+            csv_name_to_dict_name = {
+                "portEntryTs": "port_entry_times",
+                "LeftNoseTs": "left_nose_poke_times",
+                "RightNoseTs": "right_nose_poke_times",
+                "RightRewardTs": "right_reward_times",
+                "LeftRewardTs": "left_reward_times",
+            }
+            session_dtypes = {
+                "Start Date": str,
+                "End Date": str,
+                "Start Time": str,
+                "End Time": str,
+                "MSN": str,
+                "Experiment": str,
+                "Subject": str,
+                "Box": str,
+            }
+            session_df = pd.read_csv(self.source_data["file_path"], dtype=session_dtypes)
+            session_dict = {}
+            for csv_name, dict_name in csv_name_to_dict_name.items():
+                session_dict[dict_name] = np.trim_zeros(session_df[csv_name].dropna().values, trim="b")
 
         # Read Fiber Photometry Data
         t2 = conversion_options["FiberPhotometry"].get("t2", None)
@@ -75,14 +102,14 @@ class Seiler2024NWBConverter(NWBConverter):
             "LNPS": "left_nose_poke_times",
             "RNRW": "right_reward_times",
             "RNnR": "right_nose_poke_times",
-            "PrtN": "port_entry_times",
+            "PrtN": "reward_port_entry_times",
             "Sock": "footshock_times",
         }
         left_ttl_names_to_behavior_names = {
             "RNPS": "right_nose_poke_times",
             "LNRW": "left_reward_times",
             "LNnR": "left_nose_poke_times",
-            "PrtN": "port_entry_times",
+            "PrtN": "reward_port_entry_times",
             "Sock": "footshock_times",
         }
         msn_is_right = "RIGHT" in msn or "Right" in msn or "right" in msn
@@ -100,7 +127,7 @@ class Seiler2024NWBConverter(NWBConverter):
         if folder_path.name == "Photo_332_393-200728-122403":
             ttl_names_to_behavior_names = {  # This special session only has 2 TTLs bc it is split into 2 folders
                 "RNnR": "right_nose_poke_times",
-                "PrtN": "port_entry_times",
+                "PrtN": "reward_port_entry_times",
             }
         for ttl_name, behavior_name in ttl_names_to_behavior_names.items():
             if ttl_name == "Sock" and "ShockProbe" not in metadata["NWBFile"]["session_id"]:
@@ -113,7 +140,14 @@ class Seiler2024NWBConverter(NWBConverter):
                 ttl_timestamps2 = self.get_ttl_timestamps(ttl_name, tdt_photometry2)
                 ttl_timestamps = np.concatenate((ttl_timestamps, ttl_timestamps2))
             session_dict[behavior_name] = ttl_timestamps
-        self.data_interface_objects["Behavior"].source_data["session_dict"] = session_dict
+        if "MedPC" in self.data_interface_objects.keys():
+            behavioral_interface = "MedPC"
+        elif "Behavior" in self.data_interface_objects.keys():
+            behavioral_interface = "Behavior"
+        self.data_interface_objects[behavioral_interface].set_aligned_timestamps(session_dict)
+        self.data_interface_objects[behavioral_interface].source_data["aligned_timestamp_names"] = list(
+            session_dict.keys()
+        )
 
     def get_ttl_timestamps(self, ttl_name, tdt_photometry):
         if ttl_name == "PrtN":

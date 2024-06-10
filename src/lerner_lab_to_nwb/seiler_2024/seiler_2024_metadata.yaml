@@ -47,85 +47,104 @@ Subject:
   strain: C57BL/6J
   genotype: "DAT-IRES-Cre: B6.SJLSlc6a3tm1.1(cre)Bkmn/J"
 
-Behavior:
-  msn_to_medpc_name_to_dict_name:
+MedPC:
+  module_name: behavior
+  module_description: Operant behavioral data from MedPC.
+  Events:
+    - name: left_nose_poke_times
+      description: Left nose poke times
+    - name: left_reward_times
+      description: Left reward times
+    - name: right_nose_poke_times
+      description: Right nose poke times
+    - name: right_reward_times
+      description: Right reward times
+    - name: footshock_times
+      description: Footshock times
+  IntervalSeries:
+    - name: reward_port_intervals
+      description: Interval of time spent in reward port (1 is entry, -1 is exit)
+      onset_name: reward_port_entry_times
+      duration_name: duration_of_port_entry
+
+  msn_to_medpc_name_to_output_name:
     20sOmissions_TTL:
       A: left_nose_poke_times
       B: left_reward_times
       C: right_nose_poke_times
       D: right_reward_times
       E: duration_of_port_entry
-      G: port_entry_times
+      G: reward_port_entry_times
     20sOmissions:
       A: left_nose_poke_times
       B: left_reward_times
       C: right_nose_poke_times
       D: right_reward_times
       E: duration_of_port_entry
-      G: port_entry_times
+      G: reward_port_entry_times
     FOOD_FR1 Habit Training TTL:
       A: left_nose_poke_times
       B: left_reward_times
       C: right_nose_poke_times
       D: right_reward_times
       E: duration_of_port_entry
-      G: port_entry_times
+      G: reward_port_entry_times
     FOOD_FR1 HT TTL (Both):
       A: left_nose_poke_times
       B: left_reward_times
       C: right_nose_poke_times
       D: right_reward_times
       E: duration_of_port_entry
-      G: port_entry_times
+      G: reward_port_entry_times
     FOOD_FR1 TTL Left:
       A: left_nose_poke_times
       B: left_reward_times
       C: right_nose_poke_times
       D: right_reward_times
       E: duration_of_port_entry
-      G: port_entry_times
+      G: reward_port_entry_times
     FOOD_FR1 TTL Right:
       A: left_nose_poke_times
       B: left_reward_times
       C: right_nose_poke_times
       D: right_reward_times
       E: duration_of_port_entry
-      G: port_entry_times
+      G: reward_port_entry_times
     FOOD_RI 30 LEFT:
       A: left_nose_poke_times
       B: left_reward_times
       C: right_nose_poke_times
       D: right_reward_times
       E: duration_of_port_entry
-      G: port_entry_times
+      G: reward_port_entry_times
     FOOD_RI 30 RIGHT TTL:
       A: left_nose_poke_times
       B: left_reward_times
       C: right_nose_poke_times
       D: right_reward_times
       E: duration_of_port_entry
-      G: port_entry_times
+      G: reward_port_entry_times
     FOOD_RI 60 LEFT TTL:
       A: left_nose_poke_times
       B: left_reward_times
       C: right_nose_poke_times
       D: right_reward_times
       E: duration_of_port_entry
-      G: port_entry_times
+      G: reward_port_entry_times
     FOOD_RI 60 RIGHT TTL:
       A: left_nose_poke_times
       B: left_reward_times
       C: right_nose_poke_times
       D: right_reward_times
       E: duration_of_port_entry
-      G: port_entry_times
+      G: reward_port_entry_times
     Footshock Degradation Left:
       A: left_nose_poke_times
       B: left_reward_times
       C: right_nose_poke_times
       D: right_reward_times
       E: duration_of_port_entry
-      G: port_entry_times
+      G: reward_port_entry_times
       H: footshock_times
     Footshock Degradation right:
       A: left_nose_poke_times
@@ -133,7 +152,7 @@ Behavior:
       C: right_nose_poke_times
       D: right_reward_times
       E: duration_of_port_entry
-      G: port_entry_times
+      G: reward_port_entry_times
       H: footshock_times
     FR1_BOTH_SCRAMBLED:
       A: left_nose_poke_times
@@ -141,7 +160,7 @@ Behavior:
       C: right_nose_poke_times
       D: right_reward_times
       E: duration_of_port_entry
-      G: port_entry_times
+      G: reward_port_entry_times
       Z: optogenetic_stimulation_times
     FR1_BOTH_WStim:
       A: left_nose_poke_times
@@ -149,14 +168,14 @@ Behavior:
       C: right_nose_poke_times
       D: right_reward_times
       E: duration_of_port_entry
-      G: port_entry_times
+      G: reward_port_entry_times
     FR1_LEFT_SCRAM:
       A: left_nose_poke_times
       B: left_reward_times
       C: right_nose_poke_times
       D: right_reward_times
       E: duration_of_port_entry
-      G: port_entry_times
+      G: reward_port_entry_times
       Z: optogenetic_stimulation_times
     FR1_LEFT_STIM:
       A: left_nose_poke_times
@@ -164,14 +183,14 @@ Behavior:
       C: right_nose_poke_times
       D: right_reward_times
       E: duration_of_port_entry
-      G: port_entry_times
+      G: reward_port_entry_times
     FR1_RIGHT_SCRAMBLED:
       A: left_nose_poke_times
       B: left_reward_times
       C: right_nose_poke_times
       D: right_reward_times
       E: duration_of_port_entry
-      G: port_entry_times
+      G: reward_port_entry_times
       Z: optogenetic_stimulation_times
     FR1_RIGHT_STIM:
       A: left_nose_poke_times
@@ -179,49 +198,49 @@ Behavior:
       C: right_nose_poke_times
       D: right_reward_times
       E: duration_of_port_entry
-      G: port_entry_times
+      G: reward_port_entry_times
     Probe Test Habit Training TTL:
       A: left_nose_poke_times
       B: left_reward_times
       C: right_nose_poke_times
       D: right_reward_times
       U: duration_of_port_entry
-      G: port_entry_times
+      G: reward_port_entry_times
     RI 30 RIGHT_STIM:
       A: left_nose_poke_times
       B: left_reward_times
       C: right_nose_poke_times
       D: right_reward_times
       E: duration_of_port_entry
-      G: port_entry_times
+      G: reward_port_entry_times
     RI 60 RIGHT STIM:
       A: left_nose_poke_times
       B: left_reward_times
       C: right_nose_poke_times
       D: right_reward_times
       E: duration_of_port_entry
-      G: port_entry_times
+      G: reward_port_entry_times
     RI 60 LEFT_STIM:
       A: left_nose_poke_times
       B: left_reward_times
       C: right_nose_poke_times
       D: right_reward_times
       E: duration_of_port_entry
-      G: port_entry_times
+      G: reward_port_entry_times
     RI 30 LEFT_STIM:
       A: left_nose_poke_times
       B: left_reward_times
       C: right_nose_poke_times
       D: right_reward_times
       E: duration_of_port_entry
-      G: port_entry_times
+      G: reward_port_entry_times
     RI30 Left Scrambled:
       A: left_nose_poke_times
       B: left_reward_times
       C: right_nose_poke_times
       D: right_reward_times
       E: duration_of_port_entry
-      G: port_entry_times
+      G: reward_port_entry_times
       Z: optogenetic_stimulation_times
     RI30 Right SCRAMBLED:
       A: left_nose_poke_times
@@ -229,7 +248,7 @@ Behavior:
       C: right_nose_poke_times
       D: right_reward_times
       E: duration_of_port_entry
-      G: port_entry_times
+      G: reward_port_entry_times
       Z: optogenetic_stimulation_times
     RI60_LEFT_SCRAM:
       A: left_nose_poke_times
@@ -237,7 +256,7 @@ Behavior:
       C: right_nose_poke_times
       D: right_reward_times
       E: duration_of_port_entry
-      G: port_entry_times
+      G: reward_port_entry_times
       Z: optogenetic_stimulation_times
     RI60_RIGHT_SCRAM:
       A: left_nose_poke_times
@@ -245,7 +264,7 @@ Behavior:
       C: right_nose_poke_times
       D: right_reward_times
       E: duration_of_port_entry
-      G: port_entry_times
+      G: reward_port_entry_times
       Z: optogenetic_stimulation_times
     RR5_Left_CVC:
       A: left_nose_poke_times
@@ -253,7 +272,7 @@ Behavior:
       C: right_nose_poke_times
       D: right_reward_times
       E: duration_of_port_entry
-      G: port_entry_times
+      G: reward_port_entry_times
       H: footshock_times
     RR20Left:
       A: left_nose_poke_times
@@ -261,7 +280,7 @@ Behavior:
       C: right_nose_poke_times
       D: right_reward_times
       E: duration_of_port_entry
-      G: port_entry_times
+      G: reward_port_entry_times
       H: footshock_times
     RR20_Left:
       A: left_nose_poke_times
@@ -269,7 +288,7 @@ Behavior:
       C: right_nose_poke_times
       D: right_reward_times
       E: duration_of_port_entry
-      G: port_entry_times
+      G: reward_port_entry_times
       H: footshock_times
     RR20Right:
       A: left_nose_poke_times
@@ -277,7 +296,7 @@ Behavior:
       C: right_nose_poke_times
       D: right_reward_times
       E: duration_of_port_entry
-      G: port_entry_times
+      G: reward_port_entry_times
       H: footshock_times
     RR20_Right_AHJS:
       A: left_nose_poke_times
@@ -285,8 +304,43 @@ Behavior:
       C: right_nose_poke_times
       D: right_reward_times
       E: duration_of_port_entry
-      G: port_entry_times
+      G: reward_port_entry_times
       H: footshock_times
+
+  msn_to_session_description:
+    20sOmissions_TTL: "Omission Probe with concurrent fiber photometry"
+    20sOmissions: "Omission Probe"
+    FOOD_FR1 Habit Training TTL: "FR1 Habit Training with concurrent fiber photometry"
+    FOOD_FR1 HT TTL (Both): "FR1 Habit Training with concurrent fiber photometry, rewards delivered on both left and right nose pokes"
+    FOOD_FR1 TTL Left: "FR1 Training with concurrent fiber photometry, rewards delivered on left nose pokes"
+    FOOD_FR1 TTL Right: "FR1 Training with concurrent fiber photometry, rewards delivered on right nose pokes"
+    FOOD_RI 30 LEFT: "RI30 Training, rewards delivered on left nose pokes"
+    FOOD_RI 30 RIGHT TTL: "RI30 Training with concurrent fiber photometry, rewards delivered on right nose pokes"
+    FOOD_RI 60 LEFT TTL: "RI60 Training with concurrent fiber photometry, rewards delivered on left nose pokes"
+    FOOD_RI 60 RIGHT TTL: "RI60 Training with concurrent fiber photometry, rewards delivered on right nose pokes"
+    Footshock Degradation Left: "Footshock Probe, shocks delivered on left nose pokes"
+    Footshock Degradation right: "Footshock Probe, shocks delivered on right nose pokes"
+    FR1_BOTH_SCRAMBLED: "FR1 Training with optogenetic stimulation, rewards delivered on both left and right nose pokes, optogenetic stimulation delivered on random nose pokes"
+    FR1_BOTH_WStim: "FR1 Training with optogenetic stimulation, rewards delivered on both left and right nose pokes, optogenetic stimulation delivered on all nose pokes"
+    FR1_LEFT_SCRAM: "FR1 Training with optogenetic stimulation, rewards delivered on left nose pokes, optogenetic stimulation delivered on random nose pokes"
+    FR1_LEFT_STIM: "FR1 Training with optogenetic stimulation, rewards delivered on left nose pokes, optogenetic stimulation delivered on left nose pokes"
+    FR1_RIGHT_SCRAMBLED: "FR1 Training with optogenetic stimulation, rewards delivered on right nose pokes, optogenetic stimulation delivered on random nose pokes"
+    FR1_RIGHT_STIM: "FR1 Training with optogenetic stimulation, rewards delivered on right nose pokes, optogenetic stimulation delivered on right nose pokes"
+    Probe Test Habit Training TTL: "Probe Test"
+    RI 30 RIGHT_STIM: "RI30 Training with optogenetic stimulation, rewards delivered on right nose pokes, optogenetic stimulation delivered on right nose pokes"
+    RI 60 RIGHT STIM: "RI60 Training with optogenetic stimulation, rewards delivered on right nose pokes, optogenetic stimulation delivered on right nose pokes"
+    RI 60 LEFT_STIM: "RI60 Training with optogenetic stimulation, rewards delivered on left nose pokes, optogenetic stimulation delivered on left nose pokes"
+    RI 30 LEFT_STIM: "RI30 Training with optogenetic stimulation, rewards delivered on left nose pokes, optogenetic stimulation delivered on left nose pokes"
+    RI30 Left Scrambled: "RI30 Training with optogenetic stimulation, rewards delivered on left nose pokes, optogenetic stimulation delivered on random nose pokes"
+    RI30 Right SCRAMBLED: "RI30 Training with optogenetic stimulation, rewards delivered on right nose pokes, optogenetic stimulation delivered on random nose pokes"
+    RI60_LEFT_SCRAM: "RI60 Training with optogenetic stimulation, rewards delivered on left nose pokes, optogenetic stimulation delivered on random nose pokes"
+    RI60_RIGHT_SCRAM: "RI60 Training with optogenetic stimulation, rewards delivered on right nose pokes, optogenetic stimulation delivered on random nose pokes"
+    RR5_Left_CVC: "RR5 Training"
+    RR20Left: "RR20 Training, rewards delivered on left nose pokes"
+    RR20_Left: "RR20 Training, rewards delivered on left nose pokes"
+    RR20Right: "RR20 Training, rewards delivered on right nose pokes"
+    RR20_Right_AHJS: "RR20 Training, rewards delivered on right nose pokes"
+    Unknown: "Unknown"
 
 Optogenetics:
   experimental_group_to_metadata:

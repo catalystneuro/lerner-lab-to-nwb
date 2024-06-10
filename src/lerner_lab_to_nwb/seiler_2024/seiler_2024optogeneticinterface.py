@@ -11,7 +11,7 @@ from datetime import datetime, time
 from pathlib import Path
 import pandas as pd
 
-from .medpc import read_medpc_file
+from neuroconv.datainterfaces.behavior.medpc.medpc_helpers import read_medpc_file
 
 
 class Seiler2024OptogeneticInterface(BaseDataInterface):
@@ -104,19 +104,21 @@ class Seiler2024OptogeneticInterface(BaseDataInterface):
             if "Z" in session_df.columns:
                 session_dict["optogenetic_stimulation_times"] = np.trim_zeros(session_df["Z"].dropna().values, trim="b")
         else:
-            msn = metadata["Behavior"]["msn"]
-            medpc_name_to_dict_name = metadata["Behavior"]["msn_to_medpc_name_to_dict_name"][msn]
-            opto_dict_names = {"left_reward_times", "right_reward_times", "optogenetic_stimulation_times"}
-            medpc_name_to_dict_name = {
-                medpc_name: dict_name
-                for medpc_name, dict_name in medpc_name_to_dict_name.items()
-                if dict_name in opto_dict_names
+            msn = metadata["MedPC"]["MSN"]
+            medpc_name_to_output_name = metadata["MedPC"]["msn_to_medpc_name_to_output_name"][msn]
+            opto_output_names = {"left_reward_times", "right_reward_times", "optogenetic_stimulation_times"}
+            medpc_name_to_output_name = {
+                medpc_name: output_name
+                for medpc_name, output_name in medpc_name_to_output_name.items()
+                if output_name in opto_output_names
             }
-            dict_name_to_type = {dict_name: np.ndarray for dict_name in medpc_name_to_dict_name.values()}
+            medpc_name_to_info_dict = {
+                medpc_name: {"name": output_name, "is_array": True}
+                for medpc_name, output_name in medpc_name_to_output_name.items()
+            }
             session_dict = read_medpc_file(
                 file_path=self.source_data["file_path"],
-                medpc_name_to_dict_name=medpc_name_to_dict_name,
-                dict_name_to_type=dict_name_to_type,
+                medpc_name_to_info_dict=medpc_name_to_info_dict,
                 session_conditions=self.source_data["session_conditions"],
                 start_variable=self.source_data["start_variable"],
             )

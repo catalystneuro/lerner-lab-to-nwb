@@ -3,7 +3,7 @@ from pathlib import Path
 from typing import Union, Literal, Optional
 import shutil
 from neuroconv.utils import load_dict_from_file, dict_deep_update
-from datetime import datetime
+from datetime import datetime, date, time
 from pytz import timezone
 from tifffile import imread, imwrite
 import matplotlib.pyplot as plt
@@ -11,6 +11,7 @@ import matplotlib.pyplot as plt
 from lerner_lab_to_nwb.seiler_2024 import Seiler2024NWBConverter, Seiler2024WesternBlotNWBConverter
 
 
+# TODO: Add box number and msn to behavior module description
 def session_to_nwb(
     *,
     data_dir_path: Union[str, Path],
@@ -30,6 +31,7 @@ def session_to_nwb(
     fiber_photometry_t2: Optional[float] = None,
     has_demodulated_commanded_voltages: bool = True,
     flip_ttls_lr: bool = False,
+    has_port_entry_durations: bool = True,
     stub_test: bool = False,
     verbose: bool = True,
 ):
@@ -86,18 +88,38 @@ def session_to_nwb(
     source_data = {}
     conversion_options = {}
 
-    # Add Behavior
-    source_data.update(
-        dict(
-            Behavior={
-                "file_path": str(behavior_file_path),
-                "session_conditions": session_conditions,
-                "start_variable": start_variable,
-                "verbose": verbose,
-            }
+    # Add Behavior from csv or MedPC
+    from_csv = behavior_file_path.suffix == ".csv"
+    if from_csv:
+        source_data.update(
+            dict(
+                Behavior={
+                    "file_path": str(behavior_file_path),
+                    "has_port_entry_durations": has_port_entry_durations,
+                    "verbose": verbose,
+                }
+            )
         )
-    )
-    conversion_options.update(dict(Behavior={}))
+        conversion_options.update(dict(Behavior={}))
+    else:
+        metadata_medpc_name_to_info_dict = {
+            "Start Date": {"name": "start_date", "is_array": False},
+            "Subject": {"name": "subject", "is_array": False},
+            "Box": {"name": "box", "is_array": False},
+            "Start Time": {"name": "start_time", "is_array": False},
+            "MSN": {"name": "MSN", "is_array": False},
+        }
+        source_data.update(
+            dict(
+                MedPC={
+                    "file_path": str(behavior_file_path),
+                    "session_conditions": session_conditions,
+                    "start_variable": start_variable,
+                    "metadata_medpc_name_to_info_dict": metadata_medpc_name_to_info_dict,
+                    "verbose": verbose,
+                }
+            )
+        )
 
     # Add Fiber Photometry
     if fiber_photometry_folder_path is not None:
@@ -156,16 +178,43 @@ def session_to_nwb(
     editable_metadata = load_dict_from_file(editable_metadata_path)
     metadata = dict_deep_update(metadata, editable_metadata)
 
-    metadata["NWBFile"]["session_description"] = metadata["Behavior"]["session_description"]
-    session_start_time = metadata["NWBFile"]["session_start_time"]
+    behavioral_metadata_key = "Behavior" if from_csv else "MedPC"
+    start_date = datetime.strptime(metadata[behavioral_metadata_key]["start_date"], "%m/%d/%y").date()
+    start_time = datetime.strptime(metadata[behavioral_metadata_key]["start_time"], "%H:%M:%S").time()
+    session_start_time = datetime.combine(start_date, start_time)
     if optogenetic_treatment is None:
         session_id = f"{experiment_type}_{experimental_group}_{session_start_time.isoformat().replace(':', '-')}"
     else:
         session_id = f"{experiment_type}-{experimental_group}-{optogenetic_treatment}-{session_start_time.isoformat().replace(':', '-')}"
     metadata["NWBFile"]["session_id"] = session_id
     cst = timezone("US/Central")
-    metadata["NWBFile"]["session_start_time"] = metadata["NWBFile"]["session_start_time"].replace(tzinfo=cst)
+    metadata["NWBFile"]["session_start_time"] = session_start_time.replace(tzinfo=cst)
+    msn = metadata[behavioral_metadata_key]["MSN"]
+    metadata["NWBFile"]["session_description"] = metadata["MedPC"]["msn_to_session_description"][msn]
     nwbfile_path = output_dir_path / f"sub-{subject_id}_ses-{session_id}.nwb"
+
+    if not from_csv:
+        msn = metadata["MedPC"]["MSN"]
+        box = metadata["MedPC"]["box"]
+        metadata["MedPC"]["module_description"] += f"\nMSN = {msn} \nBox = {box}"
+        medpc_name_to_output_name = metadata[behavioral_metadata_key]["msn_to_medpc_name_to_output_name"][msn]
+        metadata["MedPC"]["medpc_name_to_info_dict"] = {
+            medpc_name: {"name": output_name, "is_array": True}
+            for medpc_name, output_name in medpc_name_to_output_name.items()
+        }
+        events = []
+        for event in metadata["MedPC"]["Events"]:
+            if event["name"] in medpc_name_to_output_name.values():
+                events.append(event)
+        metadata["MedPC"]["Events"] = events
+        if not has_port_entry_durations:
+            metadata["MedPC"]["IntervalSeries"] = []
+            metadata["MedPC"]["Events"].append(
+                {
+                    "name": "reward_port_entry_times",
+                    "description": "Reward port entry times",
+                }
+            )
 
     # Run conversion
     converter.run_conversion(metadata=metadata, nwbfile_path=nwbfile_path, conversion_options=conversion_options)
@@ -516,6 +565,7 @@ if __name__ == "__main__":
         data_dir_path=data_dir_path,
         output_dir_path=output_dir_path,
         behavior_file_path=behavior_file_path,
+        has_port_entry_durations=False,
         fiber_photometry_folder_path=fiber_photometry_folder_path,
         subject_id=subject_id,
         session_conditions=session_conditions,
@@ -556,6 +606,7 @@ if __name__ == "__main__":
         data_dir_path=data_dir_path,
         output_dir_path=output_dir_path,
         behavior_file_path=behavior_file_path,
+        has_port_entry_durations=False,
         fiber_photometry_folder_path=fiber_photometry_folder_path,
         has_demodulated_commanded_voltages=False,
         subject_id=subject_id,
@@ -716,6 +767,7 @@ if __name__ == "__main__":
         data_dir_path=data_dir_path,
         output_dir_path=output_dir_path,
         behavior_file_path=behavior_file_path,
+        has_port_entry_durations=False,
         subject_id=subject_id,
         session_conditions=session_conditions,
         start_variable=start_variable,
@@ -748,6 +800,7 @@ if __name__ == "__main__":
         data_dir_path=data_dir_path,
         output_dir_path=output_dir_path,
         behavior_file_path=behavior_file_path,
+        has_port_entry_durations=False,
         subject_id=subject_id,
         session_conditions=session_conditions,
         start_variable=start_variable,

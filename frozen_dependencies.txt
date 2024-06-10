@@ -95,11 +95,11 @@ ndx-photometry @ git+https://github.com/catalystneuro/ndx-photometry.git@c1284c9
 ndx-spectrum==0.2.2
 nest-asyncio==1.6.0
 networkx==3.2.1
-neuroconv @ git+https://github.com/catalystneuro/neuroconv.git@f45e77e152369916459a764c918d4c5cbbf1fad1
+neuroconv @ git+https://github.com/catalystneuro/neuroconv.git@cd271d66244f6141c2b303ada10d345ffc1959e1
 nodeenv==1.8.0
 numcodecs==0.11.0
 numpy==1.26.3
--e git+https://github.com/catalystneuro/nwbinspector.git@1f88732833709fc194ec46ebb82b0427137a2825#egg=nwbinspector
+-e git+https://github.com/catalystneuro/nwbinspector.git@91c1fcd069703b5f96355d7d09dba0ee5cbaf5c2#egg=nwbinspector
 nwbwidgets==0.11.3
 openpyxl==3.1.2
 packaging==23.2
