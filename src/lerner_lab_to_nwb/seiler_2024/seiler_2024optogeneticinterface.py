@@ -6,7 +6,6 @@ from neuroconv.basedatainterface import BaseDataInterface
 from neuroconv.utils import DeepDict
 from neuroconv.tools.optogenetics import create_optogenetic_stimulation_timeseries
 from typing import Literal
-from hdmf.backends.hdf5.h5_utils import H5DataIO
 from datetime import datetime, time
 from pathlib import Path
 import pandas as pd
@@ -170,8 +169,8 @@ class Seiler2024OptogeneticInterface(BaseDataInterface):
         ogen_series = OptogeneticSeries(
             name="OptogeneticSeries",
             site=ogen_site,
-            data=H5DataIO(data, compression=True),
-            timestamps=H5DataIO(timestamps, compression=True),
+            data=data,
+            timestamps=timestamps,
             description=opto_metadata["ogen_series_description"],
         )
         nwbfile.add_stimulus(ogen_series)
