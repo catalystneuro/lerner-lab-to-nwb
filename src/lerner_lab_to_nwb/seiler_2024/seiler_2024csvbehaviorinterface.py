@@ -8,7 +8,6 @@ import numpy as np
 import pandas as pd
 from ndx_events import Events
 from pynwb.behavior import BehavioralEpochs, IntervalSeries
-from hdmf.backends.hdf5.h5_utils import H5DataIO
 from pathlib import Path
 from typing import Optional
 
@@ -211,7 +210,7 @@ class Seiler2024CSVBehaviorInterface(BaseTemporalAlignmentInterface):
                 reward_port_entry_times = Events(
                     name="reward_port_entry_times",
                     description="Reward port entry times",
-                    timestamps=H5DataIO(session_dict["port_entry_times"], compression=True),
+                    timestamps=session_dict["port_entry_times"],
                 )
                 behavior_module.add(reward_port_entry_times)
         elif len(session_dict["port_entry_times"]) > 0:
@@ -226,7 +225,7 @@ class Seiler2024CSVBehaviorInterface(BaseTemporalAlignmentInterface):
             reward_port_intervals = IntervalSeries(
                 name="reward_port_intervals",
                 description="Interval of time spent in reward port (1 is entry, -1 is exit)",
-                timestamps=H5DataIO(port_times, compression=True),
+                timestamps=port_times,
                 data=data,
             )
             behavioral_epochs = BehavioralEpochs(name="behavioral_epochs")
@@ -238,14 +237,14 @@ class Seiler2024CSVBehaviorInterface(BaseTemporalAlignmentInterface):
             left_nose_poke_times = Events(
                 name="left_nose_poke_times",
                 description="Left nose poke times",
-                timestamps=H5DataIO(session_dict["left_nose_poke_times"], compression=True),
+                timestamps=session_dict["left_nose_poke_times"],
             )
             behavior_module.add(left_nose_poke_times)
         if len(session_dict["right_nose_poke_times"]) > 0:
             right_nose_poke_times = Events(
                 name="right_nose_poke_times",
                 description="Right nose poke times",
-                timestamps=H5DataIO(session_dict["right_nose_poke_times"], compression=True),
+                timestamps=session_dict["right_nose_poke_times"],
             )
             behavior_module.add(right_nose_poke_times)
 
@@ -254,14 +253,14 @@ class Seiler2024CSVBehaviorInterface(BaseTemporalAlignmentInterface):
             left_reward_times = Events(
                 name="left_reward_times",
                 description="Left Reward times",
-                timestamps=H5DataIO(session_dict["left_reward_times"], compression=True),
+                timestamps=session_dict["left_reward_times"],
             )
             behavior_module.add(left_reward_times)
         if len(session_dict["right_reward_times"]) > 0:
             right_reward_times = Events(
                 name="right_reward_times",
                 description="Right Reward times",
-                timestamps=H5DataIO(session_dict["right_reward_times"], compression=True),
+                timestamps=session_dict["right_reward_times"],
             )
             behavior_module.add(right_reward_times)
 
