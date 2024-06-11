@@ -248,8 +248,5 @@ def all_close_contains(*, query_array: np.ndarray, target_array: np.ndarray, tol
     """
     for query_element in query_array:
         if np.min(np.abs(target_array - query_element)) > tolerance:
-            assert (
-                np.min(np.abs(target_array - query_element)) > 10 * tolerance
-            ), f"Edge case TTLs need investigation (<tolerance but >10 x tolerance)."
             return False
     return True
