@@ -173,17 +173,14 @@ class Seiler2024NWBConverter(NWBConverter):
                     ttl_timestamps.append(timestamp)
                 ttl_timestamps = np.sort(ttl_timestamps)
             else:  # TTLs and behavior do not match
-                print("WARNING: TTLs and behavior do not match")
                 NnR_has_all_nose_pokes = all_close_contains(
                     query_array=tdt_photometry.epocs[rewarded_ttl_name].onset,
                     target_array=tdt_photometry.epocs[ttl_name].onset,
                     tolerance=0.1,
                 )
                 if NnR_has_all_nose_pokes:
-                    print("NnR has all nose pokes")
                     ttl_timestamps = tdt_photometry.epocs[ttl_name].onset
                 else:
-                    print("NnR does not have all nose pokes")
                     ttl_timestamps = []
                     for timestamp in tdt_photometry.epocs[ttl_name].onset:
                         ttl_timestamps.append(timestamp)
