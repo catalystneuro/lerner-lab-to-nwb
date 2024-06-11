@@ -17,7 +17,7 @@ from lerner_lab_to_nwb.seiler_2024.seiler_2024_convert_session import (
     western_blot_to_nwb,
     split_western_blot,
 )
-from neuroconv.datainterfaces.behavior.medpc.medpc_helpers import get_medpc_variables, read_medpc_file
+from lerner_lab_to_nwb.seiler_2024.medpc_helpers import get_medpc_variables, read_medpc_file
 
 
 def dataset_to_nwb(
