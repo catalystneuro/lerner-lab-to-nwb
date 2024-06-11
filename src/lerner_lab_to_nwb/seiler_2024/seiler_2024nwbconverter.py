@@ -2,7 +2,7 @@
 from neuroconv import NWBConverter
 from typing import Optional
 from pynwb import NWBFile
-from neuroconv.tools.nwb_helpers import make_or_load_nwbfile
+from neuroconv.tools.nwb_helpers import make_or_load_nwbfile, configure_backend
 
 from lerner_lab_to_nwb.seiler_2024 import (
     Seiler2024FiberPhotometryInterface,
@@ -198,6 +198,7 @@ class Seiler2024NWBConverter(NWBConverter):
         metadata: Optional[dict] = None,
         overwrite: bool = False,
         conversion_options: Optional[dict] = None,
+        backend: Optional[str] = "hdf5",
     ) -> None:
         if metadata is None:
             metadata = self.get_metadata()
@@ -213,9 +214,11 @@ class Seiler2024NWBConverter(NWBConverter):
             nwbfile=nwbfile,
             metadata=metadata,
             overwrite=overwrite,
-            verbose=self.verbose,
+            backend=backend,
         ) as nwbfile_out:
-            self.add_to_nwbfile(nwbfile_out, metadata, conversion_options)
+            self.add_to_nwbfile(nwbfile=nwbfile_out, metadata=metadata, conversion_options=conversion_options)
+            backend_configuration = self.get_default_backend_configuration(nwbfile=nwbfile_out, backend=backend)
+            configure_backend(nwbfile=nwbfile_out, backend_configuration=backend_configuration)
 
 
 class Seiler2024WesternBlotNWBConverter(NWBConverter):
