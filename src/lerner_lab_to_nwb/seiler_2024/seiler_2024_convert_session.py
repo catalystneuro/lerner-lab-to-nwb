@@ -745,6 +745,56 @@ if __name__ == "__main__":
         stub_test=stub_test,
     )
 
+    # Fiber Photometry session with missing RNRW
+    experiment_type = "FP"
+    experimental_group = "PS"
+    subject_id = "332.393"
+    start_datetime = datetime(2020, 7, 28, 12, 4, 1)
+    session_conditions = {
+        "Start Date": start_datetime.strftime("%m/%d/%y"),
+        "Start Time": start_datetime.strftime("%H:%M:%S"),
+    }
+    start_variable = "Start Date"
+    behavior_file_path = (
+        data_dir_path
+        / f"{experiment_type} Experiments"
+        / "Behavior"
+        / f"{experimental_group}"
+        / f"{subject_id}"
+        / f"{subject_id}"
+    )
+    fiber_photometry_folder_path = (
+        data_dir_path
+        / f"{experiment_type} Experiments"
+        / "Photometry"
+        / f"Punishment Sensitive"
+        / f"Late RI60"
+        / f"Photo_{subject_id.split('.')[0]}_{subject_id.split('.')[1]}-200728-122403"
+    )
+    second_fiber_photometry_folder_path = (
+        data_dir_path
+        / f"{experiment_type} Experiments"
+        / "Photometry"
+        / f"Punishment Sensitive"
+        / f"Late RI60"
+        / f"Photo_{subject_id.split('.')[0]}_{subject_id.split('.')[1]}-200728-123314"
+    )
+    session_to_nwb(
+        data_dir_path=data_dir_path,
+        output_dir_path=output_dir_path,
+        behavior_file_path=behavior_file_path,
+        has_port_entry_durations=False,
+        fiber_photometry_folder_path=fiber_photometry_folder_path,
+        second_fiber_photometry_folder_path=second_fiber_photometry_folder_path,
+        subject_id=subject_id,
+        session_conditions=session_conditions,
+        start_variable=start_variable,
+        start_datetime=start_datetime,
+        experiment_type=experiment_type,
+        experimental_group=experimental_group,
+        stub_test=stub_test,
+    )
+
     # Example DMS-Inhibitory Opto session
     experiment_type = "Opto"
     experimental_group = "DMS-Inhibitory"

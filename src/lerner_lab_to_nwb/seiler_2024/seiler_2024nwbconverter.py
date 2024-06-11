@@ -135,8 +135,10 @@ class Seiler2024NWBConverter(NWBConverter):
             if len(session_dict[behavior_name]) == 0:
                 continue  # If behavior is not present the tdt file will not have the appropriate TTL
             len_behavior = len(session_dict[behavior_name])
-
-            ttl_timestamps = self.get_ttl_timestamps(ttl_name, tdt_photometry, len_behavior)
+            if folder_path.name == "Photo_332_393-200728-122403":
+                ttl_timestamps = tdt_photometry.epocs[ttl_name].onset
+            else:
+                ttl_timestamps = self.get_ttl_timestamps(ttl_name, tdt_photometry, len_behavior)
             if second_folder_path is not None:
                 ttl_timestamps2 = self.get_ttl_timestamps(ttl_name, tdt_photometry2, len_behavior)
                 ttl_timestamps = np.concatenate((ttl_timestamps, ttl_timestamps2))
