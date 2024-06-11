@@ -216,7 +216,9 @@ def session_to_nwb(
             )
 
     # Run conversion
-    converter.run_conversion(metadata=metadata, nwbfile_path=nwbfile_path, conversion_options=conversion_options)
+    converter.run_conversion(
+        metadata=metadata, nwbfile_path=nwbfile_path, conversion_options=conversion_options, verbose=verbose
+    )
 
 
 def western_blot_to_nwb(

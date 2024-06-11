@@ -199,6 +199,7 @@ class Seiler2024NWBConverter(NWBConverter):
         overwrite: bool = False,
         conversion_options: Optional[dict] = None,
         backend: Optional[str] = "hdf5",
+        verbose: bool = False,
     ) -> None:
         if metadata is None:
             metadata = self.get_metadata()
@@ -215,6 +216,7 @@ class Seiler2024NWBConverter(NWBConverter):
             metadata=metadata,
             overwrite=overwrite,
             backend=backend,
+            verbose=verbose,
         ) as nwbfile_out:
             self.add_to_nwbfile(nwbfile=nwbfile_out, metadata=metadata, conversion_options=conversion_options)
             backend_configuration = self.get_default_backend_configuration(nwbfile=nwbfile_out, backend=backend)
