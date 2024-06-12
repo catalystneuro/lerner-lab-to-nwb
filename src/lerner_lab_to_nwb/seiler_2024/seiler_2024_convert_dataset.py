@@ -1,4 +1,38 @@
-"""Convert the entire dataset to NWB."""
+"""Convert the entire dataset to NWB.
+
+This conversion script defines the `dataset_to_nwb()` function, which converts the entire Seiler 2024 dataset to NWB.
+When run as a script, this file calls `dataset_to_nwb()` with the appropriate arguments as well as `western_dataset_to_nwb()`, which converts all the western blot data.
+The dataset_to_nwb() function first obtains all of the session_to_nwb arguments for each session in the dataset using the fp_to_nwb() and opto_to_nwb() functions.
+Then dataset_to_nwb() converts each session to NWB by calling session_to_nwb() with the appropriate arguments, handling any errors by writing each one to a dedicated .txt file.
+
+The fp_to_nwb() function obtains all of the session_to_nwb arguments for each session in the FP Experiments portion of the dataset,
+including sessions with concurrent fiber photometry and behavior as well as sessions with behavior alone.
+First, the function iterates through all of the fiber photometry folders, extracting the photometry_folder_path and the subject_id from the folder name.
+Then, it finds the all the behavior sessions for a given subject_id using get_fp_header_variables().
+Then, it matches each fiber photometry session with one of the behavior sessions using the start_date.
+Once, all the fiber photometry sessions have been added,
+this function iterates through all of the behavior files to add the behavior sessions without fiber photometry (omitting any duplicates).
+
+The get_fp_header_variables() function obtains a group of header variables for all the behavioral sessions from a subject directory in the following way:
+1. From the medpc output files organized by subject,
+2. From the medpc output files organized by date that can be matched with a csv file organized by subject,
+3. From the csv files organized by subject that cannot be matched with a medpc output file.
+    These sessions have placeholders for missing metadata: start_time = "00:00:00", msn = "Unknown".
+
+The opto_to_nwb() function obtains all of the session_to_nwb arguments for each session in the Opto Experiments portion of the dataset.
+First, the function iterates through all of the optogenetic files (both MedPC output and .csv), and extracts all the relevant file info using get_opto_header_variables().
+Then, it iterates through all of the sessions for a given file and adds the session_to_nwb arguments for each session (omitting any duplicates).
+Then, it adds all the sessions in the DLS Excitatory folder organized by date instead of by subject.
+
+The get_opto_header_variables() function obtains a group of header variables for all the behavioral sessions from a subject_path in the following way:
+1. If the subject_path is a MedPC output file, it reads the file and extracts the headers for each session in that file.
+2. If the subject_path is a folder, it iterates through all of the medpc files and .csv files in that folder and extracts the headers for each session in each file.
+
+The rest of the functions defined in this script are relatively self-explanatory helpers with their own documentation.
+
+Note that the dataset conversion uses multiprocessing, currently set to 4 workers.  To use more or fewer workers, simply
+change the `max_workers` argument to `dataset_to_nwb()`.
+"""
 from pathlib import Path
 from typing import Union
 from tqdm import tqdm
@@ -702,9 +736,9 @@ def opto_to_nwb(
                         )
                         nwbfile_path = (
                             output_dir_path
-                            / f"{experiment_type}_{experimental_group}__{optogenetic_treatment}_{subject_id}_{start_datetime.isoformat()}.nwb"
+                            / f"{experiment_type}_{experimental_group}_{optogenetic_treatment}_{subject_id}_{start_datetime.isoformat()}.nwb"
                         )
-                        if nwbfile_path in nwbfile_paths:
+                        if nwbfile_path in nwbfile_paths:  # TODO: Double Check opto de-duplication esp for .csvs
                             continue
                         nwbfile_paths.add(nwbfile_path)
                         session_to_nwb_args_per_session.append(session_to_nwb_args)
@@ -978,7 +1012,19 @@ def session_should_be_skipped(*, start_date, start_time, subject_id, msn):
     return False
 
 
-def get_csv_session_dates(subject_dir):
+def get_csv_session_dates(subject_dir: Path):
+    """Get the session dates from the CSV files in the subject directory.
+
+    Parameters
+    ----------
+    subject_dir : Path
+        The path to the subject directory.
+
+    Returns
+    -------
+    list[str]
+        A list of session dates in the format 'MM/DD/YY'.
+    """
     csv_session_dates = []
     for file in subject_dir.iterdir():
         if file.suffix == ".csv" and not file.name.startswith(".") and not "dataForEachAnimal" in file.name:
@@ -1064,7 +1110,28 @@ def get_fp_header_variables(subject_dir, subject_id, raw_file_to_info, start_var
     return start_dates, start_times, msns, file_paths, subjects, box_numbers
 
 
-def match_csv_session_to_medpc_session(*, raw_file_to_info, csv_date, port_entry_times, start_variable):
+def match_csv_session_to_medpc_session(
+    *, raw_file_to_info: dict[Path, dict], csv_date: str, port_entry_times: np.ndarray, start_variable: str
+):
+    """Match a CSV session to a Medpc session using the port entry times.
+
+    Parameters
+    ----------
+    raw_file_to_info : dict[Path, dict]
+        A dictionary mapping raw file paths to their info dict, which contains the MedPC variables: Subject, Start Date, Start Time, MSN, and Box.
+    csv_date : str
+        The date of the CSV session in the format 'MM/DD/YY'.
+    port_entry_times : np.ndarray
+        The port entry times from the CSV session.
+    start_variable : str
+        The variable to use as the start variable for the session.
+
+    Returns
+    -------
+    tuple
+        A tuple containing the start date, start time, MSN, file path, subject, and box number.
+        If no match is found, returns None, None, None, None, None, None.
+    """
     subject = None
     for file, info in raw_file_to_info.items():
         for start_date, start_time, msn, box_number in zip(
@@ -1089,7 +1156,19 @@ def match_csv_session_to_medpc_session(*, raw_file_to_info, csv_date, port_entry
     return None, None, None, None, None, None
 
 
-def get_raw_info(behavior_path):
+def get_raw_info(behavior_path: Path):
+    """Get the header info for the MEDPC_RawFilesbyDate.
+
+    Parameters
+    ----------
+    behavior_path : Path
+        The path to the behavior directory.
+
+    Returns
+    -------
+    dict[Path, dict]
+        A dictionary mapping raw file paths to their info dict, which contains the MedPC variables: Subject, Start Date, Start Time, MSN, and Box.
+    """
     raw_files_by_date_path = behavior_path / "MEDPC_RawFilesbyDate"
     raw_files_by_date = [file for file in raw_files_by_date_path.iterdir() if not file.name.startswith(".")]
     raw_file_to_info = {}
