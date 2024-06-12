@@ -69,6 +69,8 @@ def session_to_nwb(
         Whether to flip the left and right TTLs relative to the msn name, by default False
     has_demodulated_commanded_voltages : bool, optional
         Whether the fiber photometry data has demodulated commanded voltages, by default True
+    has_port_entry_durations : bool, optional
+        Whether the behavior data has port entry durations, by default True
     stub_test : bool, optional
         Whether to run a stub test, by default False
     verbose : bool, optional
