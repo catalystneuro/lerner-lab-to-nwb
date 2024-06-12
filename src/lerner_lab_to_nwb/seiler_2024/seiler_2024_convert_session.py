@@ -16,7 +16,7 @@ def session_to_nwb(
     data_dir_path: Union[str, Path],
     output_dir_path: Union[str, Path],
     behavior_file_path: Union[str, Path],
-    start_datetime: datetime,
+    start_datetime: datetime,  # TODO: Remove redundant start_datetime
     subject_id: str,
     session_conditions: dict,
     start_variable: str,
