@@ -200,7 +200,7 @@ class Seiler2024FiberPhotometryInterface(BaseDataInterface):
             commanded_voltage_series_dls_calcium_signal = CommandedVoltageSeries(
                 name="commanded_voltage_series_dls_calcium_signal",
                 description="The commanded voltage for the DLS calcium signal.",
-                data=tdt_photometry.streams["Fi1d"].data[3, :],
+                data=tdt_photometry.streams["Fi1d"].data[2, :],
                 unit="volts",
                 frequency=450.0,
                 starting_time=0.0,
@@ -209,7 +209,7 @@ class Seiler2024FiberPhotometryInterface(BaseDataInterface):
             commanded_voltage_series_dls_isosbestic_control = CommandedVoltageSeries(
                 name="commanded_voltage_series_dls_isosbestic_control",
                 description="The commanded voltage for the DLS isosbestic control.",
-                data=tdt_photometry.streams["Fi1d"].data[2, :],
+                data=tdt_photometry.streams["Fi1d"].data[3, :],
                 unit="volts",
                 frequency=270.0,
                 starting_time=0.0,

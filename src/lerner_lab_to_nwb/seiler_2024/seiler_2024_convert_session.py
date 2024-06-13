@@ -437,6 +437,7 @@ if __name__ == "__main__":
         output_dir_path=output_dir_path,
         behavior_file_path=behavior_file_path,
         fiber_photometry_folder_path=fiber_photometry_folder_path,
+        has_demodulated_commanded_voltages=False,
         subject_id=subject_id,
         session_conditions=session_conditions,
         start_variable=start_variable,
