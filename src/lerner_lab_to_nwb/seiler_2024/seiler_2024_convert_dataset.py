@@ -109,25 +109,29 @@ def dataset_to_nwb(
         stub_test=stub_test,
         verbose=verbose,
     )
-    session_to_nwb_args_per_session = fp_session_to_nwb_args_per_session + opto_session_to_nwb_args_per_session
+    pre_skip_session_to_nwb_args_per_session = fp_session_to_nwb_args_per_session + opto_session_to_nwb_args_per_session
     port_entry_duration_path = data_dir_path / "sessions_without_port_entry_durations.yaml"
     no_port_entry_duration_sessions = get_no_port_entry_duration_sessions(
         port_entry_file_path=port_entry_duration_path,
-        session_to_nwb_args_per_session=session_to_nwb_args_per_session,
+        session_to_nwb_args_per_session=pre_skip_session_to_nwb_args_per_session,
         overwrite=False,
     )
+    session_to_nwb_args_per_session = []
+    for session_to_nwb_kwargs in pre_skip_session_to_nwb_args_per_session:
+        session_key = get_session_key_from_kwargs(session_to_nwb_kwargs)
+        if session_key in no_port_entry_duration_sessions:
+            session_to_nwb_kwargs["has_port_entry_durations"] = False
+        subject_id = session_to_nwb_kwargs["subject_id"]
+        if subject_id in subjects_to_skip:
+            continue
+        session_to_nwb_args_per_session.append(session_to_nwb_kwargs)
 
     futures = []
     with ProcessPoolExecutor(max_workers=max_workers) as executor:
         for session_to_nwb_kwargs in session_to_nwb_args_per_session:
-            session_key = get_session_key_from_kwargs(session_to_nwb_kwargs)
-            if session_key in no_port_entry_duration_sessions:
-                session_to_nwb_kwargs["has_port_entry_durations"] = False
             experiment_type = session_to_nwb_kwargs["experiment_type"]
             experimental_group = session_to_nwb_kwargs["experimental_group"]
             subject_id = session_to_nwb_kwargs["subject_id"]
-            if subject_id in subjects_to_skip:
-                continue
             start_datetime = session_to_nwb_kwargs["start_datetime"]
             optogenetic_treatment = session_to_nwb_kwargs.get("optogenetic_treatment", None)
             if experiment_type == "FP":
