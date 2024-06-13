@@ -506,7 +506,6 @@ def fp_to_nwb(
                     session_conditions["Subject"] = subject
                 if box_number is not None:
                     session_conditions["Box"] = box_number
-                start_datetime = datetime.strptime(f"{start_date} {start_time}", "%m/%d/%y %H:%M:%S")
                 if photometry_subject_id in partial_subject_ids_to_subject_id:
                     photometry_subject_id = partial_subject_ids_to_subject_id[photometry_subject_id]
                 session_to_nwb_args = dict(
@@ -517,7 +516,6 @@ def fp_to_nwb(
                     subject_id=photometry_subject_id,
                     session_conditions=session_conditions,
                     start_variable=start_variable,
-                    start_datetime=start_datetime,
                     experiment_type=experiment_type,
                     experimental_group=experimental_group,
                     stub_test=stub_test,
@@ -589,7 +587,6 @@ def fp_to_nwb(
                     subject_id=subject_id,
                     session_conditions=session_conditions,
                     start_variable=start_variable,
-                    start_datetime=start_datetime,
                     experiment_type=experiment_type,
                     experimental_group=experimental_group,
                     stub_test=stub_test,
@@ -721,7 +718,6 @@ def opto_to_nwb(
                             session_conditions["Subject"] = subject
                         if box_number is not None:
                             session_conditions["Box"] = box_number
-                        start_datetime = datetime.strptime(f"{start_date} {start_time}", "%m/%d/%y %H:%M:%S")
                         session_to_nwb_args = dict(
                             data_dir_path=data_dir_path,
                             output_dir_path=output_dir_path,
@@ -729,7 +725,6 @@ def opto_to_nwb(
                             subject_id=subject_id,
                             session_conditions=session_conditions,
                             start_variable=start_variable,
-                            start_datetime=start_datetime,
                             experiment_type=experiment_type,
                             experimental_group=experimental_group,
                             optogenetic_treatment=optogenetic_treatment,
@@ -773,7 +768,6 @@ def opto_to_nwb(
             "Subject": subject,
             "Box": box_number,
         }
-        start_datetime = datetime.strptime(f"{start_date} {start_time}", "%m/%d/%y %H:%M:%S")
         if subject in partial_subject_ids_to_subject_id:
             subject = partial_subject_ids_to_subject_id[subject]
         session_to_nwb_args = dict(
@@ -783,7 +777,6 @@ def opto_to_nwb(
             subject_id=subject,
             session_conditions=session_conditions,
             start_variable=start_variable,
-            start_datetime=start_datetime,
             experiment_type=experiment_type,
             experimental_group="DLS-Excitatory",
             optogenetic_treatment="Unknown",
