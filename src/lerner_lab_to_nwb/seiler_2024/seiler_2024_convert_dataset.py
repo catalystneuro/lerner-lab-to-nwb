@@ -577,7 +577,6 @@ def fp_to_nwb(
                     session_conditions["Subject"] = subject
                 if box_number is not None:
                     session_conditions["Box"] = box_number
-                start_datetime = datetime.strptime(f"{start_date} {start_time}", "%m/%d/%y %H:%M:%S")
                 if subject_id in partial_subject_ids_to_subject_id:
                     subject_id = partial_subject_ids_to_subject_id[subject_id]
                 session_to_nwb_args = dict(
