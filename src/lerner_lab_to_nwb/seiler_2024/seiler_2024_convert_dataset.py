@@ -416,10 +416,12 @@ def fp_to_nwb(
                     if (
                         photometry_subject_id == "271.396"
                         and photometry_start_date == "07/07/20"
-                        and msn == "FOOD_RI 60 RIGHT TTL"
+                        and msn
+                        == "FOOD_RI 60 RIGHT TTL"  # This session was accidentally run on the wrong MSN and should be skipped
                         or photometry_subject_id == "88.239"
                         and photometry_start_date == "02/19/19"
-                        and msn == "FOOD_RI 60 LEFT TTL"
+                        and msn
+                        == "FOOD_RI 60 LEFT TTL"  # This session was accidentally run on the wrong MSN and should be skipped
                     ):
                         continue
                     if start_date == photometry_start_date:
@@ -442,42 +444,42 @@ def fp_to_nwb(
                         photometry_subject_id == "64.205"
                         and photometry_start_date == "10/17/18"
                         and experimental_subgroup.name == "Late"
-                    )
+                    )  # This session is a duplicate of Delayed Punishment Resistant/Early/Photo_64_205-181017-094913
                     or (
                         photometry_subject_id == "81.236"
                         and photometry_start_date == "01/17/19"
                         and experimental_subgroup.name == "Late"
-                    )
+                    )  # This session is a duplicate of Delayed Punishment Resistant/Early/Photo_81_236-190117-102128
                     or (
                         photometry_subject_id == "87.239"
                         and photometry_start_date == "02/28/19"
                         and experimental_subgroup.name == "Late"
-                    )
+                    )  # This session is a duplicate of Delayed Punishment Resistant/Early/Photo_87_239-190228-111317
                     or (
                         photometry_subject_id == "88.239"
                         and photometry_start_date == "02/19/19"
                         and experimental_subgroup.name == "Late"
-                    )
+                    )  # This session is a duplicate of Delayed Punishment Resistant/Early/Photo_88_239-190219-140027
                     or (
                         photometry_subject_id == "80.236"
                         and photometry_start_date == "01/21/19"
                         and experimental_subgroup.name == "Late RI60"
-                    )
+                    )  # This session is a duplicate of Delayed Punishment Resistant/Early RI 60/Photo_80_236-190121-093425
                     or (
                         photometry_subject_id == "75.214"
                         and photometry_start_date == "10/29/18"
                         and experimental_subgroup.name == "Late RI60"
-                    )
+                    )  # This session is a duplicate of Punishment Sensitive/Early RI60/Photo_75_214-181029-124815
                     or (
                         photometry_subject_id == "93.246"
                         and photometry_start_date == "02/22/19"
                         and experimental_subgroup.name == "Late RI60"
-                    )
+                    )  # This session is a duplicate of Punishment Sensitive/Early RI60/Photo_93_246-190222-130128
                     or (
                         photometry_subject_id == "78.214"
                         and photometry_start_date == "10/31/18"
                         and experimental_subgroup.name == "Late RI60"
-                    )
+                    )  # This session is a duplicate of Punishment Sensitive/Early RI60/Photo_78_214-181031-131820
                     or (
                         photometry_subject_id == "96.259"
                         and photometry_start_date == "05/06/19"
@@ -529,19 +531,19 @@ def fp_to_nwb(
                         fiber_photometry_folder_path.parent / "Photo_139_298-190912-103544"
                     )
                 if fiber_photometry_folder_path.name == "Photo_139_298-190912-103544":
-                    continue
+                    continue  # This is the second_fiber_photometry_folder_path of Photo_139_298-190912-095034
                 if fiber_photometry_folder_path.name == "Photo_332_393-200728-122403":
                     session_to_nwb_args["second_fiber_photometry_folder_path"] = (
                         fiber_photometry_folder_path.parent / "Photo_332_393-200728-123314"
                     )
                 if fiber_photometry_folder_path.name == "Photo_332_393-200728-123314":
-                    continue
+                    continue  # This is the second_fiber_photometry_folder_path of Photo_332_393-200728-122403
                 if fiber_photometry_folder_path.name == "Photo_92_246-190227-143210":
                     session_to_nwb_args["second_fiber_photometry_folder_path"] = (
                         fiber_photometry_folder_path.parent / "Photo_92_246-190227-150307"
                     )
                 if fiber_photometry_folder_path.name == "Photo_92_246-190227-150307":
-                    continue
+                    continue  # This is the second_fiber_photometry_folder_path of Photo_92_246-190227-143210
                 if photometry_subject_id == "140.306" and photometry_start_date == "08/09/19":
                     session_to_nwb_args["flip_ttls_lr"] = True
 
@@ -991,20 +993,20 @@ def session_should_be_skipped(*, start_date, start_time, subject_id, msn):
             and start_time == "09:42:54"
             and subject_id == "139.298"
             and msn == "RI 60 RIGHT STIM"
-        )
+        )  # This session is actually from subject 144.306, which should be skipped
         or (
             start_date == "07/28/20"
             and start_time == "13:21:15"
             and subject_id == "272.396"
             and msn == "Probe Test Habit Training TTL"
-        )
+        )  # This session is actually from subject 334, which should be skipped
         or (
             start_date == "07/31/20"
             and start_time == "12:03:31"
             and subject_id == "346.394"
             and msn == "FOOD_RI 60 RIGHT TTL"
         )
-    ):
+    ):  # This session is actually from subject 333, which should be skipped
         return True
     return False
 
