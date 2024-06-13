@@ -373,7 +373,7 @@ def fp_to_nwb(
 
     # Iterate through file system to get necessary information for converting each session
     session_to_nwb_args_per_session: list[dict] = []  # Each dict contains the args for session_to_nwb for a session
-    nwbfile_paths = set()  # Each path is the path to the nwb file created for a session
+    unique_session_keys = set()  # Each entry is a unique string key for a session
 
     # Iterate through all photometry files
     for experimental_group, long_name in experimental_group_to_long_name.items():
@@ -541,12 +541,11 @@ def fp_to_nwb(
                 if photometry_subject_id == "140.306" and photometry_start_date == "08/09/19":
                     session_to_nwb_args["flip_ttls_lr"] = True
 
+                session_key = get_session_key_from_kwargs(session_to_nwb_args)
+                if session_key in unique_session_keys:
+                    continue
                 session_to_nwb_args_per_session.append(session_to_nwb_args)
-                nwbfile_path = (
-                    output_dir_path
-                    / f"{experiment_type}_{experimental_group}_{photometry_subject_id}_{start_datetime.isoformat()}.nwb"
-                )
-                nwbfile_paths.add(nwbfile_path)
+                unique_session_keys.add(session_key)
 
     # Iterate through all behavior files
     for experimental_group in experimental_groups:
@@ -590,13 +589,10 @@ def fp_to_nwb(
                     stub_test=stub_test,
                     verbose=verbose,
                 )
-                nwbfile_path = (
-                    output_dir_path
-                    / f"{experiment_type}_{experimental_group}_{subject_id}_{start_datetime.isoformat()}.nwb"
-                )
-                if nwbfile_path in nwbfile_paths:
+                session_key = get_session_key_from_kwargs(session_to_nwb_args)
+                if session_key in unique_session_keys:
                     continue
-                nwbfile_paths.add(nwbfile_path)
+                unique_session_keys.add(session_key)
                 session_to_nwb_args_per_session.append(session_to_nwb_args)
     return session_to_nwb_args_per_session
 
@@ -675,7 +671,7 @@ def opto_to_nwb(
     }
     opto_path = data_dir_path / f"{experiment_type} Experiments"
     session_to_nwb_args_per_session: list[dict] = []  # Each dict contains the args for session_to_nwb for a session
-    nwbfile_paths = set()  # Each path is the path to the nwb file created for a session
+    unique_session_keys = set()  # Each entry is a unique string key for a session
 
     for experimental_group in experimental_groups:
         experimental_group_path = opto_path / experimental_group.replace("-", " ")
@@ -734,13 +730,10 @@ def opto_to_nwb(
                             stub_test=stub_test,
                             verbose=verbose,
                         )
-                        nwbfile_path = (
-                            output_dir_path
-                            / f"{experiment_type}_{experimental_group}_{optogenetic_treatment}_{subject_id}_{start_datetime.isoformat()}.nwb"
-                        )
-                        if nwbfile_path in nwbfile_paths:  # TODO: Double Check opto de-duplication esp for .csvs
+                        session_key = get_session_key_from_kwargs(session_to_nwb_args)
+                        if session_key in unique_session_keys:
                             continue
-                        nwbfile_paths.add(nwbfile_path)
+                        unique_session_keys.add(session_key)
                         session_to_nwb_args_per_session.append(session_to_nwb_args)
     # DLS Excitatory raw files by date
     raw_files_by_date_path = data_dir_path / "Opto Experiments" / "DLS Excitatory"
@@ -791,10 +784,10 @@ def opto_to_nwb(
             stub_test=stub_test,
             verbose=verbose,
         )
-        nwbfile_path = output_dir_path / f"{experiment_type}_DLS-Excitatory_{subject}_{start_datetime.isoformat()}.nwb"
-        if nwbfile_path in nwbfile_paths:
+        session_key = get_session_key_from_kwargs(session_to_nwb_args)
+        if session_key in unique_session_keys:
             continue
-        nwbfile_paths.add(nwbfile_path)
+        unique_session_keys.add(session_key)
         session_to_nwb_args_per_session.append(session_to_nwb_args)
     return session_to_nwb_args_per_session
 
