@@ -112,18 +112,33 @@ class Seiler2024NWBConverter(NWBConverter):
             "PrtN": "reward_port_entry_times",
             "Sock": "footshock_times",
         }
+        right_ttl_names_to_left_behavior_names = {
+            "LNPS": "right_nose_poke_times",
+            "RNRW": "left_reward_times",
+            "RNnR": "left_nose_poke_times",
+            "PrtN": "reward_port_entry_times",
+            "Sock": "footshock_times",
+        }
+        left_ttl_names_to_right_behavior_names = {
+            "RNPS": "left_nose_poke_times",
+            "LNRW": "right_reward_times",
+            "LNnR": "right_nose_poke_times",
+            "PrtN": "reward_port_entry_times",
+            "Sock": "footshock_times",
+        }
         msn_is_right = "RIGHT" in msn or "Right" in msn or "right" in msn
         msn_is_left = "LEFT" in msn or "Left" in msn or "left" in msn or msn == "Probe Test Habit Training TTL"
-        if not conversion_options["FiberPhotometry"]["flip_ttls_lr"] and msn_is_right:
+        if msn_is_right and not conversion_options["FiberPhotometry"]["flip_ttls_lr"]:
             ttl_names_to_behavior_names = right_ttl_names_to_behavior_names
-        elif not conversion_options["FiberPhotometry"]["flip_ttls_lr"] and msn_is_left:
+        elif msn_is_left and not conversion_options["FiberPhotometry"]["flip_ttls_lr"]:
             ttl_names_to_behavior_names = left_ttl_names_to_behavior_names
-        elif conversion_options["FiberPhotometry"]["flip_ttls_lr"] and msn_is_right:
-            ttl_names_to_behavior_names = left_ttl_names_to_behavior_names
-        elif conversion_options["FiberPhotometry"]["flip_ttls_lr"] and msn_is_left:
-            ttl_names_to_behavior_names = right_ttl_names_to_behavior_names
+        elif msn_is_right and conversion_options["FiberPhotometry"]["flip_ttls_lr"]:
+            ttl_names_to_behavior_names = left_ttl_names_to_right_behavior_names
+        elif msn_is_left and conversion_options["FiberPhotometry"]["flip_ttls_lr"]:
+            ttl_names_to_behavior_names = right_ttl_names_to_left_behavior_names
         else:
             raise ValueError(f"MSN ({msn}) does not indicate appropriate TTLs for alignment.")
+
         if folder_path.name == "Photo_332_393-200728-122403":
             ttl_names_to_behavior_names = {  # This special session only has 2 TTLs bc it is split into 2 folders
                 "RNnR": "right_nose_poke_times",
