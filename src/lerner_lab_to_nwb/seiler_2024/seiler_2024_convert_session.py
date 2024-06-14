@@ -662,7 +662,7 @@ if __name__ == "__main__":
         stub_test=stub_test,
     )
 
-    # Fiber Photometry session with swapped left and right TTLs and missing Fi1d
+    # Fiber Photometry session with swapped left and right TTLs and missing Fi1d BUT Fi1r has demodulated commanded voltages
     experiment_type = "FP"
     experimental_group = "PS"
     subject_id = "140.306"

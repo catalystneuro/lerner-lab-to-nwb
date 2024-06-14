@@ -215,7 +215,50 @@ class Seiler2024FiberPhotometryInterface(BaseDataInterface):
                 starting_time=0.0,
                 rate=tdt_photometry.streams["Fi1d"].fs,
             )
+        elif tdt_photometry.streams["Fi1r"].data.shape[0] == 6:
+            has_demodulated_commanded_voltages = (
+                True  # Some sessions have demodulated commanded voltages hiding in Fi1r
+            )
+            commanded_voltage_series_dms_calcium_signal = CommandedVoltageSeries(
+                name="commanded_voltage_series_dms_calcium_signal",
+                description="The commanded voltage for the DMS calcium signal.",
+                data=tdt_photometry.streams["Fi1r"].data[0, :],
+                unit="volts",
+                frequency=211.0,
+                starting_time=0.0,
+                rate=tdt_photometry.streams["Fi1r"].fs,
+            )
+            commanded_voltage_series_dms_isosbestic_control = CommandedVoltageSeries(
+                name="commanded_voltage_series_dms_isosbestic_control",
+                description="The commanded voltage for the DMS isosbestic control.",
+                data=tdt_photometry.streams["Fi1r"].data[1, :],
+                unit="volts",
+                frequency=330.0,
+                starting_time=0.0,
+                rate=tdt_photometry.streams["Fi1r"].fs,
+            )
+            commanded_voltage_series_dls_calcium_signal = CommandedVoltageSeries(
+                name="commanded_voltage_series_dls_calcium_signal",
+                description="The commanded voltage for the DLS calcium signal.",
+                data=tdt_photometry.streams["Fi1r"].data[2, :],
+                unit="volts",
+                starting_time=0.0,
+                frequency=450.0,
+                rate=tdt_photometry.streams["Fi1r"].fs,
+            )
+            commanded_voltage_series_dls_isosbestic_control = CommandedVoltageSeries(
+                name="commanded_voltage_series_dls_isosbestic_control",
+                description="The commanded voltage for the DLS isosbestic control.",
+                data=tdt_photometry.streams["Fi1r"].data[3, :],
+                unit="volts",
+                frequency=270.0,
+                starting_time=0.0,
+                rate=tdt_photometry.streams["Fi1r"].fs,
+            )
         else:
+            assert (
+                tdt_photometry.streams["Fi1r"].data.shape[0] == 2
+            ), f"Fi1r should have 6 arrays or 2 arrays, but it has {tdt_photometry.streams['Fi1r'].data.shape[0]}"
             commanded_voltage_series_dms = CommandedVoltageSeries(
                 name="commanded_voltage_series_dms",
                 description="The commanded voltage for the frequency-modulated DMS calcium signal and DMS isosbestic control.",
