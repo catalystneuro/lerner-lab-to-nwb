@@ -156,6 +156,8 @@ class Seiler2024NWBConverter(NWBConverter):
                 ttl_timestamps = self.get_ttl_timestamps(ttl_name, tdt_photometry, len_behavior)
             if second_folder_path is not None:
                 ttl_timestamps2 = self.get_ttl_timestamps(ttl_name, tdt_photometry2, len_behavior)
+                t_end = 1 / tdt_photometry.streams["Dv1A"].fs * (len(tdt_photometry.streams["Dv1A"].data) - 1)
+                ttl_timestamps2 += t_end
                 ttl_timestamps = np.concatenate((ttl_timestamps, ttl_timestamps2))
             session_dict[behavior_name] = ttl_timestamps
         if "MedPC" in self.data_interface_objects.keys():
