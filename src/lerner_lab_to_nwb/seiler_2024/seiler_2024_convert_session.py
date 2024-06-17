@@ -65,7 +65,8 @@ def session_to_nwb(
     flip_ttls_lr : bool, optional
         Whether to flip the left and right TTLs relative to the msn name, by default False
     has_demodulated_commanded_voltages : bool, optional
-        Whether the fiber photometry data has demodulated commanded voltages, by default True
+        Whether the fiber photometry data has demodulated commanded voltages in a dedicated array (Fi1d), by default True
+        Note that, sometimes the demodulated commanded voltages are in the same array as the demodulated photometry data (Fi1r).
     has_port_entry_durations : bool, optional
         Whether the behavior data has port entry durations, by default True
     stub_test : bool, optional
@@ -578,7 +579,7 @@ if __name__ == "__main__":
         stub_test=stub_test,
     )
 
-    # Fiber Photometry session with only Fi1r (no Fi1d)
+    # Fiber Photometry session with only Fi1r (no Fi1d) BUT has demodulated commanded voltages in Fi1r
     experiment_type = "FP"
     experimental_group = "DPR"
     subject_id = "333.393"
