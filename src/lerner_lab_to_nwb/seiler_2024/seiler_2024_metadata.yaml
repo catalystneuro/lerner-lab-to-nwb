@@ -308,7 +308,7 @@ MedPC:
       H: footshock_times
 
   msn_to_session_description:
-    20sOmissions_TTL: "Omission Probe with concurrent fiber photometry"
+    20sOmissions_TTL: "Omission Probe"
     20sOmissions: "Omission Probe"
     FOOD_FR1 Habit Training TTL: "FR1 Habit Training with concurrent fiber photometry"
     FOOD_FR1 HT TTL (Both): "FR1 Habit Training with concurrent fiber photometry, rewards delivered on both left and right nose pokes"

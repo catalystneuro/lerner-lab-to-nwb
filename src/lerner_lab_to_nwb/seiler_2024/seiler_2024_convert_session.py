@@ -953,6 +953,35 @@ if __name__ == "__main__":
     experimental_group = "DLS-Excitatory"
     optogenetic_treatment = "ChR2Scrambled"
     subject_id = "276.405"
+    start_datetime = datetime(2020, 9, 21, 0, 0, 0)
+    session_conditions = {}
+    start_variable = ""
+    behavior_file_path = (
+        data_dir_path
+        / f"{experiment_type} Experiments"
+        / f"{experimental_group.replace('-', ' ')}"
+        / "Scrambled"
+        / f"{subject_id.replace('.', '_')}"
+        / f"{subject_id}_{start_datetime.strftime('%m-%d-%y')}.csv"
+    )
+    session_to_nwb(
+        data_dir_path=data_dir_path,
+        output_dir_path=output_dir_path,
+        behavior_file_path=behavior_file_path,
+        subject_id=subject_id,
+        session_conditions=session_conditions,
+        start_variable=start_variable,
+        experiment_type=experiment_type,
+        experimental_group=experimental_group,
+        optogenetic_treatment=optogenetic_treatment,
+        stub_test=stub_test,
+    )
+
+    # Opto Omission Probe session from csv file
+    experiment_type = "Opto"
+    experimental_group = "DLS-Excitatory"
+    optogenetic_treatment = "ChR2Scrambled"
+    subject_id = "276.405"
     start_datetime = datetime(2020, 10, 1, 0, 0, 0)
     session_conditions = {}
     start_variable = ""

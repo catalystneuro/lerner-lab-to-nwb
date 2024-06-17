@@ -161,6 +161,15 @@ class Seiler2024OptogeneticInterface(BaseDataInterface):
             location=f"Injection location: {opto_metadata['injection_location']} \n Stimulation location: {opto_metadata['stimulation_location']}",
             excitation_lambda=opto_metadata["excitation_lambda"],
         )
+
+        probe_msns = {"20sOmissions_TTL", "20sOmissions", "Footshock Degradation Left", "Footshock Degradation right"}
+        behavioral_metadata_key = behavioral_metadata_key = "Behavior" if self.source_data["from_csv"] else "MedPC"
+        if metadata[behavioral_metadata_key]["MSN"] in probe_msns:
+            return  # no optogenetic stimulation was delivered in probe sessions --> skip adding optogenetic series
+        assert (
+            metadata[behavioral_metadata_key]["MSN"] != "Probe Test Habit Training TTL"
+        ), "Opto Experiments should not have Probe Test Habit Training TTL MSN"
+
         timestamps, data = create_optogenetic_stimulation_timeseries(
             stimulation_onset_times=stim_times,
             duration=opto_metadata["duration"],
