@@ -100,7 +100,9 @@ class Seiler2024OptogeneticInterface(BaseDataInterface):
             session_dict = {}
             for csv_name, dict_name in csv_name_to_dict_name.items():
                 session_dict[dict_name] = np.trim_zeros(session_df[csv_name].dropna().values, trim="b")
-            if "Z" in session_df.columns:
+            if ("Scram" in metadata["Behavior"]["MSN"] or "SCRAM" in metadata["Behavior"]["MSN"]) and (
+                "Z" in session_df.columns
+            ):
                 session_dict["optogenetic_stimulation_times"] = np.trim_zeros(session_df["Z"].dropna().values, trim="b")
         else:
             msn = metadata["MedPC"]["MSN"]
