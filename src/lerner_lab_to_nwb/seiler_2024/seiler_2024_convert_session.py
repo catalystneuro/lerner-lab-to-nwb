@@ -401,46 +401,6 @@ if __name__ == "__main__":
         stub_test=stub_test,
     )
 
-    # session with missing medpc file
-    experiment_type = "FP"
-    experimental_group = "PS"
-    subject_id = "75.214"
-    start_datetime = datetime(2018, 10, 29, 12, 41, 44)
-    session_conditions = {
-        "Start Date": start_datetime.strftime("%m/%d/%y"),
-        "Start Time": start_datetime.strftime("%H:%M:%S"),
-        "Subject": subject_id,
-    }
-    start_variable = "Start Date"
-    behavior_file_path = (
-        data_dir_path
-        / f"{experiment_type} Experiments"
-        / "Behavior"
-        / "MEDPC_RawFilesbyDate"
-        / f"{start_datetime.date().isoformat()}"
-    )
-    fiber_photometry_folder_path = (
-        data_dir_path
-        / f"{experiment_type} Experiments"
-        / "Photometry"
-        / f"Punishment Sensitive"
-        / f"Early RI60"
-        / f"Photo_{subject_id.split('.')[0]}_{subject_id.split('.')[1]}-181029-124815"
-    )
-    session_to_nwb(
-        data_dir_path=data_dir_path,
-        output_dir_path=output_dir_path,
-        behavior_file_path=behavior_file_path,
-        fiber_photometry_folder_path=fiber_photometry_folder_path,
-        has_demodulated_commanded_voltages=False,
-        subject_id=subject_id,
-        session_conditions=session_conditions,
-        start_variable=start_variable,
-        experiment_type=experiment_type,
-        experimental_group=experimental_group,
-        stub_test=stub_test,
-    )
-
     # session with missing medpc file and missing subject info, but has csv file
     experiment_type = "FP"
     experimental_group = "PS"
@@ -491,6 +451,46 @@ if __name__ == "__main__":
         data_dir_path=data_dir_path,
         output_dir_path=output_dir_path,
         behavior_file_path=behavior_file_path,
+        subject_id=subject_id,
+        session_conditions=session_conditions,
+        start_variable=start_variable,
+        experiment_type=experiment_type,
+        experimental_group=experimental_group,
+        stub_test=stub_test,
+    )
+
+    # session with missing medpc file
+    experiment_type = "FP"
+    experimental_group = "PS"
+    subject_id = "75.214"
+    start_datetime = datetime(2018, 10, 29, 12, 41, 44)
+    session_conditions = {
+        "Start Date": start_datetime.strftime("%m/%d/%y"),
+        "Start Time": start_datetime.strftime("%H:%M:%S"),
+        "Subject": subject_id,
+    }
+    start_variable = "Start Date"
+    behavior_file_path = (
+        data_dir_path
+        / f"{experiment_type} Experiments"
+        / "Behavior"
+        / "MEDPC_RawFilesbyDate"
+        / f"{start_datetime.date().isoformat()}"
+    )
+    fiber_photometry_folder_path = (
+        data_dir_path
+        / f"{experiment_type} Experiments"
+        / "Photometry"
+        / f"Punishment Sensitive"
+        / f"Early RI60"
+        / f"Photo_{subject_id.split('.')[0]}_{subject_id.split('.')[1]}-181029-124815"
+    )
+    session_to_nwb(
+        data_dir_path=data_dir_path,
+        output_dir_path=output_dir_path,
+        behavior_file_path=behavior_file_path,
+        fiber_photometry_folder_path=fiber_photometry_folder_path,
+        has_demodulated_commanded_voltages=False,
         subject_id=subject_id,
         session_conditions=session_conditions,
         start_variable=start_variable,
