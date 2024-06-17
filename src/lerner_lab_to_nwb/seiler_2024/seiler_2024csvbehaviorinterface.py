@@ -195,8 +195,8 @@ class Seiler2024CSVBehaviorInterface(BaseTemporalAlignmentInterface):
             name="behavior",
             description=(
                 f"Operant behavioral data from MedPC.\n"
-                f"Box = {metadata['Behavior']['box']}\n"
-                f"MSN = {metadata['Behavior']['msn']}"
+                f"Box = {metadata['Behavior']['Box']}\n"
+                f"MSN = {metadata['Behavior']['MSN']}"
             ),
         )
 
