@@ -79,7 +79,7 @@ For the conversion `seiler_2024` you can find a directory located in `src/lerner
 
 * `__init__.py` : This init file imports all the datainterfaces and NWBConverters so that they can be accessed directly from lerner_lab_to_nwb.seiler_2024.
 * `seiler_2024_convert_session.py` : This conversion script defines the `session_to_nwb()` function, which converts a single session of data to NWB.
-    When run as a script, this file converts 22 example sessions to NWB, representing all the various edge cases in the dataset.
+    When run as a script, this file converts 23 example sessions to NWB, representing all the various edge cases in the dataset.
 * `seiler_2024_convert_dataset.py` : This conversion script defines the `dataset_to_nwb()` function, which converts the entire Seiler 2024 dataset to NWB.
     When run as a script, this file calls `dataset_to_nwb()` with the appropriate arguments as well as `western_dataset_to_nwb()`, which converts all the western blot data.
 * `seiler_2024nwbconverter.py` : This module defines the primary conversion class, `Seiler2024NWBConverter`, which aggregates all of the various datainterfaces relevant for this conversion.
@@ -106,7 +106,7 @@ conversion scripts and datainterfaces.  As a placeholder, here we have `src/lern
 
 ## Running a Conversion
 
-To convert the 22 example sessions, simply run
+To convert the 23 example sessions, simply run
 ```bash
 python src/lerner_lab_to_nwb/seiler_2024/seiler_2024_convert_session.py
 ```
