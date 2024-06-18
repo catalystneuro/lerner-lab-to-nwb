@@ -130,8 +130,6 @@ for that 1 session split across the two folders?
     - Skip this session bc Lerner Lab can't find it
 
 ### Active Questions
-- Some fiber photometry sessions (ex. FP_RR20_96.259_2019-04-17T16-03-52) have msns that I was told to skip (ex. RR20_Right_AHJS)
-  Should I still skip these, or just treat them like RR20Right?
 - In one of those sessions, FP Experiments/Photometry/RR20/late/Photo_96_259-190506-105642, doesn't have any RNnR TTLs,
   even though it has plenty of right nose pokes in the behavioral file. Can you look into this?
 
@@ -247,3 +245,11 @@ None
 
 ### Active Questions
 None
+
+# Final Notes
+## Double Checks and Lingering Questions
+These checks/questions should be directed to the Lerner Lab in their final review:
+- Double-check skipped MSNs
+- Double-check skipped subject_ids
+- Double-check session descriptions
+- In one session, FP Experiments/Photometry/RR20/late/Photo_96_259-190506-105642, doesn't have any RNnR TTLs, even though it has plenty of right nose pokes in the behavioral file. Can you look into this?
