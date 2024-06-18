@@ -132,17 +132,13 @@ def dataset_to_nwb(
             experiment_type = session_to_nwb_kwargs["experiment_type"]
             experimental_group = session_to_nwb_kwargs["experimental_group"]
             subject_id = session_to_nwb_kwargs["subject_id"]
-            start_datetime = session_to_nwb_kwargs["start_datetime"]
             optogenetic_treatment = session_to_nwb_kwargs.get("optogenetic_treatment", None)
             if experiment_type == "FP":
-                exception_file_path = (
-                    output_dir_path
-                    / f"ERROR_{experiment_type}_{experimental_group}_{subject_id}_{start_datetime.isoformat().replace(':', '-')}.txt"
-                )
+                exception_file_path = output_dir_path / f"ERROR_{experiment_type}_{experimental_group}_{subject_id}.txt"
             elif experiment_type == "Opto":
                 exception_file_path = (
                     output_dir_path
-                    / f"ERROR_{experiment_type}_{experimental_group}_{optogenetic_treatment}_{subject_id}_{start_datetime.isoformat().replace(':', '-')}.txt"
+                    / f"ERROR_{experiment_type}_{experimental_group}_{optogenetic_treatment}_{subject_id}.txt"
                 )
             futures.append(
                 executor.submit(
