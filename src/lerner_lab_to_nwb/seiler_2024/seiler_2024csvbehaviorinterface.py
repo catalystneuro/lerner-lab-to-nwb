@@ -272,3 +272,4 @@ class Seiler2024CSVBehaviorInterface(BaseTemporalAlignmentInterface):
                 timestamps=session_dict["footshock_times"],
             )
             behavior_module.add(footshock_times)
+        assert behavior_module.data_interfaces, "No behavior data was found for this session."

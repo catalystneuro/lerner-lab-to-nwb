@@ -243,3 +243,4 @@ class MedPCInterface(BaseTemporalAlignmentInterface):
             behavioral_epochs = BehavioralEpochs(name="behavioral_epochs")
             behavioral_epochs.add_interval_series(interval)
             behavior_module.add(behavioral_epochs)
+        assert behavior_module.data_interfaces, "No behavior data was found for this session."
