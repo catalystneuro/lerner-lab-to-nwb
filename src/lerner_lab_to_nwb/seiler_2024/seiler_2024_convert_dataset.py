@@ -102,6 +102,7 @@ def dataset_to_nwb(
         stub_test=stub_test,
         verbose=verbose,
     )
+    fp_session_to_nwb_args_per_session = []
     opto_session_to_nwb_args_per_session = opto_to_nwb(
         data_dir_path=data_dir_path,
         output_dir_path=output_dir_path,
@@ -1043,7 +1044,7 @@ def session_should_be_skipped(*, start_date, start_time, subject_id, msn):
             start_date == "05/14/19" and start_time == "11:35:01" and subject_id == "98.257"
         )  # This session is <10min long and has no behavioral data (likely an error)
         or (
-            start_date == "07/31/20" and start_time == "11:50:19" and subject_id == "239.388"
+            start_date == "07/13/20" and start_time == "11:50:19" and subject_id == "239.388"
         )  # This session is <15min long and has no behavioral data (likely an error)
     ):
         return True
