@@ -102,7 +102,6 @@ def dataset_to_nwb(
         stub_test=stub_test,
         verbose=verbose,
     )
-    fp_session_to_nwb_args_per_session = []
     opto_session_to_nwb_args_per_session = opto_to_nwb(
         data_dir_path=data_dir_path,
         output_dir_path=output_dir_path,
