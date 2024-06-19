@@ -436,7 +436,7 @@ if __name__ == "__main__":
     experiment_type = "FP"
     experimental_group = "DPR"
     subject_id = "87.239"
-    start_datetime = datetime(2019, 3, 19, 0, 0, 0)
+    start_datetime = datetime(2019, 3, 19, 14, 1, 54)
     session_conditions = {}
     start_variable = ""
     behavior_file_path = (
