@@ -993,8 +993,14 @@ def session_should_be_skipped(*, start_date, start_time, subject_id, msn):
             and start_time == "12:03:31"
             and subject_id == "346.394"
             and msn == "FOOD_RI 60 RIGHT TTL"
-        )
-    ):  # This session is actually from subject 333, which should be skipped
+        )  # This session is actually from subject 333, which should be skipped
+        or (
+            start_date == "06/16/20"
+            and start_time == "11:59:32"
+            and subject_id == "028.392"
+            and msn == "FOOD_FR1 HT TTL (Both)"
+        )  # This session is only 2 mins long and likely an error
+    ):
         return True
     return False
 
