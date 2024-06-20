@@ -1031,12 +1031,18 @@ def session_should_be_skipped(*, start_date, start_time, subject_id, msn):
             start_date == "03/15/19" and start_time == "13:43:48" and subject_id == "93.246"
         )  # This session is <1min long and has no behavioral data (likely an error)
         or (
+            start_date == "02/26/19" and start_time == "16:48:27" and subject_id == "93.246"
+        )  # This session is <10min long and has no behavioral data (likely an error)
+        or (
             start_date == "06/10/19" and start_time == "12:26:59" and subject_id == "110.271"
         )  # This session is <2min long and has no behavioral data (likely an error)
         or (
             start_date == "06/25/19" and start_time == "12:58:56" and subject_id == "112.283"
         )  # This session is <8min long and has no behavioral data (likely an error)
         or (start_date == "06/05/19" and start_time == "10:32:25" and subject_id == "112.283")
+        or (
+            start_date == "05/31/19" and start_time == "10:21:31" and subject_id == "112.283"
+        )  # This session is <10min long and has no behavioral data (likely an error)
         or (
             start_date == "07/26/19" and start_time == "12:20:57" and subject_id == "113.283"
         )  # This session is <10min long and has no behavioral data (likely an error)
