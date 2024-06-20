@@ -1,7 +1,6 @@
 # Notes concerning the seiler_2024 conversion split by interface
 
-# Gdrive Data Changes (Need to be redone every time I download the data)
-- For consistency across groups, I renamed Opto Experiments/DMS Inhibitory/Group 1/Halo --> NpHr
+# Gdrive Data Changes -- these edits have been made to the GDrive Data directly
 - PS/332.393 was missing the 07/28/2020 session but Lerner Lab provided a backup --> I copy/pasted the backup from the provided .txt file into the medpc file at the end
 
  ## Behavior
@@ -49,9 +48,7 @@ In FP Experiments/Behavior/PS/140.306,
 - Solution: Handled by reader
 
 ### Active Questions
-- In FP Experiments/Behavior/RR20/95.259/95.259, some of the sessions (ex. 04/09/19) have non-ascending reward port intervals
-ex. reward port entry = 985.750, reward port exit = 985.850 (duration = 0.1), next reward port entry = 985.800 (before previous exit)
-how is this possible?
+None
 
 ### Resolved Questions
 In FP Experiments/Behavior/PS/139.298,
@@ -67,6 +64,12 @@ What experimental stage (FR1, footshock probe, omission probe, etc.) does "Probe
 Many MSNs (ex. 'FOOD_FR1 TTL Left', 'FOOD_FR1 TTL Right', and 'FOOD_RI 30 LEFT') list both E and U as corresponding to duration of port entry.
 - Answer: As far as I can tell, U should just be ignored. It looks like a carry over from older versions of this code and nothing is actually being stored in U.
 - Solution: Ignore U
+
+In FP Experiments/Behavior/RR20/95.259/95.259, some of the sessions (ex. 04/09/19) have non-ascending reward port intervals
+ex. reward port entry = 985.750, reward port exit = 985.850 (duration = 0.1), next reward port entry = 985.800 (before previous exit)
+how is this possible?
+    - Answer: MedPC system has limited temporal resolution for durations (probably 0.1 is the smallest interval possible).
+    - Solution: Ignore non-ascending timestamp errors.
 
 
 ## Fiber Photometry
@@ -127,8 +130,6 @@ for that 1 session split across the two folders?
     - Skip this session bc Lerner Lab can't find it
 
 ### Active Questions
-- Some fiber photometry sessions (ex. FP_RR20_96.259_2019-04-17T16-03-52) have msns that I was told to skip (ex. RR20_Right_AHJS)
-  Should I still skip these, or just treat them like RR20Right?
 - In one of those sessions, FP Experiments/Photometry/RR20/late/Photo_96_259-190506-105642, doesn't have any RNnR TTLs,
   even though it has plenty of right nose pokes in the behavioral file. Can you look into this?
 
@@ -157,6 +158,9 @@ for that 1 session split across the two folders?
 - RI 60 LEFT_STIM, RI 30 LEFT_STIM, and RK_C_FR1_BOTH_1hr msns show up in opto data but don't have associated files -- assumed to be the same as their right counterparts?
 
 ### Active Questions
+None
+
+### Resolved Questions
 - DMS-Excitatory has some csv files w/ only session-aggregated info (total right rewards but not right reward times) ex. ChR2/121_280.CSV -- do you have individual session info for these animals?
     - Lerner Lab does not have this data --> skip these sessions
 - Some csv files do not have any subject info (ex. DLS Excitatory/_08-28-20.csv) -- pls provide or we will need to skip these sessions
@@ -199,7 +203,7 @@ for that 1 session split across the two folders?
 - Some medpc filenames/sessions have incomplete or missing subject names (ex. 75 instead of 75.214) -- need to do some matching operation
 - Punishment Group has a typo for PR ('Punishment Resitant' instead of 'Punishment Resistant') -- I'll fix on my end
 
-### Questions
+### Resolved Questions
 - Some of the subject_ids are not present in the metadata excel file -- pls provide
 - Some animals are missing the "Hemisphere with DMS" field -- pls provide
 - Some of the mouse ids have typos (leading and trailing zeros) as well as some that appear incorrect (RR20 section)
@@ -242,14 +246,10 @@ for that 1 session split across the two folders?
 ### Active Questions
 None
 
-## Metadata
-### Notes
-- Some medpc filenames/sessions have incomplete or missing subject names (ex. 75 instead of 75.214) -- need to do some matching operation
-- Punishment Group has a typo for PR ('Punishment Resitant' instead of 'Punishment Resistant') -- I'll fix on my end
-
-### Resolved Questions
-- Some animals are missing the "Hemisphere with DMS" field -- pls provide
-    - Solution: Added missing MSNs; skipped RK_C_FR1_BOTH_1hr
-
-### Active Questions
-- Some of the subject_ids are not present in the metadata excel file -- pls provide
+# Final Notes
+## Double Checks and Lingering Questions
+These checks/questions should be directed to the Lerner Lab in their final review:
+- Double-check skipped MSNs
+- Double-check skipped subject_ids
+- Double-check session descriptions
+- In one session, FP Experiments/Photometry/RR20/late/Photo_96_259-190506-105642, doesn't have any RNnR TTLs, even though it has plenty of right nose pokes in the behavioral file. Can you look into this?

@@ -90,7 +90,7 @@ def read_medpc_file(
     session_conditions: dict,
     start_variable: str,
 ) -> dict:
-    """Read a raw MedPC text file into a dictionary.
+    """Read a single session from a raw MedPC text file into a dictionary.
 
     Parameters
     ----------
@@ -103,7 +103,7 @@ def read_medpc_file(
     session_conditions : dict
         The conditions that define the session. The keys are the names of the single-line variables (ex. 'Start Date')
         and the values are the values of those variables for the desired session (ex. '11/09/18').
-    start_variable : str
+    start_variable : str actually I should probably
         The name of the variable that starts the session (ex. 'Start Date').
 
     Returns

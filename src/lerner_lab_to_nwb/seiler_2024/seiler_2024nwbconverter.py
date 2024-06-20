@@ -2,7 +2,7 @@
 from neuroconv import NWBConverter
 from typing import Optional
 from pynwb import NWBFile
-from neuroconv.tools.nwb_helpers import make_or_load_nwbfile
+from neuroconv.tools.nwb_helpers import make_or_load_nwbfile, configure_backend
 
 from lerner_lab_to_nwb.seiler_2024 import (
     Seiler2024FiberPhotometryInterface,
@@ -112,18 +112,33 @@ class Seiler2024NWBConverter(NWBConverter):
             "PrtN": "reward_port_entry_times",
             "Sock": "footshock_times",
         }
+        right_ttl_names_to_left_behavior_names = {
+            "LNPS": "right_nose_poke_times",
+            "RNRW": "left_reward_times",
+            "RNnR": "left_nose_poke_times",
+            "PrtN": "reward_port_entry_times",
+            "Sock": "footshock_times",
+        }
+        left_ttl_names_to_right_behavior_names = {
+            "RNPS": "left_nose_poke_times",
+            "LNRW": "right_reward_times",
+            "LNnR": "right_nose_poke_times",
+            "PrtN": "reward_port_entry_times",
+            "Sock": "footshock_times",
+        }
         msn_is_right = "RIGHT" in msn or "Right" in msn or "right" in msn
         msn_is_left = "LEFT" in msn or "Left" in msn or "left" in msn or msn == "Probe Test Habit Training TTL"
-        if not conversion_options["FiberPhotometry"]["flip_ttls_lr"] and msn_is_right:
+        if msn_is_right and not conversion_options["FiberPhotometry"]["flip_ttls_lr"]:
             ttl_names_to_behavior_names = right_ttl_names_to_behavior_names
-        elif not conversion_options["FiberPhotometry"]["flip_ttls_lr"] and msn_is_left:
+        elif msn_is_left and not conversion_options["FiberPhotometry"]["flip_ttls_lr"]:
             ttl_names_to_behavior_names = left_ttl_names_to_behavior_names
-        elif conversion_options["FiberPhotometry"]["flip_ttls_lr"] and msn_is_right:
-            ttl_names_to_behavior_names = left_ttl_names_to_behavior_names
-        elif conversion_options["FiberPhotometry"]["flip_ttls_lr"] and msn_is_left:
-            ttl_names_to_behavior_names = right_ttl_names_to_behavior_names
+        elif msn_is_right and conversion_options["FiberPhotometry"]["flip_ttls_lr"]:
+            ttl_names_to_behavior_names = left_ttl_names_to_right_behavior_names
+        elif msn_is_left and conversion_options["FiberPhotometry"]["flip_ttls_lr"]:
+            ttl_names_to_behavior_names = right_ttl_names_to_left_behavior_names
         else:
             raise ValueError(f"MSN ({msn}) does not indicate appropriate TTLs for alignment.")
+
         if folder_path.name == "Photo_332_393-200728-122403":
             ttl_names_to_behavior_names = {  # This special session only has 2 TTLs bc it is split into 2 folders
                 "RNnR": "right_nose_poke_times",
@@ -134,10 +149,15 @@ class Seiler2024NWBConverter(NWBConverter):
                 continue  # If the session is not a shock probe session the tdt file will not have the appropriate TTL
             if len(session_dict[behavior_name]) == 0:
                 continue  # If behavior is not present the tdt file will not have the appropriate TTL
-
-            ttl_timestamps = self.get_ttl_timestamps(ttl_name, tdt_photometry)
+            len_behavior = len(session_dict[behavior_name])
+            if folder_path.name == "Photo_332_393-200728-122403":
+                ttl_timestamps = tdt_photometry.epocs[ttl_name].onset
+            else:
+                ttl_timestamps = self.get_ttl_timestamps(ttl_name, tdt_photometry, len_behavior)
             if second_folder_path is not None:
-                ttl_timestamps2 = self.get_ttl_timestamps(ttl_name, tdt_photometry2)
+                ttl_timestamps2 = self.get_ttl_timestamps(ttl_name, tdt_photometry2, len_behavior)
+                t_end = 1 / tdt_photometry.streams["Dv1A"].fs * (len(tdt_photometry.streams["Dv1A"].data) - 1)
+                ttl_timestamps2 += t_end
                 ttl_timestamps = np.concatenate((ttl_timestamps, ttl_timestamps2))
             session_dict[behavior_name] = ttl_timestamps
         if "MedPC" in self.data_interface_objects.keys():
@@ -149,7 +169,7 @@ class Seiler2024NWBConverter(NWBConverter):
             session_dict.keys()
         )
 
-    def get_ttl_timestamps(self, ttl_name, tdt_photometry):
+    def get_ttl_timestamps(self, ttl_name, tdt_photometry, len_behavior):
         if ttl_name == "PrtN":
             ttl_timestamps = []
             if "PrtN" in tdt_photometry.epocs.keys():
@@ -159,6 +179,33 @@ class Seiler2024NWBConverter(NWBConverter):
                 for timestamp in tdt_photometry.epocs["PrtR"].onset:
                     ttl_timestamps.append(timestamp)
             ttl_timestamps = np.sort(ttl_timestamps)
+        elif ttl_name == "RNnR" or ttl_name == "LNnR" and len(tdt_photometry.epocs[ttl_name].onset) != len_behavior:
+            rewarded_ttl_name = ttl_name[:2] + "RW"  # RNRW or LNRW
+            if (
+                len(tdt_photometry.epocs[ttl_name].onset) + len(tdt_photometry.epocs[rewarded_ttl_name].onset)
+                == len_behavior
+            ):
+                ttl_timestamps = []
+                for timestamp in tdt_photometry.epocs[ttl_name].onset:
+                    ttl_timestamps.append(timestamp)
+                for timestamp in tdt_photometry.epocs[rewarded_ttl_name].onset:
+                    ttl_timestamps.append(timestamp)
+                ttl_timestamps = np.sort(ttl_timestamps)
+            else:  # TTLs and behavior do not match
+                NnR_has_all_nose_pokes = all_close_contains(
+                    query_array=tdt_photometry.epocs[rewarded_ttl_name].onset,
+                    target_array=tdt_photometry.epocs[ttl_name].onset,
+                    tolerance=0.1,
+                )
+                if NnR_has_all_nose_pokes:
+                    ttl_timestamps = tdt_photometry.epocs[ttl_name].onset
+                else:
+                    ttl_timestamps = []
+                    for timestamp in tdt_photometry.epocs[ttl_name].onset:
+                        ttl_timestamps.append(timestamp)
+                    for timestamp in tdt_photometry.epocs[rewarded_ttl_name].onset:
+                        ttl_timestamps.append(timestamp)
+                    ttl_timestamps = np.sort(ttl_timestamps)
         else:
             ttl_timestamps = tdt_photometry.epocs[ttl_name].onset
         return ttl_timestamps
@@ -170,6 +217,8 @@ class Seiler2024NWBConverter(NWBConverter):
         metadata: Optional[dict] = None,
         overwrite: bool = False,
         conversion_options: Optional[dict] = None,
+        backend: Optional[str] = "hdf5",
+        verbose: bool = False,
     ) -> None:
         if metadata is None:
             metadata = self.get_metadata()
@@ -185,9 +234,12 @@ class Seiler2024NWBConverter(NWBConverter):
             nwbfile=nwbfile,
             metadata=metadata,
             overwrite=overwrite,
-            verbose=self.verbose,
+            backend=backend,
+            verbose=verbose,
         ) as nwbfile_out:
-            self.add_to_nwbfile(nwbfile_out, metadata, conversion_options)
+            self.add_to_nwbfile(nwbfile=nwbfile_out, metadata=metadata, conversion_options=conversion_options)
+            backend_configuration = self.get_default_backend_configuration(nwbfile=nwbfile_out, backend=backend)
+            configure_backend(nwbfile=nwbfile_out, backend_configuration=backend_configuration)
 
 
 class Seiler2024WesternBlotNWBConverter(NWBConverter):
@@ -196,3 +248,26 @@ class Seiler2024WesternBlotNWBConverter(NWBConverter):
     data_interface_classes = dict(
         WesternBlot=Seiler2024WesternBlotInterface,
     )
+
+
+def all_close_contains(*, query_array: np.ndarray, target_array: np.ndarray, tolerance: float) -> bool:
+    """Check if all elements in query_array are present (up to some tolerance) in target_array.
+
+    Parameters
+    ----------
+    query_array : np.ndarray
+        The array to check.
+    target_array : np.ndarray
+        The array to check against.
+    tolerance : float
+        The tolerance for closeness.
+
+    Returns
+    -------
+    bool
+        Whether all elements in query_array are within tolerance of any element in target_array.
+    """
+    for query_element in query_array:
+        if np.min(np.abs(target_array - query_element)) > tolerance:
+            return False
+    return True
