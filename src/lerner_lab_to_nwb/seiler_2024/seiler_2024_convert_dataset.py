@@ -1007,14 +1007,17 @@ def session_should_be_skipped(*, start_date, start_time, subject_id, msn):
             start_date == "03/12/19" and start_time == "14:27:00" and subject_id == "88.239"
         )  # This session is 13min long and has no behavioral data (likely an error)
         or (
+            start_date == "03/14/19" and start_time == "10:52:10" and subject_id == "88.239"
+        )  # This session is <1min long and has no behavioral data (likely an error)
+        or (
             start_date == "02/08/19" and start_time == "12:49:58" and subject_id == "80.236"
         )  # This session is <1min long and has no behavioral data (likely an error)
         or (
             start_date == "03/15/19" and start_time == "10:20:33" and subject_id == "89.247"
         )  # This session is <1min long and has no behavioral data (likely an error)
         or (
-            start_date == "06/25/19" and start_time == "10:04:52" and subject_id == "111.285"
-        )  # This session is <1min long and has no behavioral data (likely an error)
+            start_date == "06/25/19" and start_time == "11:06:21" and subject_id == "111.285"
+        )  # This session is <10min long and has no behavioral data (likely an error)
         or (
             start_date == "02/17/19" and start_time == "14:35:42" and subject_id == "90.247"
         )  # This session is <1min long and has no behavioral data (likely an error)
@@ -1022,7 +1025,10 @@ def session_should_be_skipped(*, start_date, start_time, subject_id, msn):
             start_date == "03/20/19" and start_time == "14:02:22" and subject_id == "92.246"
         )  # This session is <5min long and has no behavioral data (likely an error)
         or (
-            start_date == "03/15/19" and start_time == "12:39:52" and subject_id == "93.246"
+            start_date == "03/01/19" and start_time == "15:15:07" and subject_id == "92.246"
+        )  # This session is <10min long and has no behavioral data (likely an error)
+        or (
+            start_date == "03/15/19" and start_time == "13:43:48" and subject_id == "93.246"
         )  # This session is <1min long and has no behavioral data (likely an error)
         or (
             start_date == "06/10/19" and start_time == "12:26:59" and subject_id == "110.271"
@@ -1030,6 +1036,7 @@ def session_should_be_skipped(*, start_date, start_time, subject_id, msn):
         or (
             start_date == "06/25/19" and start_time == "12:58:56" and subject_id == "112.283"
         )  # This session is <8min long and has no behavioral data (likely an error)
+        or (start_date == "06/05/19" and start_time == "10:32:25" and subject_id == "112.283")
         or (
             start_date == "07/26/19" and start_time == "12:20:57" and subject_id == "113.283"
         )  # This session is <10min long and has no behavioral data (likely an error)
@@ -1037,14 +1044,20 @@ def session_should_be_skipped(*, start_date, start_time, subject_id, msn):
             start_date == "06/28/19" and start_time == "08:51:30" and subject_id == "115.273"
         )  # This session is <10min long and has no behavioral data (likely an error)
         or (
+            start_date == "06/12/19" and start_time == "11:56:29" and subject_id == "115.273"
+        )  # This session is <10min long and has no behavioral data (likely an error)
+        or (
             start_date == "09/13/19" and start_time == "10:01:57" and subject_id == "139.298"
+        )  # This session is <10min long and has no behavioral data (likely an error)
+        or (
+            start_date == "08/10/19" and start_time == "13:57:04" and subject_id == "139.298"
         )  # This session is <10min long and has no behavioral data (likely an error)
         or (
             start_date == "05/14/19" and start_time == "11:35:01" and subject_id == "98.257"
         )  # This session is <10min long and has no behavioral data (likely an error)
         or (
-            start_date == "07/13/20" and start_time == "11:50:19" and subject_id == "239.388"
-        )  # This session is <15min long and has no behavioral data (likely an error)
+            start_date == "07/13/20" and start_time == "12:10:51" and subject_id == "239.388"
+        )  # This session is <10min long and has no behavioral data (likely an error)
     ):
         return True
     return False
