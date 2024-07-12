@@ -1,4 +1,38 @@
-"""Convert the entire dataset to NWB."""
+"""Convert the entire dataset to NWB.
+
+This conversion script defines the `dataset_to_nwb()` function, which converts the entire Seiler 2024 dataset to NWB.
+When run as a script, this file calls `dataset_to_nwb()` with the appropriate arguments as well as `western_dataset_to_nwb()`, which converts all the western blot data.
+The dataset_to_nwb() function first obtains all of the session_to_nwb arguments for each session in the dataset using the fp_to_nwb() and opto_to_nwb() functions.
+Then dataset_to_nwb() converts each session to NWB by calling session_to_nwb() with the appropriate arguments, handling any errors by writing each one to a dedicated .txt file.
+
+The fp_to_nwb() function obtains all of the session_to_nwb arguments for each session in the FP Experiments portion of the dataset,
+including sessions with concurrent fiber photometry and behavior as well as sessions with behavior alone.
+First, the function iterates through all of the fiber photometry folders, extracting the photometry_folder_path and the subject_id from the folder name.
+Then, it finds the all the behavior sessions for a given subject_id using get_fp_header_variables().
+Then, it matches each fiber photometry session with one of the behavior sessions using the start_date.
+Once, all the fiber photometry sessions have been added,
+this function iterates through all of the behavior files to add the behavior sessions without fiber photometry (omitting any duplicates).
+
+The get_fp_header_variables() function obtains a group of header variables for all the behavioral sessions from a subject directory in the following way:
+1. From the medpc output files organized by subject,
+2. From the medpc output files organized by date that can be matched with a csv file organized by subject,
+3. From the csv files organized by subject that cannot be matched with a medpc output file.
+    These sessions have placeholders for missing metadata: start_time = "00:00:00", msn = "Unknown".
+
+The opto_to_nwb() function obtains all of the session_to_nwb arguments for each session in the Opto Experiments portion of the dataset.
+First, the function iterates through all of the optogenetic files (both MedPC output and .csv), and extracts all the relevant file info using get_opto_header_variables().
+Then, it iterates through all of the sessions for a given file and adds the session_to_nwb arguments for each session (omitting any duplicates).
+Then, it adds all the sessions in the DLS Excitatory folder organized by date instead of by subject.
+
+The get_opto_header_variables() function obtains a group of header variables for all the behavioral sessions from a subject_path in the following way:
+1. If the subject_path is a MedPC output file, it reads the file and extracts the headers for each session in that file.
+2. If the subject_path is a folder, it iterates through all of the medpc files and .csv files in that folder and extracts the headers for each session in each file.
+
+The rest of the functions defined in this script are relatively self-explanatory helpers with their own documentation.
+
+Note that the dataset conversion uses multiprocessing, currently set to 4 workers.  To use more or fewer workers, simply
+change the `max_workers` argument to `dataset_to_nwb()`.
+"""
 from pathlib import Path
 from typing import Union
 from tqdm import tqdm
@@ -17,7 +51,7 @@ from lerner_lab_to_nwb.seiler_2024.seiler_2024_convert_session import (
     western_blot_to_nwb,
     split_western_blot,
 )
-from neuroconv.datainterfaces.behavior.medpc.medpc_helpers import get_medpc_variables, read_medpc_file
+from lerner_lab_to_nwb.seiler_2024.medpc_helpers import get_medpc_variables, read_medpc_file
 
 
 def dataset_to_nwb(
@@ -75,36 +109,36 @@ def dataset_to_nwb(
         stub_test=stub_test,
         verbose=verbose,
     )
-    session_to_nwb_args_per_session = fp_session_to_nwb_args_per_session + opto_session_to_nwb_args_per_session
+    pre_skip_session_to_nwb_args_per_session = fp_session_to_nwb_args_per_session + opto_session_to_nwb_args_per_session
     port_entry_duration_path = data_dir_path / "sessions_without_port_entry_durations.yaml"
     no_port_entry_duration_sessions = get_no_port_entry_duration_sessions(
         port_entry_file_path=port_entry_duration_path,
-        session_to_nwb_args_per_session=session_to_nwb_args_per_session,
+        session_to_nwb_args_per_session=pre_skip_session_to_nwb_args_per_session,
         overwrite=False,
     )
+    session_to_nwb_args_per_session = []
+    for session_to_nwb_kwargs in pre_skip_session_to_nwb_args_per_session:
+        session_key = get_session_key_from_kwargs(session_to_nwb_kwargs)
+        if session_key in no_port_entry_duration_sessions:
+            session_to_nwb_kwargs["has_port_entry_durations"] = False
+        subject_id = session_to_nwb_kwargs["subject_id"]
+        if subject_id in subjects_to_skip:
+            continue
+        session_to_nwb_args_per_session.append(session_to_nwb_kwargs)
 
     futures = []
     with ProcessPoolExecutor(max_workers=max_workers) as executor:
         for session_to_nwb_kwargs in session_to_nwb_args_per_session:
-            session_key = get_session_key_from_kwargs(session_to_nwb_kwargs)
-            if session_key in no_port_entry_duration_sessions:
-                session_to_nwb_kwargs["has_port_entry_durations"] = False
             experiment_type = session_to_nwb_kwargs["experiment_type"]
             experimental_group = session_to_nwb_kwargs["experimental_group"]
             subject_id = session_to_nwb_kwargs["subject_id"]
-            if subject_id in subjects_to_skip:
-                continue
-            start_datetime = session_to_nwb_kwargs["start_datetime"]
             optogenetic_treatment = session_to_nwb_kwargs.get("optogenetic_treatment", None)
             if experiment_type == "FP":
-                exception_file_path = (
-                    output_dir_path
-                    / f"ERROR_{experiment_type}_{experimental_group}_{subject_id}_{start_datetime.isoformat().replace(':', '-')}.txt"
-                )
+                exception_file_path = output_dir_path / f"ERROR_{experiment_type}_{experimental_group}_{subject_id}.txt"
             elif experiment_type == "Opto":
                 exception_file_path = (
                     output_dir_path
-                    / f"ERROR_{experiment_type}_{experimental_group}_{optogenetic_treatment}_{subject_id}_{start_datetime.isoformat().replace(':', '-')}.txt"
+                    / f"ERROR_{experiment_type}_{experimental_group}_{optogenetic_treatment}_{subject_id}.txt"
                 )
             futures.append(
                 executor.submit(
@@ -339,7 +373,7 @@ def fp_to_nwb(
 
     # Iterate through file system to get necessary information for converting each session
     session_to_nwb_args_per_session: list[dict] = []  # Each dict contains the args for session_to_nwb for a session
-    nwbfile_paths = set()  # Each path is the path to the nwb file created for a session
+    unique_session_keys = set()  # Each entry is a unique string key for a session
 
     # Iterate through all photometry files
     for experimental_group, long_name in experimental_group_to_long_name.items():
@@ -378,10 +412,12 @@ def fp_to_nwb(
                     if (
                         photometry_subject_id == "271.396"
                         and photometry_start_date == "07/07/20"
-                        and msn == "FOOD_RI 60 RIGHT TTL"
+                        and msn
+                        == "FOOD_RI 60 RIGHT TTL"  # This session was accidentally run on the wrong MSN and should be skipped
                         or photometry_subject_id == "88.239"
                         and photometry_start_date == "02/19/19"
-                        and msn == "FOOD_RI 60 LEFT TTL"
+                        and msn
+                        == "FOOD_RI 60 LEFT TTL"  # This session was accidentally run on the wrong MSN and should be skipped
                     ):
                         continue
                     if start_date == photometry_start_date:
@@ -404,42 +440,42 @@ def fp_to_nwb(
                         photometry_subject_id == "64.205"
                         and photometry_start_date == "10/17/18"
                         and experimental_subgroup.name == "Late"
-                    )
+                    )  # This session is a duplicate of Delayed Punishment Resistant/Early/Photo_64_205-181017-094913
                     or (
                         photometry_subject_id == "81.236"
                         and photometry_start_date == "01/17/19"
                         and experimental_subgroup.name == "Late"
-                    )
+                    )  # This session is a duplicate of Delayed Punishment Resistant/Early/Photo_81_236-190117-102128
                     or (
                         photometry_subject_id == "87.239"
                         and photometry_start_date == "02/28/19"
                         and experimental_subgroup.name == "Late"
-                    )
+                    )  # This session is a duplicate of Delayed Punishment Resistant/Early/Photo_87_239-190228-111317
                     or (
                         photometry_subject_id == "88.239"
                         and photometry_start_date == "02/19/19"
                         and experimental_subgroup.name == "Late"
-                    )
+                    )  # This session is a duplicate of Delayed Punishment Resistant/Early/Photo_88_239-190219-140027
                     or (
                         photometry_subject_id == "80.236"
                         and photometry_start_date == "01/21/19"
                         and experimental_subgroup.name == "Late RI60"
-                    )
+                    )  # This session is a duplicate of Delayed Punishment Resistant/Early RI 60/Photo_80_236-190121-093425
                     or (
                         photometry_subject_id == "75.214"
                         and photometry_start_date == "10/29/18"
                         and experimental_subgroup.name == "Late RI60"
-                    )
+                    )  # This session is a duplicate of Punishment Sensitive/Early RI60/Photo_75_214-181029-124815
                     or (
                         photometry_subject_id == "93.246"
                         and photometry_start_date == "02/22/19"
                         and experimental_subgroup.name == "Late RI60"
-                    )
+                    )  # This session is a duplicate of Punishment Sensitive/Early RI60/Photo_93_246-190222-130128
                     or (
                         photometry_subject_id == "78.214"
                         and photometry_start_date == "10/31/18"
                         and experimental_subgroup.name == "Late RI60"
-                    )
+                    )  # This session is a duplicate of Punishment Sensitive/Early RI60/Photo_78_214-181031-131820
                     or (
                         photometry_subject_id == "96.259"
                         and photometry_start_date == "05/06/19"
@@ -466,7 +502,6 @@ def fp_to_nwb(
                     session_conditions["Subject"] = subject
                 if box_number is not None:
                     session_conditions["Box"] = box_number
-                start_datetime = datetime.strptime(f"{start_date} {start_time}", "%m/%d/%y %H:%M:%S")
                 if photometry_subject_id in partial_subject_ids_to_subject_id:
                     photometry_subject_id = partial_subject_ids_to_subject_id[photometry_subject_id]
                 session_to_nwb_args = dict(
@@ -477,7 +512,6 @@ def fp_to_nwb(
                     subject_id=photometry_subject_id,
                     session_conditions=session_conditions,
                     start_variable=start_variable,
-                    start_datetime=start_datetime,
                     experiment_type=experiment_type,
                     experimental_group=experimental_group,
                     stub_test=stub_test,
@@ -491,28 +525,27 @@ def fp_to_nwb(
                         fiber_photometry_folder_path.parent / "Photo_139_298-190912-103544"
                     )
                 if fiber_photometry_folder_path.name == "Photo_139_298-190912-103544":
-                    continue
+                    continue  # This is the second_fiber_photometry_folder_path of Photo_139_298-190912-095034
                 if fiber_photometry_folder_path.name == "Photo_332_393-200728-122403":
                     session_to_nwb_args["second_fiber_photometry_folder_path"] = (
                         fiber_photometry_folder_path.parent / "Photo_332_393-200728-123314"
                     )
                 if fiber_photometry_folder_path.name == "Photo_332_393-200728-123314":
-                    continue
+                    continue  # This is the second_fiber_photometry_folder_path of Photo_332_393-200728-122403
                 if fiber_photometry_folder_path.name == "Photo_92_246-190227-143210":
                     session_to_nwb_args["second_fiber_photometry_folder_path"] = (
                         fiber_photometry_folder_path.parent / "Photo_92_246-190227-150307"
                     )
                 if fiber_photometry_folder_path.name == "Photo_92_246-190227-150307":
-                    continue
+                    continue  # This is the second_fiber_photometry_folder_path of Photo_92_246-190227-143210
                 if photometry_subject_id == "140.306" and photometry_start_date == "08/09/19":
                     session_to_nwb_args["flip_ttls_lr"] = True
 
+                session_key = get_session_key_from_kwargs(session_to_nwb_args)
+                if session_key in unique_session_keys:
+                    continue
                 session_to_nwb_args_per_session.append(session_to_nwb_args)
-                nwbfile_path = (
-                    output_dir_path
-                    / f"{experiment_type}_{experimental_group}_{photometry_subject_id}_{start_datetime.isoformat()}.nwb"
-                )
-                nwbfile_paths.add(nwbfile_path)
+                unique_session_keys.add(session_key)
 
     # Iterate through all behavior files
     for experimental_group in experimental_groups:
@@ -540,7 +573,6 @@ def fp_to_nwb(
                     session_conditions["Subject"] = subject
                 if box_number is not None:
                     session_conditions["Box"] = box_number
-                start_datetime = datetime.strptime(f"{start_date} {start_time}", "%m/%d/%y %H:%M:%S")
                 if subject_id in partial_subject_ids_to_subject_id:
                     subject_id = partial_subject_ids_to_subject_id[subject_id]
                 session_to_nwb_args = dict(
@@ -550,19 +582,15 @@ def fp_to_nwb(
                     subject_id=subject_id,
                     session_conditions=session_conditions,
                     start_variable=start_variable,
-                    start_datetime=start_datetime,
                     experiment_type=experiment_type,
                     experimental_group=experimental_group,
                     stub_test=stub_test,
                     verbose=verbose,
                 )
-                nwbfile_path = (
-                    output_dir_path
-                    / f"{experiment_type}_{experimental_group}_{subject_id}_{start_datetime.isoformat()}.nwb"
-                )
-                if nwbfile_path in nwbfile_paths:
+                session_key = get_session_key_from_kwargs(session_to_nwb_args)
+                if session_key in unique_session_keys:
                     continue
-                nwbfile_paths.add(nwbfile_path)
+                unique_session_keys.add(session_key)
                 session_to_nwb_args_per_session.append(session_to_nwb_args)
     return session_to_nwb_args_per_session
 
@@ -641,7 +669,7 @@ def opto_to_nwb(
     }
     opto_path = data_dir_path / f"{experiment_type} Experiments"
     session_to_nwb_args_per_session: list[dict] = []  # Each dict contains the args for session_to_nwb for a session
-    nwbfile_paths = set()  # Each path is the path to the nwb file created for a session
+    unique_session_keys = set()  # Each entry is a unique string key for a session
 
     for experimental_group in experimental_groups:
         experimental_group_path = opto_path / experimental_group.replace("-", " ")
@@ -685,7 +713,6 @@ def opto_to_nwb(
                             session_conditions["Subject"] = subject
                         if box_number is not None:
                             session_conditions["Box"] = box_number
-                        start_datetime = datetime.strptime(f"{start_date} {start_time}", "%m/%d/%y %H:%M:%S")
                         session_to_nwb_args = dict(
                             data_dir_path=data_dir_path,
                             output_dir_path=output_dir_path,
@@ -693,20 +720,16 @@ def opto_to_nwb(
                             subject_id=subject_id,
                             session_conditions=session_conditions,
                             start_variable=start_variable,
-                            start_datetime=start_datetime,
                             experiment_type=experiment_type,
                             experimental_group=experimental_group,
                             optogenetic_treatment=optogenetic_treatment,
                             stub_test=stub_test,
                             verbose=verbose,
                         )
-                        nwbfile_path = (
-                            output_dir_path
-                            / f"{experiment_type}_{experimental_group}__{optogenetic_treatment}_{subject_id}_{start_datetime.isoformat()}.nwb"
-                        )
-                        if nwbfile_path in nwbfile_paths:
+                        session_key = get_session_key_from_kwargs(session_to_nwb_args)
+                        if session_key in unique_session_keys:
                             continue
-                        nwbfile_paths.add(nwbfile_path)
+                        unique_session_keys.add(session_key)
                         session_to_nwb_args_per_session.append(session_to_nwb_args)
     # DLS Excitatory raw files by date
     raw_files_by_date_path = data_dir_path / "Opto Experiments" / "DLS Excitatory"
@@ -740,7 +763,6 @@ def opto_to_nwb(
             "Subject": subject,
             "Box": box_number,
         }
-        start_datetime = datetime.strptime(f"{start_date} {start_time}", "%m/%d/%y %H:%M:%S")
         if subject in partial_subject_ids_to_subject_id:
             subject = partial_subject_ids_to_subject_id[subject]
         session_to_nwb_args = dict(
@@ -750,17 +772,16 @@ def opto_to_nwb(
             subject_id=subject,
             session_conditions=session_conditions,
             start_variable=start_variable,
-            start_datetime=start_datetime,
             experiment_type=experiment_type,
             experimental_group="DLS-Excitatory",
             optogenetic_treatment="Unknown",
             stub_test=stub_test,
             verbose=verbose,
         )
-        nwbfile_path = output_dir_path / f"{experiment_type}_DLS-Excitatory_{subject}_{start_datetime.isoformat()}.nwb"
-        if nwbfile_path in nwbfile_paths:
+        session_key = get_session_key_from_kwargs(session_to_nwb_args)
+        if session_key in unique_session_keys:
             continue
-        nwbfile_paths.add(nwbfile_path)
+        unique_session_keys.add(session_key)
         session_to_nwb_args_per_session.append(session_to_nwb_args)
     return session_to_nwb_args_per_session
 
@@ -960,25 +981,107 @@ def session_should_be_skipped(*, start_date, start_time, subject_id, msn):
             and start_time == "09:42:54"
             and subject_id == "139.298"
             and msn == "RI 60 RIGHT STIM"
-        )
+        )  # This session is actually from subject 144.306, which should be skipped
         or (
             start_date == "07/28/20"
             and start_time == "13:21:15"
             and subject_id == "272.396"
             and msn == "Probe Test Habit Training TTL"
-        )
+        )  # This session is actually from subject 334, which should be skipped
         or (
             start_date == "07/31/20"
             and start_time == "12:03:31"
             and subject_id == "346.394"
             and msn == "FOOD_RI 60 RIGHT TTL"
-        )
+        )  # This session is actually from subject 333, which should be skipped
+        or (
+            start_date == "06/16/20"
+            and start_time == "11:59:32"
+            and subject_id == "028.392"
+            and msn == "FOOD_FR1 HT TTL (Both)"
+        )  # This session is only 2 mins long and has no behavioral data (likely an error)
+        or (
+            start_date == "02/25/19" and start_time == "11:08:22" and subject_id == "87.239"
+        )  # This session is <1min long and has no behavioral data (likely an error)
+        or (
+            start_date == "03/12/19" and start_time == "14:27:00" and subject_id == "88.239"
+        )  # This session is 13min long and has no behavioral data (likely an error)
+        or (
+            start_date == "03/14/19" and start_time == "10:52:10" and subject_id == "88.239"
+        )  # This session is <1min long and has no behavioral data (likely an error)
+        or (
+            start_date == "02/08/19" and start_time == "12:49:58" and subject_id == "80.236"
+        )  # This session is <1min long and has no behavioral data (likely an error)
+        or (
+            start_date == "03/15/19" and start_time == "10:20:33" and subject_id == "89.247"
+        )  # This session is <1min long and has no behavioral data (likely an error)
+        or (
+            start_date == "06/25/19" and start_time == "11:06:21" and subject_id == "111.285"
+        )  # This session is <10min long and has no behavioral data (likely an error)
+        or (
+            start_date == "02/17/19" and start_time == "14:35:42" and subject_id == "90.247"
+        )  # This session is <1min long and has no behavioral data (likely an error)
+        or (
+            start_date == "03/20/19" and start_time == "14:02:22" and subject_id == "92.246"
+        )  # This session is <5min long and has no behavioral data (likely an error)
+        or (
+            start_date == "03/01/19" and start_time == "15:15:07" and subject_id == "92.246"
+        )  # This session is <10min long and has no behavioral data (likely an error)
+        or (
+            start_date == "03/15/19" and start_time == "13:43:48" and subject_id == "93.246"
+        )  # This session is <1min long and has no behavioral data (likely an error)
+        or (
+            start_date == "02/26/19" and start_time == "16:48:27" and subject_id == "93.246"
+        )  # This session is <10min long and has no behavioral data (likely an error)
+        or (
+            start_date == "06/10/19" and start_time == "12:26:59" and subject_id == "110.271"
+        )  # This session is <2min long and has no behavioral data (likely an error)
+        or (
+            start_date == "06/25/19" and start_time == "12:58:56" and subject_id == "112.283"
+        )  # This session is <8min long and has no behavioral data (likely an error)
+        or (start_date == "06/05/19" and start_time == "10:32:25" and subject_id == "112.283")
+        or (
+            start_date == "05/31/19" and start_time == "10:21:31" and subject_id == "112.283"
+        )  # This session is <10min long and has no behavioral data (likely an error)
+        or (
+            start_date == "07/26/19" and start_time == "12:20:57" and subject_id == "113.283"
+        )  # This session is <10min long and has no behavioral data (likely an error)
+        or (
+            start_date == "06/28/19" and start_time == "08:51:30" and subject_id == "115.273"
+        )  # This session is <10min long and has no behavioral data (likely an error)
+        or (
+            start_date == "06/12/19" and start_time == "11:56:29" and subject_id == "115.273"
+        )  # This session is <10min long and has no behavioral data (likely an error)
+        or (
+            start_date == "09/13/19" and start_time == "10:01:57" and subject_id == "139.298"
+        )  # This session is <10min long and has no behavioral data (likely an error)
+        or (
+            start_date == "08/10/19" and start_time == "13:57:04" and subject_id == "139.298"
+        )  # This session is <10min long and has no behavioral data (likely an error)
+        or (
+            start_date == "05/14/19" and start_time == "11:35:01" and subject_id == "98.257"
+        )  # This session is <10min long and has no behavioral data (likely an error)
+        or (
+            start_date == "07/13/20" and start_time == "12:10:51" and subject_id == "239.388"
+        )  # This session is <10min long and has no behavioral data (likely an error)
     ):
         return True
     return False
 
 
-def get_csv_session_dates(subject_dir):
+def get_csv_session_dates(subject_dir: Path):
+    """Get the session dates from the CSV files in the subject directory.
+
+    Parameters
+    ----------
+    subject_dir : Path
+        The path to the subject directory.
+
+    Returns
+    -------
+    list[str]
+        A list of session dates in the format 'MM/DD/YY'.
+    """
     csv_session_dates = []
     for file in subject_dir.iterdir():
         if file.suffix == ".csv" and not file.name.startswith(".") and not "dataForEachAnimal" in file.name:
@@ -1064,7 +1167,28 @@ def get_fp_header_variables(subject_dir, subject_id, raw_file_to_info, start_var
     return start_dates, start_times, msns, file_paths, subjects, box_numbers
 
 
-def match_csv_session_to_medpc_session(*, raw_file_to_info, csv_date, port_entry_times, start_variable):
+def match_csv_session_to_medpc_session(
+    *, raw_file_to_info: dict[Path, dict], csv_date: str, port_entry_times: np.ndarray, start_variable: str
+):
+    """Match a CSV session to a Medpc session using the port entry times.
+
+    Parameters
+    ----------
+    raw_file_to_info : dict[Path, dict]
+        A dictionary mapping raw file paths to their info dict, which contains the MedPC variables: Subject, Start Date, Start Time, MSN, and Box.
+    csv_date : str
+        The date of the CSV session in the format 'MM/DD/YY'.
+    port_entry_times : np.ndarray
+        The port entry times from the CSV session.
+    start_variable : str
+        The variable to use as the start variable for the session.
+
+    Returns
+    -------
+    tuple
+        A tuple containing the start date, start time, MSN, file path, subject, and box number.
+        If no match is found, returns None, None, None, None, None, None.
+    """
     subject = None
     for file, info in raw_file_to_info.items():
         for start_date, start_time, msn, box_number in zip(
@@ -1089,7 +1213,19 @@ def match_csv_session_to_medpc_session(*, raw_file_to_info, csv_date, port_entry
     return None, None, None, None, None, None
 
 
-def get_raw_info(behavior_path):
+def get_raw_info(behavior_path: Path):
+    """Get the header info for the MEDPC_RawFilesbyDate.
+
+    Parameters
+    ----------
+    behavior_path : Path
+        The path to the behavior directory.
+
+    Returns
+    -------
+    dict[Path, dict]
+        A dictionary mapping raw file paths to their info dict, which contains the MedPC variables: Subject, Start Date, Start Time, MSN, and Box.
+    """
     raw_files_by_date_path = behavior_path / "MEDPC_RawFilesbyDate"
     raw_files_by_date = [file for file in raw_files_by_date_path.iterdir() if not file.name.startswith(".")]
     raw_file_to_info = {}

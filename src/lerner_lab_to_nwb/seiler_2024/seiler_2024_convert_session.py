@@ -11,13 +11,11 @@ import matplotlib.pyplot as plt
 from lerner_lab_to_nwb.seiler_2024 import Seiler2024NWBConverter, Seiler2024WesternBlotNWBConverter
 
 
-# TODO: Add box number and msn to behavior module description
 def session_to_nwb(
     *,
     data_dir_path: Union[str, Path],
     output_dir_path: Union[str, Path],
     behavior_file_path: Union[str, Path],
-    start_datetime: datetime,
     subject_id: str,
     session_conditions: dict,
     start_variable: str,
@@ -45,8 +43,6 @@ def session_to_nwb(
         Path to the directory to save the NWB file.
     behavior_file_path : Union[str, Path]
         Path to the MedPC file. Or path to the csv file if the behavior data is in a csv file.
-    start_datetime : datetime
-        The start datetime of the session.
     subject_id : str
         The subject ID.
     session_conditions : dict
@@ -69,7 +65,10 @@ def session_to_nwb(
     flip_ttls_lr : bool, optional
         Whether to flip the left and right TTLs relative to the msn name, by default False
     has_demodulated_commanded_voltages : bool, optional
-        Whether the fiber photometry data has demodulated commanded voltages, by default True
+        Whether the fiber photometry data has demodulated commanded voltages in a dedicated array (Fi1d), by default True
+        Note that, sometimes the demodulated commanded voltages are in the same array as the demodulated photometry data (Fi1r).
+    has_port_entry_durations : bool, optional
+        Whether the behavior data has port entry durations, by default True
     stub_test : bool, optional
         Whether to run a stub test, by default False
     verbose : bool, optional
@@ -217,7 +216,9 @@ def session_to_nwb(
             )
 
     # Run conversion
-    converter.run_conversion(metadata=metadata, nwbfile_path=nwbfile_path, conversion_options=conversion_options)
+    converter.run_conversion(
+        metadata=metadata, nwbfile_path=nwbfile_path, conversion_options=conversion_options, verbose=verbose
+    )
 
 
 def western_blot_to_nwb(
@@ -335,7 +336,6 @@ if __name__ == "__main__":
         subject_id=subject_id,
         session_conditions=session_conditions,
         start_variable=start_variable,
-        start_datetime=start_datetime,
         experiment_type=experiment_type,
         experimental_group=experimental_group,
         stub_test=stub_test,
@@ -366,7 +366,6 @@ if __name__ == "__main__":
         subject_id=subject_id,
         session_conditions=session_conditions,
         start_variable=start_variable,
-        start_datetime=start_datetime,
         experiment_type=experiment_type,
         experimental_group=experimental_group,
         stub_test=stub_test,
@@ -397,38 +396,6 @@ if __name__ == "__main__":
         subject_id=subject_id,
         session_conditions=session_conditions,
         start_variable=start_variable,
-        start_datetime=start_datetime,
-        experiment_type=experiment_type,
-        experimental_group=experimental_group,
-        stub_test=stub_test,
-    )
-
-    # session with missing medpc file
-    experiment_type = "FP"
-    experimental_group = "PS"
-    subject_id = "75.214"
-    start_datetime = datetime(2018, 10, 29, 12, 41, 44)
-    session_conditions = {
-        "Start Date": start_datetime.strftime("%m/%d/%y"),
-        "Start Time": start_datetime.strftime("%H:%M:%S"),
-        "Subject": subject_id,
-    }
-    start_variable = "Start Date"
-    behavior_file_path = (
-        data_dir_path
-        / f"{experiment_type} Experiments"
-        / "Behavior"
-        / "MEDPC_RawFilesbyDate"
-        / f"{start_datetime.date().isoformat()}"
-    )
-    session_to_nwb(
-        data_dir_path=data_dir_path,
-        output_dir_path=output_dir_path,
-        behavior_file_path=behavior_file_path,
-        subject_id=subject_id,
-        session_conditions=session_conditions,
-        start_variable=start_variable,
-        start_datetime=start_datetime,
         experiment_type=experiment_type,
         experimental_group=experimental_group,
         stub_test=stub_test,
@@ -460,7 +427,6 @@ if __name__ == "__main__":
         subject_id=subject_id,
         session_conditions=session_conditions,
         start_variable=start_variable,
-        start_datetime=start_datetime,
         experiment_type=experiment_type,
         experimental_group=experimental_group,
         stub_test=stub_test,
@@ -470,7 +436,7 @@ if __name__ == "__main__":
     experiment_type = "FP"
     experimental_group = "DPR"
     subject_id = "87.239"
-    start_datetime = datetime(2019, 3, 19, 0, 0, 0)
+    start_datetime = datetime(2019, 3, 19, 14, 1, 54)
     session_conditions = {}
     start_variable = ""
     behavior_file_path = (
@@ -488,7 +454,46 @@ if __name__ == "__main__":
         subject_id=subject_id,
         session_conditions=session_conditions,
         start_variable=start_variable,
-        start_datetime=start_datetime,
+        experiment_type=experiment_type,
+        experimental_group=experimental_group,
+        stub_test=stub_test,
+    )
+
+    # session with missing medpc file
+    experiment_type = "FP"
+    experimental_group = "PS"
+    subject_id = "75.214"
+    start_datetime = datetime(2018, 10, 29, 12, 41, 44)
+    session_conditions = {
+        "Start Date": start_datetime.strftime("%m/%d/%y"),
+        "Start Time": start_datetime.strftime("%H:%M:%S"),
+        "Subject": subject_id,
+    }
+    start_variable = "Start Date"
+    behavior_file_path = (
+        data_dir_path
+        / f"{experiment_type} Experiments"
+        / "Behavior"
+        / "MEDPC_RawFilesbyDate"
+        / f"{start_datetime.date().isoformat()}"
+    )
+    fiber_photometry_folder_path = (
+        data_dir_path
+        / f"{experiment_type} Experiments"
+        / "Photometry"
+        / f"Punishment Sensitive"
+        / f"Early RI60"
+        / f"Photo_{subject_id.split('.')[0]}_{subject_id.split('.')[1]}-181029-124815"
+    )
+    session_to_nwb(
+        data_dir_path=data_dir_path,
+        output_dir_path=output_dir_path,
+        behavior_file_path=behavior_file_path,
+        fiber_photometry_folder_path=fiber_photometry_folder_path,
+        has_demodulated_commanded_voltages=False,
+        subject_id=subject_id,
+        session_conditions=session_conditions,
+        start_variable=start_variable,
         experiment_type=experiment_type,
         experimental_group=experimental_group,
         stub_test=stub_test,
@@ -529,7 +534,6 @@ if __name__ == "__main__":
         subject_id=subject_id,
         session_conditions=session_conditions,
         start_variable=start_variable,
-        start_datetime=start_datetime,
         experiment_type=experiment_type,
         experimental_group=experimental_group,
         stub_test=stub_test,
@@ -570,13 +574,12 @@ if __name__ == "__main__":
         subject_id=subject_id,
         session_conditions=session_conditions,
         start_variable=start_variable,
-        start_datetime=start_datetime,
         experiment_type=experiment_type,
         experimental_group=experimental_group,
         stub_test=stub_test,
     )
 
-    # Fiber Photometry session with only Fi1r (no Fi1d)
+    # Fiber Photometry session with only Fi1r (no Fi1d) BUT has demodulated commanded voltages in Fi1r
     experiment_type = "FP"
     experimental_group = "DPR"
     subject_id = "333.393"
@@ -612,7 +615,6 @@ if __name__ == "__main__":
         subject_id=subject_id,
         session_conditions=session_conditions,
         start_variable=start_variable,
-        start_datetime=start_datetime,
         experiment_type=experiment_type,
         experimental_group=experimental_group,
         stub_test=stub_test,
@@ -656,13 +658,12 @@ if __name__ == "__main__":
         subject_id=subject_id,
         session_conditions=session_conditions,
         start_variable=start_variable,
-        start_datetime=start_datetime,
         experiment_type=experiment_type,
         experimental_group=experimental_group,
         stub_test=stub_test,
     )
 
-    # Fiber Photometry session with swapped left and right TTLs and missing Fi1d
+    # Fiber Photometry session with swapped left and right TTLs and missing Fi1d BUT Fi1r has demodulated commanded voltages
     experiment_type = "FP"
     experimental_group = "PS"
     subject_id = "140.306"
@@ -698,7 +699,6 @@ if __name__ == "__main__":
         subject_id=subject_id,
         session_conditions=session_conditions,
         start_variable=start_variable,
-        start_datetime=start_datetime,
         experiment_type=experiment_type,
         experimental_group=experimental_group,
         stub_test=stub_test,
@@ -738,7 +738,55 @@ if __name__ == "__main__":
         subject_id=subject_id,
         session_conditions=session_conditions,
         start_variable=start_variable,
-        start_datetime=start_datetime,
+        experiment_type=experiment_type,
+        experimental_group=experimental_group,
+        stub_test=stub_test,
+    )
+
+    # Fiber Photometry session with missing RNRW
+    experiment_type = "FP"
+    experimental_group = "PS"
+    subject_id = "332.393"
+    start_datetime = datetime(2020, 7, 28, 12, 4, 1)
+    session_conditions = {
+        "Start Date": start_datetime.strftime("%m/%d/%y"),
+        "Start Time": start_datetime.strftime("%H:%M:%S"),
+    }
+    start_variable = "Start Date"
+    behavior_file_path = (
+        data_dir_path
+        / f"{experiment_type} Experiments"
+        / "Behavior"
+        / f"{experimental_group}"
+        / f"{subject_id}"
+        / f"{subject_id}"
+    )
+    fiber_photometry_folder_path = (
+        data_dir_path
+        / f"{experiment_type} Experiments"
+        / "Photometry"
+        / f"Punishment Sensitive"
+        / f"Late RI60"
+        / f"Photo_{subject_id.split('.')[0]}_{subject_id.split('.')[1]}-200728-122403"
+    )
+    second_fiber_photometry_folder_path = (
+        data_dir_path
+        / f"{experiment_type} Experiments"
+        / "Photometry"
+        / f"Punishment Sensitive"
+        / f"Late RI60"
+        / f"Photo_{subject_id.split('.')[0]}_{subject_id.split('.')[1]}-200728-123314"
+    )
+    session_to_nwb(
+        data_dir_path=data_dir_path,
+        output_dir_path=output_dir_path,
+        behavior_file_path=behavior_file_path,
+        has_port_entry_durations=False,
+        fiber_photometry_folder_path=fiber_photometry_folder_path,
+        second_fiber_photometry_folder_path=second_fiber_photometry_folder_path,
+        subject_id=subject_id,
+        session_conditions=session_conditions,
+        start_variable=start_variable,
         experiment_type=experiment_type,
         experimental_group=experimental_group,
         stub_test=stub_test,
@@ -771,7 +819,6 @@ if __name__ == "__main__":
         subject_id=subject_id,
         session_conditions=session_conditions,
         start_variable=start_variable,
-        start_datetime=start_datetime,
         experiment_type=experiment_type,
         experimental_group=experimental_group,
         optogenetic_treatment=optogenetic_treatment,
@@ -804,7 +851,6 @@ if __name__ == "__main__":
         subject_id=subject_id,
         session_conditions=session_conditions,
         start_variable=start_variable,
-        start_datetime=start_datetime,
         experiment_type=experiment_type,
         experimental_group=experimental_group,
         optogenetic_treatment=optogenetic_treatment,
@@ -836,7 +882,6 @@ if __name__ == "__main__":
         subject_id=subject_id,
         session_conditions=session_conditions,
         start_variable=start_variable,
-        start_datetime=start_datetime,
         experiment_type=experiment_type,
         experimental_group=experimental_group,
         optogenetic_treatment=optogenetic_treatment,
@@ -868,7 +913,6 @@ if __name__ == "__main__":
         subject_id=subject_id,
         session_conditions=session_conditions,
         start_variable=start_variable,
-        start_datetime=start_datetime,
         experiment_type=experiment_type,
         experimental_group=experimental_group,
         optogenetic_treatment=optogenetic_treatment,
@@ -898,7 +942,6 @@ if __name__ == "__main__":
         subject_id=subject_id,
         session_conditions=session_conditions,
         start_variable=start_variable,
-        start_datetime=start_datetime,
         experiment_type=experiment_type,
         experimental_group=experimental_group,
         optogenetic_treatment=optogenetic_treatment,
@@ -906,6 +949,35 @@ if __name__ == "__main__":
     )
 
     # Opto session from csv file with scrambled optogenetic stimulation
+    experiment_type = "Opto"
+    experimental_group = "DLS-Excitatory"
+    optogenetic_treatment = "ChR2Scrambled"
+    subject_id = "276.405"
+    start_datetime = datetime(2020, 9, 21, 0, 0, 0)
+    session_conditions = {}
+    start_variable = ""
+    behavior_file_path = (
+        data_dir_path
+        / f"{experiment_type} Experiments"
+        / f"{experimental_group.replace('-', ' ')}"
+        / "Scrambled"
+        / f"{subject_id.replace('.', '_')}"
+        / f"{subject_id}_{start_datetime.strftime('%m-%d-%y')}.csv"
+    )
+    session_to_nwb(
+        data_dir_path=data_dir_path,
+        output_dir_path=output_dir_path,
+        behavior_file_path=behavior_file_path,
+        subject_id=subject_id,
+        session_conditions=session_conditions,
+        start_variable=start_variable,
+        experiment_type=experiment_type,
+        experimental_group=experimental_group,
+        optogenetic_treatment=optogenetic_treatment,
+        stub_test=stub_test,
+    )
+
+    # Opto Omission Probe session from csv file
     experiment_type = "Opto"
     experimental_group = "DLS-Excitatory"
     optogenetic_treatment = "ChR2Scrambled"
@@ -928,7 +1000,6 @@ if __name__ == "__main__":
         subject_id=subject_id,
         session_conditions=session_conditions,
         start_variable=start_variable,
-        start_datetime=start_datetime,
         experiment_type=experiment_type,
         experimental_group=experimental_group,
         optogenetic_treatment=optogenetic_treatment,
@@ -958,7 +1029,6 @@ if __name__ == "__main__":
         subject_id=subject_id,
         session_conditions=session_conditions,
         start_variable=start_variable,
-        start_datetime=start_datetime,
         experiment_type=experiment_type,
         experimental_group=experimental_group,
         optogenetic_treatment=optogenetic_treatment,

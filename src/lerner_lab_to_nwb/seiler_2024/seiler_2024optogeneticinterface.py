@@ -6,12 +6,11 @@ from neuroconv.basedatainterface import BaseDataInterface
 from neuroconv.utils import DeepDict
 from neuroconv.tools.optogenetics import create_optogenetic_stimulation_timeseries
 from typing import Literal
-from hdmf.backends.hdf5.h5_utils import H5DataIO
 from datetime import datetime, time
 from pathlib import Path
 import pandas as pd
 
-from neuroconv.datainterfaces.behavior.medpc.medpc_helpers import read_medpc_file
+from .medpc_helpers import read_medpc_file
 
 
 class Seiler2024OptogeneticInterface(BaseDataInterface):
@@ -101,7 +100,9 @@ class Seiler2024OptogeneticInterface(BaseDataInterface):
             session_dict = {}
             for csv_name, dict_name in csv_name_to_dict_name.items():
                 session_dict[dict_name] = np.trim_zeros(session_df[csv_name].dropna().values, trim="b")
-            if "Z" in session_df.columns:
+            if ("Scram" in metadata["Behavior"]["MSN"] or "SCRAM" in metadata["Behavior"]["MSN"]) and (
+                "Z" in session_df.columns
+            ):
                 session_dict["optogenetic_stimulation_times"] = np.trim_zeros(session_df["Z"].dropna().values, trim="b")
         else:
             msn = metadata["MedPC"]["MSN"]
@@ -160,6 +161,15 @@ class Seiler2024OptogeneticInterface(BaseDataInterface):
             location=f"Injection location: {opto_metadata['injection_location']} \n Stimulation location: {opto_metadata['stimulation_location']}",
             excitation_lambda=opto_metadata["excitation_lambda"],
         )
+
+        probe_msns = {"20sOmissions_TTL", "20sOmissions", "Footshock Degradation Left", "Footshock Degradation right"}
+        behavioral_metadata_key = behavioral_metadata_key = "Behavior" if self.source_data["from_csv"] else "MedPC"
+        if metadata[behavioral_metadata_key]["MSN"] in probe_msns:
+            return  # no optogenetic stimulation was delivered in probe sessions --> skip adding optogenetic series
+        assert (
+            metadata[behavioral_metadata_key]["MSN"] != "Probe Test Habit Training TTL"
+        ), "Opto Experiments should not have Probe Test Habit Training TTL MSN"
+
         timestamps, data = create_optogenetic_stimulation_timeseries(
             stimulation_onset_times=stim_times,
             duration=opto_metadata["duration"],
@@ -170,8 +180,8 @@ class Seiler2024OptogeneticInterface(BaseDataInterface):
         ogen_series = OptogeneticSeries(
             name="OptogeneticSeries",
             site=ogen_site,
-            data=H5DataIO(data, compression=True),
-            timestamps=H5DataIO(timestamps, compression=True),
+            data=data,
+            timestamps=timestamps,
             description=opto_metadata["ogen_series_description"],
         )
         nwbfile.add_stimulus(ogen_series)
