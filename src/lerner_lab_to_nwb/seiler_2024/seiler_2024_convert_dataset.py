@@ -95,13 +95,14 @@ def dataset_to_nwb(
     start_variable = "Start Date"
     data_dir_path = Path(data_dir_path)
     output_dir_path = Path(output_dir_path)
-    fp_session_to_nwb_args_per_session = fp_to_nwb(
-        data_dir_path=data_dir_path,
-        output_dir_path=output_dir_path,
-        start_variable=start_variable,
-        stub_test=stub_test,
-        verbose=verbose,
-    )
+    # fp_session_to_nwb_args_per_session = fp_to_nwb(
+    #     data_dir_path=data_dir_path,
+    #     output_dir_path=output_dir_path,
+    #     start_variable=start_variable,
+    #     stub_test=stub_test,
+    #     verbose=verbose,
+    # )
+    fp_session_to_nwb_args_per_session = []
     opto_session_to_nwb_args_per_session = opto_to_nwb(
         data_dir_path=data_dir_path,
         output_dir_path=output_dir_path,
@@ -126,6 +127,20 @@ def dataset_to_nwb(
             continue
         session_to_nwb_args_per_session.append(session_to_nwb_kwargs)
 
+    # metadata_path = Path("/Volumes/T7/CatalystNeuro/NWB/Lerner/raw_data/MouseDemographicsCorrected.xlsx")
+    # df = pd.read_excel(
+    #     metadata_path,
+    #     sheet_name="Mouse Demographics",
+    #     dtype={"Mouse ID": str},
+    # )
+    # df["DNL"] = df["Mouse ID"].str.contains("(DNL)", regex=False)
+    # df["Mouse ID"] = df["Mouse ID"].str.replace("(DNL)", "")
+    # df["Mouse ID"] = df["Mouse ID"].str.strip()
+    # mouse_ids = set(df["Mouse ID"])
+    # subject_ids = {session_to_nwb_kwargs['subject_id'] for session_to_nwb_kwargs in session_to_nwb_args_per_session}
+    # missing_subject_ids = mouse_ids - subject_ids
+    # print(missing_subject_ids)
+    # return
     futures = []
     with ProcessPoolExecutor(max_workers=max_workers) as executor:
         for session_to_nwb_kwargs in session_to_nwb_args_per_session:
@@ -828,6 +843,17 @@ def get_opto_subject_id(subject_path: Path):
         "299": "299.405",
         "276": "276.405",
         "262.259.478": "262.478",
+        "126": "126.286",
+        "127": "127.28",
+    }
+    eartag_only_subject_ids = {
+        "370",
+        "371",
+        "372",
+        "479",
+        "480",
+        "481",
+        "484",
     }
 
     # fmt: off
@@ -864,6 +890,9 @@ def get_opto_subject_id(subject_path: Path):
         subject_id = subject_path.name.replace("_", ".")
     elif subject_path.name == "2021-10-29_262_259.478":
         subject_id = "262.478"
+    elif re.fullmatch(r"([0-9]){3}", subject_path.name):
+        # ex. subject_path.name = '126'
+        subject_id = subject_path.name
     else:
         raise ValueError(f"Subject ID not found in {subject_path}")
     # fmt: on
@@ -873,9 +902,18 @@ def get_opto_subject_id(subject_path: Path):
     if subject_id in partial_subject_ids_to_subject_id:
         subject_id = partial_subject_ids_to_subject_id[subject_id]
 
-    assert re.match(
-        r"([0-9]){2,3}\.([0-9]){3}", subject_id
-    ), f"Subject ID {subject_id} with path {subject_path} does not match the expected format."
+    if subject_id in eartag_only_subject_ids:
+        assert re.match(
+            r"([0-9]){3}", subject_path.name
+        ), f"Subject ID {subject_id} with path {subject_path} does not match the expected format."
+    elif subject_id in {"121.28", "123.28", "124.28", "125.28", "127.28"}:
+        assert re.match(
+            r"([0-9]){3}\.([0-9]){2}", subject_id
+        ), f"Subject ID {subject_id} with path {subject_path} does not match the expected format."
+    else:
+        assert re.match(
+            r"([0-9]){2,3}\.([0-9]){3}", subject_id
+        ), f"Subject ID {subject_id} with path {subject_path} does not match the expected format."
 
     return subject_id
 
