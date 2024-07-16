@@ -1101,6 +1101,9 @@ def session_should_be_skipped(*, start_date, start_time, subject_id, msn):
         or (
             start_date == "07/13/20" and start_time == "12:10:51" and subject_id == "239.388"
         )  # This session is <10min long and has no behavioral data (likely an error)
+        or (
+            start_date == "07/26/19" and start_time == "11:32:18" and subject_id == "117.279"
+        )  # This session is <10min long and has no behavioral data (likely an error)
     ):
         return True
     return False
