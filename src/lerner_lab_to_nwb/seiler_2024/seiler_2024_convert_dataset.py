@@ -1007,6 +1007,10 @@ def session_should_be_skipped(*, start_date, start_time, subject_id, msn):
         "Footshock_Right_Stim",
         "Footshock_Left_Stim",
         "ICSS_Right",
+        "RI_60_Right_Probability_AH_FINAL",
+        "PelletStimD_Right",
+        "PelletStimD_Left",
+        "PelletStimBoth",
     }
     if subject_id == "":
         return True
@@ -1103,6 +1107,12 @@ def session_should_be_skipped(*, start_date, start_time, subject_id, msn):
         )  # This session is <10min long and has no behavioral data (likely an error)
         or (
             start_date == "07/26/19" and start_time == "11:32:18" and subject_id == "117.279"
+        )  # This session is <10min long and has no behavioral data (likely an error)
+        or (
+            start_date == "07/10/19" and start_time == "14:42:46" and subject_id == "117.279"
+        )  # This session is <10min long and has no behavioral data (likely an error)
+        or (
+            start_date == "05/21/19" and start_time == "12:55:19" and subject_id == "479"
         )  # This session is <10min long and has no behavioral data (likely an error)
     ):
         return True
