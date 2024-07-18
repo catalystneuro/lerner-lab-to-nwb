@@ -1008,6 +1008,7 @@ def session_should_be_skipped(*, start_date, start_time, subject_id, msn):
         "Footshock_Left_Stim",
         "ICSS_Right",
         "RI_60_Right_Probability_AH_FINAL",
+        "RI_60_Left_Probability_AH_FINAL",
         "PelletStimD_Right",
         "PelletStimD_Left",
         "PelletStimBoth",
