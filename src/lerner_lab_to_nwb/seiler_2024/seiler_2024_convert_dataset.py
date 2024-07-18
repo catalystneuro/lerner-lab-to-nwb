@@ -95,14 +95,13 @@ def dataset_to_nwb(
     start_variable = "Start Date"
     data_dir_path = Path(data_dir_path)
     output_dir_path = Path(output_dir_path)
-    # fp_session_to_nwb_args_per_session = fp_to_nwb(
-    #     data_dir_path=data_dir_path,
-    #     output_dir_path=output_dir_path,
-    #     start_variable=start_variable,
-    #     stub_test=stub_test,
-    #     verbose=verbose,
-    # )
-    fp_session_to_nwb_args_per_session = []
+    fp_session_to_nwb_args_per_session = fp_to_nwb(
+        data_dir_path=data_dir_path,
+        output_dir_path=output_dir_path,
+        start_variable=start_variable,
+        stub_test=stub_test,
+        verbose=verbose,
+    )
     opto_session_to_nwb_args_per_session = opto_to_nwb(
         data_dir_path=data_dir_path,
         output_dir_path=output_dir_path,
@@ -127,20 +126,6 @@ def dataset_to_nwb(
             continue
         session_to_nwb_args_per_session.append(session_to_nwb_kwargs)
 
-    # metadata_path = Path("/Volumes/T7/CatalystNeuro/NWB/Lerner/raw_data/MouseDemographicsCorrected.xlsx")
-    # df = pd.read_excel(
-    #     metadata_path,
-    #     sheet_name="Mouse Demographics",
-    #     dtype={"Mouse ID": str},
-    # )
-    # df["DNL"] = df["Mouse ID"].str.contains("(DNL)", regex=False)
-    # df["Mouse ID"] = df["Mouse ID"].str.replace("(DNL)", "")
-    # df["Mouse ID"] = df["Mouse ID"].str.strip()
-    # mouse_ids = set(df["Mouse ID"])
-    # subject_ids = {session_to_nwb_kwargs["subject_id"] for session_to_nwb_kwargs in session_to_nwb_args_per_session}
-    # missing_subject_ids = mouse_ids - subject_ids
-    # print(missing_subject_ids)
-    # return
     futures = []
     with ProcessPoolExecutor(max_workers=max_workers) as executor:
         for session_to_nwb_kwargs in session_to_nwb_args_per_session:
