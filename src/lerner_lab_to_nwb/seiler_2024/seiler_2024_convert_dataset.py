@@ -828,6 +828,17 @@ def get_opto_subject_id(subject_path: Path):
         "299": "299.405",
         "276": "276.405",
         "262.259.478": "262.478",
+        "126": "126.286",
+        "127": "127.280",
+    }
+    eartag_only_subject_ids = {
+        "370",
+        "371",
+        "372",
+        "479",
+        "480",
+        "481",
+        "484",
     }
 
     # fmt: off
@@ -864,6 +875,9 @@ def get_opto_subject_id(subject_path: Path):
         subject_id = subject_path.name.replace("_", ".")
     elif subject_path.name == "2021-10-29_262_259.478":
         subject_id = "262.478"
+    elif re.fullmatch(r"([0-9]){3}", subject_path.name):
+        # ex. subject_path.name = '126'
+        subject_id = subject_path.name
     else:
         raise ValueError(f"Subject ID not found in {subject_path}")
     # fmt: on
@@ -873,9 +887,14 @@ def get_opto_subject_id(subject_path: Path):
     if subject_id in partial_subject_ids_to_subject_id:
         subject_id = partial_subject_ids_to_subject_id[subject_id]
 
-    assert re.match(
-        r"([0-9]){2,3}\.([0-9]){3}", subject_id
-    ), f"Subject ID {subject_id} with path {subject_path} does not match the expected format."
+    if subject_id in eartag_only_subject_ids:
+        assert re.match(
+            r"([0-9]){3}", subject_path.name
+        ), f"Subject ID {subject_id} with path {subject_path} does not match the expected format."
+    else:
+        assert re.match(
+            r"([0-9]){2,3}\.([0-9]){3}", subject_id
+        ), f"Subject ID {subject_id} with path {subject_path} does not match the expected format."
 
     return subject_id
 
@@ -970,6 +989,14 @@ def session_should_be_skipped(*, start_date, start_time, subject_id, msn):
         "Probe Test Habit Training CC",
         "FOOD_FR1 Hapit Training TTL",
         "RK_C_FR1_BOTH_1hr",
+        "Footshock_Right_Stim",
+        "Footshock_Left_Stim",
+        "ICSS_Right",
+        "RI_60_Right_Probability_AH_FINAL",
+        "RI_60_Left_Probability_AH_FINAL",
+        "PelletStimD_Right",
+        "PelletStimD_Left",
+        "PelletStimBoth",
     }
     if subject_id == "":
         return True
@@ -1063,6 +1090,15 @@ def session_should_be_skipped(*, start_date, start_time, subject_id, msn):
         )  # This session is <10min long and has no behavioral data (likely an error)
         or (
             start_date == "07/13/20" and start_time == "12:10:51" and subject_id == "239.388"
+        )  # This session is <10min long and has no behavioral data (likely an error)
+        or (
+            start_date == "07/26/19" and start_time == "11:32:18" and subject_id == "117.279"
+        )  # This session is <10min long and has no behavioral data (likely an error)
+        or (
+            start_date == "07/10/19" and start_time == "14:42:46" and subject_id == "117.279"
+        )  # This session is <10min long and has no behavioral data (likely an error)
+        or (
+            start_date == "05/21/19" and start_time == "12:55:19" and subject_id == "479"
         )  # This session is <10min long and has no behavioral data (likely an error)
     ):
         return True
