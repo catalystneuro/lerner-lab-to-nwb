@@ -14,7 +14,7 @@ Once, all the fiber photometry sessions have been added,
 this function iterates through all of the behavior files to add the behavior sessions without fiber photometry (omitting any duplicates).
 
 The get_fp_header_variables() function obtains a group of header variables for all the behavioral sessions from a subject directory in the following way:
-1. From the medpc output files organized by subject,
+1. From the medpc output files organized by subject, keeping only the runs whose Subject field refers to that subject,
 2. From the medpc output files organized by date that can be matched with a csv file organized by subject,
 3. From the csv files organized by subject that cannot be matched with a medpc output file.
     These sessions have placeholders for missing metadata: start_time = "00:00:00", msn = "Unknown".
@@ -27,6 +27,7 @@ Then, it adds all the sessions in the DLS Excitatory folder organized by date in
 The get_opto_header_variables() function obtains a group of header variables for all the behavioral sessions from a subject_path in the following way:
 1. If the subject_path is a MedPC output file, it reads the file and extracts the headers for each session in that file.
 2. If the subject_path is a folder, it iterates through all of the medpc files and .csv files in that folder and extracts the headers for each session in each file.
+In both cases, MedPC runs whose Subject field refers to a different subject are left out.
 
 The rest of the functions defined in this script are relatively self-explanatory helpers with their own documentation.
 
@@ -693,7 +694,7 @@ def opto_to_nwb(
                 ]
                 for subject_path in subject_paths:
                     subject_id = get_opto_subject_id(subject_path)
-                    header_variables = get_opto_header_variables(subject_path)
+                    header_variables = get_opto_header_variables(subject_path=subject_path, subject_id=subject_id)
                     start_dates, start_times, msns, file_paths, subjects, box_numbers = header_variables
                     for start_date, start_time, msn, file, subject, box_number in zip(
                         start_dates, start_times, msns, file_paths, subjects, box_numbers
@@ -899,13 +900,15 @@ def get_opto_subject_id(subject_path: Path):
     return subject_id
 
 
-def get_opto_header_variables(subject_path):
+def get_opto_header_variables(*, subject_path: Path, subject_id: str):
     """Get the header variables for the Optogenetic portion of the dataset.
 
     Parameters
     ----------
     subject_path : Path
         The path to the subject directory.
+    subject_id : str
+        The subject ID of the subject_path.
 
     Returns
     -------
@@ -913,18 +916,13 @@ def get_opto_header_variables(subject_path):
         A tuple containing the start dates, start times, MSNs, file paths, subjects, and box numbers.
     """
     if subject_path.is_file():
-        medpc_file_path = subject_path
-        medpc_variables = get_medpc_variables(
-            file_path=medpc_file_path, variable_names=["Start Date", "Start Time", "MSN"]
+        start_dates, start_times, msns, box_numbers = get_subject_medpc_header_variables(
+            file_path=subject_path, subject_id=subject_id
         )
-        start_dates = medpc_variables["Start Date"]
-        start_times = medpc_variables["Start Time"]
-        msns = medpc_variables["MSN"]
-        file_paths = [medpc_file_path] * len(start_dates)
+        file_paths = [subject_path] * len(start_dates)
         subjects = [None] * len(start_dates)
-        box_numbers = [None] * len(start_dates)
     elif subject_path.is_dir():
-        start_dates, start_times, msns, file_paths = [], [], [], []
+        start_dates, start_times, msns, file_paths, box_numbers = [], [], [], [], []
         medpc_files, csv_files = [], []
         for file in subject_path.iterdir():
             if file.name.startswith("."):
@@ -934,14 +932,14 @@ def get_opto_header_variables(subject_path):
             elif not file.name.startswith("."):
                 medpc_files.append(file)
         for file in medpc_files:
-            medpc_variables = get_medpc_variables(file_path=file, variable_names=["Start Date", "Start Time", "MSN"])
-            for start_date, start_time, msn in zip(
-                medpc_variables["Start Date"], medpc_variables["Start Time"], medpc_variables["MSN"]
-            ):
-                start_dates.append(start_date)
-                start_times.append(start_time)
-                msns.append(msn)
-                file_paths.append(file)
+            file_start_dates, file_start_times, file_msns, file_box_numbers = get_subject_medpc_header_variables(
+                file_path=file, subject_id=subject_id
+            )
+            start_dates.extend(file_start_dates)
+            start_times.extend(file_start_times)
+            msns.extend(file_msns)
+            box_numbers.extend(file_box_numbers)
+            file_paths.extend([file] * len(file_start_dates))
         for file in csv_files:
             start_date = file.stem.split("_")[1].replace("-", "/")
             start_time = "00:00:00"
@@ -950,10 +948,73 @@ def get_opto_header_variables(subject_path):
             start_times.append(start_time)
             msns.append(msn)
             file_paths.append(file)
+            box_numbers.append(None)
         subjects = [None] * len(start_dates)
-        box_numbers = [None] * len(start_dates)
 
     return start_dates, start_times, msns, file_paths, subjects, box_numbers
+
+
+def subject_field_refers_to_subject(*, subject_field: str, subject_id: str) -> bool:
+    """Return True if the Subject field of a MedPC run refers to the given subject.
+
+    The Subject field is often abbreviated: it may hold the mouse number without leading zeros (ex. '28' for
+    '028.392') or with a prefix (ex. 'DAT-127' for '127.280'), drop a trailing zero (ex. '121.28' for '121.280'), hold
+    only the tag (ex. '391' for '249.391'), or be blank, which is taken to refer to the subject.
+
+    Parameters
+    ----------
+    subject_field : str
+        The value of the Subject field of the MedPC run.
+    subject_id : str
+        The subject ID. Ex. '139.298'
+
+    Returns
+    -------
+    bool
+        True if the Subject field refers to the subject, False otherwise.
+    """
+    subject_field_typos = {"028.392": {"58"}}
+    if subject_field == "" or subject_field in subject_field_typos.get(subject_id, set()):
+        return True
+    mouse_number, *tag = subject_id.split(".")
+    if int(re.search(r"[0-9]+", subject_field).group()) == int(mouse_number):
+        return True
+    return tag == [subject_field]
+
+
+def get_subject_medpc_header_variables(*, file_path: Path, subject_id: str):
+    """Get the header variables of the runs in a subject's own MedPC file that belong to that subject.
+
+    Runs whose Subject field refers to a different subject were saved in this file by mistake and are left out.
+    If several remaining runs share a start date and time, the first one listed is the subject's.
+
+    Parameters
+    ----------
+    file_path : Path
+        The path to the subject's MedPC file.
+    subject_id : str
+        The subject ID. Ex. '139.298'
+
+    Returns
+    -------
+    tuple
+        A tuple containing the start dates, start times, MSNs, and box numbers.
+    """
+    variable_names = ["Start Date", "Start Time", "MSN", "Subject", "Box"]
+    medpc_variables = get_medpc_variables(file_path=file_path, variable_names=variable_names)
+    start_dates, start_times, msns, box_numbers = [], [], [], []
+    for start_date, start_time, msn, subject_field, box_number in zip(
+        *[medpc_variables[name] for name in variable_names], strict=True
+    ):
+        if not subject_field_refers_to_subject(subject_field=subject_field, subject_id=subject_id):
+            continue
+        if (start_date, start_time) in zip(start_dates, start_times):
+            continue
+        start_dates.append(start_date)
+        start_times.append(start_time)
+        msns.append(msn)
+        box_numbers.append(box_number)
+    return start_dates, start_times, msns, box_numbers
 
 
 def session_should_be_skipped(*, start_date, start_time, subject_id, msn):
@@ -1004,24 +1065,6 @@ def session_should_be_skipped(*, start_date, start_time, subject_id, msn):
         return True
     if (
         (
-            start_date == "09/20/19"
-            and start_time == "09:42:54"
-            and subject_id == "139.298"
-            and msn == "RI 60 RIGHT STIM"
-        )  # This session is actually from subject 144.306, which should be skipped
-        or (
-            start_date == "07/28/20"
-            and start_time == "13:21:15"
-            and subject_id == "272.396"
-            and msn == "Probe Test Habit Training TTL"
-        )  # This session is actually from subject 334, which should be skipped
-        or (
-            start_date == "07/31/20"
-            and start_time == "12:03:31"
-            and subject_id == "346.394"
-            and msn == "FOOD_RI 60 RIGHT TTL"
-        )  # This session is actually from subject 333, which should be skipped
-        or (
             start_date == "06/16/20"
             and start_time == "11:59:32"
             and subject_id == "028.392"
@@ -1147,15 +1190,11 @@ def get_fp_header_variables(subject_dir, subject_id, raw_file_to_info, start_var
     """
     medpc_file_path = subject_dir / f"{subject_id}"
     if medpc_file_path.exists():  # Medpc file with all the sessions for the subject is located in the subject directory
-        medpc_variables = get_medpc_variables(
-            file_path=medpc_file_path, variable_names=["Start Date", "Start Time", "MSN"]
+        start_dates, start_times, msns, box_numbers = get_subject_medpc_header_variables(
+            file_path=medpc_file_path, subject_id=subject_id
         )
-        start_dates = medpc_variables["Start Date"]
-        start_times = medpc_variables["Start Time"]
-        msns = medpc_variables["MSN"]
         file_paths = [medpc_file_path] * len(start_dates)
         subjects = [None] * len(start_dates)
-        box_numbers = [None] * len(start_dates)
     else:  # We need to grab all the subject's sessions from the Medpc files organized by date (rather than by subject)
         start_dates, start_times, msns, file_paths, subjects = [], [], [], [], []
         for file, info in raw_file_to_info.items():
