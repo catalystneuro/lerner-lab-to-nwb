@@ -212,7 +212,7 @@ def get_no_port_entry_duration_sessions(
                     session_conditions=session_conditions,
                     start_variable=start_variable,
                 )
-            except TypeError:
+            except ValueError:
                 medpc_name_to_info_dict = {"U": {"name": "duration_of_port_entry", "is_array": True}}
                 session_dict = read_medpc_file(
                     file_path=behavior_file_path,
