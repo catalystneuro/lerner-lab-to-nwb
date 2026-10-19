@@ -124,19 +124,15 @@ class Seiler2024OptogeneticInterface(BaseDataInterface):
                 start_variable=self.source_data["start_variable"],
             )
         if "optogenetic_stimulation_times" in session_dict:  # stim times are recorded for scrambled trials
-            session_dict["stim_times"] = session_dict.pop("optogenetic_stimulation_times")
+            stim_times = session_dict.pop("optogenetic_stimulation_times")
         else:  # otherwise, stim is delivered on either left or right reward -- usually interleaved
-            stim_times = []
-            if len(session_dict["left_reward_times"]) > 0:
-                stim_times.extend(session_dict.pop("left_reward_times"))
-            if len(session_dict["right_reward_times"]) > 0:
-                stim_times.extend(session_dict.pop("right_reward_times"))
-            if not stim_times:  # sessions without reward/stim times are skipped with a warning
-                if self.verbose:
-                    print(f"No optogenetic stimulation times found for {metadata['NWBFile']['session_id']}")
-                return
-            session_dict["stim_times"] = np.sort(stim_times)
-        stim_times = session_dict["stim_times"]
+            stim_times = np.sort(
+                np.concatenate([session_dict["left_reward_times"], session_dict["right_reward_times"]])
+            )
+        if len(stim_times) == 0:  # sessions without reward/stim times are skipped with a warning
+            if self.verbose:
+                print(f"No optogenetic stimulation times found for {metadata['NWBFile']['session_id']}")
+            return
 
         # Create optogenetic series and add to nwbfile
         opto_metadata = metadata["Optogenetics"]["experimental_group_to_metadata"][
@@ -162,13 +158,25 @@ class Seiler2024OptogeneticInterface(BaseDataInterface):
             excitation_lambda=opto_metadata["excitation_lambda"],
         )
 
-        probe_msns = {"20sOmissions_TTL", "20sOmissions", "Footshock Degradation Left", "Footshock Degradation right"}
-        behavioral_metadata_key = behavioral_metadata_key = "Behavior" if self.source_data["from_csv"] else "MedPC"
-        if metadata[behavioral_metadata_key]["MSN"] in probe_msns:
-            return  # no optogenetic stimulation was delivered in probe sessions --> skip adding optogenetic series
-        assert (
-            metadata[behavioral_metadata_key]["MSN"] != "Probe Test Habit Training TTL"
-        ), "Opto Experiments should not have Probe Test Habit Training TTL MSN"
+        stimulation_msns = {  # programs that drive the LED (ON ^STIM in their MSN code)
+            "FR1_BOTH_SCRAMBLED",
+            "FR1_BOTH_WStim",
+            "FR1_LEFT_SCRAM",
+            "FR1_LEFT_STIM",
+            "FR1_RIGHT_SCRAMBLED",
+            "FR1_RIGHT_STIM",
+            "RI 30 LEFT_STIM",
+            "RI 30 RIGHT_STIM",
+            "RI 60 LEFT_STIM",
+            "RI 60 RIGHT STIM",
+            "RI30 Left Scrambled",
+            "RI30 Right SCRAMBLED",
+            "RI60_LEFT_SCRAM",
+            "RI60_RIGHT_SCRAM",
+        }
+        behavioral_metadata_key = "Behavior" if self.source_data["from_csv"] else "MedPC"
+        if metadata[behavioral_metadata_key]["MSN"] not in stimulation_msns:
+            return  # no optogenetic stimulation was delivered --> skip adding optogenetic series
 
         timestamps, data = create_optogenetic_stimulation_timeseries(
             stimulation_onset_times=stim_times,
