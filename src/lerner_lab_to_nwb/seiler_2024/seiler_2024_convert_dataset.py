@@ -54,6 +54,25 @@ from lerner_lab_to_nwb.seiler_2024.seiler_2024_convert_session import (
 from lerner_lab_to_nwb.seiler_2024.medpc_helpers import get_medpc_variables, read_medpc_file
 
 
+SUBJECTS_TO_SKIP = {  # subject IDs that are not in the demographics sheet
+    "289.407",
+    "244.464",
+    "264.477",
+    "264.478",
+    "102.260",
+    "262.259",  # parsed from "Scrambled/2021-10-29_262_259 - Copy.478", a copy of 262.478's 10/29/21 run
+    "289.408",
+    "264.475",
+    "129.425",
+    "250.427",
+    "95.259",
+    "309.399",
+    "433.421",
+    "416.405",
+    "364.426",
+}
+
+
 def dataset_to_nwb(
     *,
     data_dir_path: Union[str, Path],
@@ -75,23 +94,6 @@ def dataset_to_nwb(
     verbose : bool, optional
         Whether to print verbose output, by default True
     """
-    subjects_to_skip = {
-        "289.407",
-        "244.464",
-        "264.477",
-        "264.478",
-        "102.260",
-        "262.478",
-        "289.408",
-        "264.475",
-        "129.425",
-        "250.427",
-        "95.259",
-        "309.399",
-        "433.421",
-        "416.405",
-        "364.426",
-    }
     start_variable = "Start Date"
     data_dir_path = Path(data_dir_path)
     output_dir_path = Path(output_dir_path)
@@ -122,7 +124,7 @@ def dataset_to_nwb(
         if session_key in no_port_entry_duration_sessions:
             session_to_nwb_kwargs["has_port_entry_durations"] = False
         subject_id = session_to_nwb_kwargs["subject_id"]
-        if subject_id in subjects_to_skip:
+        if subject_id in SUBJECTS_TO_SKIP:
             continue
         session_to_nwb_args_per_session.append(session_to_nwb_kwargs)
 
