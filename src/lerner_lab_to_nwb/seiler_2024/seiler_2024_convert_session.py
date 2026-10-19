@@ -4,11 +4,13 @@ from typing import Union, Literal, Optional
 import shutil
 from neuroconv.utils import load_dict_from_file, dict_deep_update
 from datetime import datetime, date, time
-from pytz import timezone
+from zoneinfo import ZoneInfo
 from tifffile import imread, imwrite
 import matplotlib.pyplot as plt
 
 from lerner_lab_to_nwb.seiler_2024 import Seiler2024NWBConverter, Seiler2024WesternBlotNWBConverter
+
+SESSION_TIMEZONE = ZoneInfo("America/Chicago")
 
 
 def session_to_nwb(
@@ -186,8 +188,7 @@ def session_to_nwb(
     else:
         session_id = f"{experiment_type}-{experimental_group}-{optogenetic_treatment}-{session_start_time.isoformat().replace(':', '-')}"
     metadata["NWBFile"]["session_id"] = session_id
-    cst = timezone("US/Central")
-    metadata["NWBFile"]["session_start_time"] = session_start_time.replace(tzinfo=cst)
+    metadata["NWBFile"]["session_start_time"] = session_start_time.replace(tzinfo=SESSION_TIMEZONE)
     msn = metadata[behavioral_metadata_key]["MSN"]
     metadata["NWBFile"]["session_description"] = metadata["MedPC"]["msn_to_session_description"][msn]
     nwbfile_path = output_dir_path / f"sub-{subject_id}_ses-{session_id}.nwb"
@@ -253,8 +254,9 @@ def western_blot_to_nwb(
     editable_metadata = load_dict_from_file(editable_metadata_path)
     metadata = dict_deep_update(metadata, editable_metadata)
 
-    cst = timezone("US/Central")
-    metadata["NWBFile"]["session_start_time"] = metadata["NWBFile"]["session_start_time"].replace(tzinfo=cst)
+    metadata["NWBFile"]["session_start_time"] = metadata["NWBFile"]["session_start_time"].replace(
+        tzinfo=SESSION_TIMEZONE
+    )
 
     nwbfile_path = output_dir_path / f"{file_path.stem}.nwb"
 
