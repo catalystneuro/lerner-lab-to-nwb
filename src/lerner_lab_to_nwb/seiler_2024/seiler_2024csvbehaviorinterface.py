@@ -171,6 +171,9 @@ class Seiler2024CSVBehaviorInterface(BaseTemporalAlignmentInterface):
             "RightRewardTs": "right_reward_times",
             "LeftRewardTs": "left_reward_times",
         }
+        msn_to_medpc_name_to_output_name = metadata["MedPC"]["msn_to_medpc_name_to_output_name"]
+        if msn_to_medpc_name_to_output_name.get(metadata["Behavior"]["MSN"], {}).get("H") == "footshock_times":
+            csv_name_to_dict_name["H"] = "footshock_times"
         session_dtypes = {
             "Start Date": str,
             "End Date": str,

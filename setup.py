@@ -11,7 +11,7 @@ with open("README.md", "r") as f:
 
 setup(
     name="lerner-lab-to-nwb",
-    version="0.0.1",
+    version="0.2.0",
     description="NWB conversion scripts, functions, and classes for Lerner conversion",
     long_description=long_description,
     long_description_content_type="text/markdown",
