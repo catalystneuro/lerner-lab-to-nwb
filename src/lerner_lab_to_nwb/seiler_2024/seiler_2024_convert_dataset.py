@@ -53,6 +53,7 @@ from lerner_lab_to_nwb.seiler_2024.seiler_2024_convert_session import (
     split_western_blot,
 )
 from lerner_lab_to_nwb.seiler_2024.medpc_helpers import get_medpc_variables, read_medpc_file
+from lerner_lab_to_nwb.seiler_2024.seiler_2024csvbehaviorinterface import Seiler2024CSVBehaviorInterface
 
 
 def dataset_to_nwb(
@@ -251,6 +252,32 @@ def get_session_key_from_kwargs(session_to_nwb_kwargs: dict):
     for key, value in session_conditions.items():
         session_key += f"_{key}={value}"
     return session_key
+
+
+def get_subject_session_start(session_to_nwb_kwargs: dict) -> tuple[str, str, str]:
+    """Get the subject ID, start date, and start time of a session.
+
+    For CSV behavior files, the start date and time are read from the CSV itself.
+
+    Parameters
+    ----------
+    session_to_nwb_kwargs : dict
+        The arguments for session_to_nwb.
+
+    Returns
+    -------
+    tuple[str, str, str]
+        The subject ID, start date (mm/dd/yy), and start time (HH:MM:SS) of the session.
+    """
+    behavior_file_path = session_to_nwb_kwargs["behavior_file_path"]
+    if behavior_file_path.suffix in (".csv", ".CSV"):
+        behavior_metadata = Seiler2024CSVBehaviorInterface(file_path=str(behavior_file_path)).get_metadata()["Behavior"]
+        start_date = behavior_metadata["start_date"]
+        start_time = behavior_metadata["start_time"]
+    else:
+        start_date = session_to_nwb_kwargs["session_conditions"]["Start Date"]
+        start_time = session_to_nwb_kwargs["session_conditions"]["Start Time"]
+    return session_to_nwb_kwargs["subject_id"], start_date, start_time
 
 
 def safe_session_to_nwb(*, session_to_nwb_kwargs: dict, exception_file_path: Union[Path, str]):
@@ -732,6 +759,10 @@ def opto_to_nwb(
                             continue
                         unique_session_keys.add(session_key)
                         session_to_nwb_args_per_session.append(session_to_nwb_args)
+    subject_session_starts = {
+        get_subject_session_start(session_to_nwb_args) for session_to_nwb_args in session_to_nwb_args_per_session
+    }
+
     # DLS Excitatory raw files by date
     raw_files_by_date_path = data_dir_path / "Opto Experiments" / "DLS Excitatory"
     start_dates, start_times, msns, file_paths, subjects, box_numbers = [], [], [], [], [], []
@@ -766,6 +797,8 @@ def opto_to_nwb(
         }
         if subject in partial_subject_ids_to_subject_id:
             subject = partial_subject_ids_to_subject_id[subject]
+        if (subject, start_date, start_time) in subject_session_starts:
+            continue  # already converted from the subject's own folder, which also gives the treatment
         session_to_nwb_args = dict(
             data_dir_path=data_dir_path,
             output_dir_path=output_dir_path,
