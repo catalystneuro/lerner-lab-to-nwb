@@ -14,7 +14,7 @@ Once, all the fiber photometry sessions have been added,
 this function iterates through all of the behavior files to add the behavior sessions without fiber photometry (omitting any duplicates).
 
 The get_fp_header_variables() function obtains a group of header variables for all the behavioral sessions from a subject directory in the following way:
-1. From the medpc output files organized by subject, keeping only the runs whose Subject field refers to that subject,
+1. From the medpc output files organized by subject,
 2. From the medpc output files organized by date that can be matched with a csv file organized by subject,
 3. From the csv files organized by subject that cannot be matched with a medpc output file.
     These sessions have placeholders for missing metadata: start_time = "00:00:00", msn = "Unknown".
@@ -27,7 +27,7 @@ Then, it adds all the sessions in the DLS Excitatory folder organized by date in
 The get_opto_header_variables() function obtains a group of header variables for all the behavioral sessions from a subject_path in the following way:
 1. If the subject_path is a MedPC output file, it reads the file and extracts the headers for each session in that file.
 2. If the subject_path is a folder, it iterates through all of the medpc files and .csv files in that folder and extracts the headers for each session in each file.
-In both cases, MedPC runs whose Subject field refers to a different subject are left out.
+In both cases, when several MedPC runs share a start time, the one whose Subject field refers to the subject is used.
 
 The rest of the functions defined in this script are relatively self-explanatory helpers with their own documentation.
 
@@ -973,8 +973,7 @@ def subject_field_refers_to_subject(*, subject_field: str, subject_id: str) -> b
     bool
         True if the Subject field refers to the subject, False otherwise.
     """
-    subject_field_typos = {"028.392": {"58"}}
-    if subject_field == "" or subject_field in subject_field_typos.get(subject_id, set()):
+    if subject_field == "":
         return True
     mouse_number, *tag = subject_id.split(".")
     if int(re.search(r"[0-9]+", subject_field).group()) == int(mouse_number):
@@ -983,10 +982,10 @@ def subject_field_refers_to_subject(*, subject_field: str, subject_id: str) -> b
 
 
 def get_subject_medpc_header_variables(*, file_path: Path, subject_id: str):
-    """Get the header variables of the runs in a subject's own MedPC file that belong to that subject.
+    """Get the header variables of the runs in a subject's own MedPC file, one run per start date and time.
 
-    Runs whose Subject field refers to a different subject were saved in this file by mistake and are left out.
-    If several remaining runs share a start date and time, the first one listed is the subject's.
+    When several runs share a start date and time, the first one whose Subject field refers to the subject is
+    kept, or the first one listed if none does.
 
     Parameters
     ----------
@@ -1002,14 +1001,17 @@ def get_subject_medpc_header_variables(*, file_path: Path, subject_id: str):
     """
     variable_names = ["Start Date", "Start Time", "MSN", "Subject", "Box"]
     medpc_variables = get_medpc_variables(file_path=file_path, variable_names=variable_names)
-    start_dates, start_times, msns, box_numbers = [], [], [], []
+    start_to_runs = {}
     for start_date, start_time, msn, subject_field, box_number in zip(
         *[medpc_variables[name] for name in variable_names], strict=True
     ):
-        if not subject_field_refers_to_subject(subject_field=subject_field, subject_id=subject_id):
-            continue
-        if (start_date, start_time) in zip(start_dates, start_times):
-            continue
+        start_to_runs.setdefault((start_date, start_time), []).append((msn, subject_field, box_number))
+    start_dates, start_times, msns, box_numbers = [], [], [], []
+    for (start_date, start_time), runs in start_to_runs.items():
+        subject_runs = [
+            run for run in runs if subject_field_refers_to_subject(subject_field=run[1], subject_id=subject_id)
+        ]
+        msn, _, box_number = subject_runs[0] if subject_runs else runs[0]
         start_dates.append(start_date)
         start_times.append(start_time)
         msns.append(msn)

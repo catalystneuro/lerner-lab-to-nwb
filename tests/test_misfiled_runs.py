@@ -61,7 +61,7 @@ def data_dir_path(tmp_path) -> Path:
             msn="RI 60 LEFT_STIM",
             port_entry_time=20.0,
         ),
-        # A third mouse's run alone on another day
+        # A run alone at its start time whose Subject field names another mouse
         medpc_run(
             subject="333.393",
             box="6",
@@ -100,19 +100,26 @@ class TestSubjectFieldRefersToSubject:
 
 
 class TestOptoToNwb:
-    def test_subject_file_keeps_only_the_subjects_runs(self, data_dir_path, tmp_path):
+    def test_subject_file_reads_one_run_per_start_time(self, data_dir_path, tmp_path):
         session_to_nwb_args_per_session = opto_to_nwb(
             data_dir_path=data_dir_path,
             output_dir_path=tmp_path / "nwb",
             start_variable="Start Date",
             verbose=False,
         )
-        assert len(session_to_nwb_args_per_session) == 1
-        (session_to_nwb_args,) = session_to_nwb_args_per_session
-        session_dict = read_medpc_file(
-            file_path=session_to_nwb_args["behavior_file_path"],
-            medpc_name_to_info_dict={"G": {"name": "port_entry_times", "is_array": True}},
-            session_conditions=session_to_nwb_args["session_conditions"],
-            start_variable="Start Date",
-        )
-        np.testing.assert_array_equal(session_dict["port_entry_times"], np.array([20.0]))
+        start_date_to_port_entry_times = {}
+        for session_to_nwb_args in session_to_nwb_args_per_session:
+            session_dict = read_medpc_file(
+                file_path=session_to_nwb_args["behavior_file_path"],
+                medpc_name_to_info_dict={"G": {"name": "port_entry_times", "is_array": True}},
+                session_conditions=session_to_nwb_args["session_conditions"],
+                start_variable="Start Date",
+            )
+            start_date_to_port_entry_times[session_to_nwb_args["session_conditions"]["Start Date"]] = session_dict[
+                "port_entry_times"
+            ]
+        assert sorted(start_date_to_port_entry_times) == ["07/30/20", "07/31/20"]
+        # the file's mouse's own run, not the other mouse's run listed first at the same start time
+        np.testing.assert_array_equal(start_date_to_port_entry_times["07/30/20"], np.array([20.0]))
+        # a run alone at its start time is kept whatever its Subject field says
+        np.testing.assert_array_equal(start_date_to_port_entry_times["07/31/20"], np.array([30.0]))
