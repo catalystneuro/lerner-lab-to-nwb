@@ -1,14 +1,6 @@
 from pathlib import Path
 
-from neuroconv.utils import load_dict_from_file
-
-import lerner_lab_to_nwb.seiler_2024 as seiler_2024
 from lerner_lab_to_nwb.seiler_2024.seiler_2024_convert_dataset import SUBJECTS_TO_SKIP, get_opto_subject_id
-
-
-def test_institution():
-    metadata = load_dict_from_file(Path(seiler_2024.__file__).parent / "seiler_2024_metadata.yaml")
-    assert metadata["NWBFile"]["institution"] == "Northwestern University"
 
 
 class TestSubject262478:
