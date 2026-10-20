@@ -155,9 +155,9 @@ class Seiler2024NWBConverter(NWBConverter):
             else:
                 ttl_timestamps = self.get_ttl_timestamps(ttl_name, tdt_photometry, len_behavior)
             if second_folder_path is not None:
-                ttl_timestamps2 = self.get_ttl_timestamps(ttl_name, tdt_photometry2, len_behavior)
-                t_end = 1 / tdt_photometry.streams["Dv1A"].fs * (len(tdt_photometry.streams["Dv1A"].data) - 1)
-                ttl_timestamps2 += t_end
+                ttl_timestamps2 = self.get_second_block_ttl_timestamps(
+                    ttl_name, tdt_photometry, tdt_photometry2, len_behavior
+                )
                 ttl_timestamps = np.concatenate((ttl_timestamps, ttl_timestamps2))
             session_dict[behavior_name] = ttl_timestamps
         if "MedPC" in self.data_interface_objects.keys():
@@ -168,6 +168,12 @@ class Seiler2024NWBConverter(NWBConverter):
         self.data_interface_objects[behavioral_interface].source_data["aligned_timestamp_names"] = list(
             session_dict.keys()
         )
+
+    def get_second_block_ttl_timestamps(self, ttl_name, tdt_photometry, tdt_photometry2, len_behavior):
+        """Get the TTL onsets of the second TDT block of a session, placed after the end of the first block."""
+        ttl_timestamps2 = self.get_ttl_timestamps(ttl_name, tdt_photometry2, len_behavior)
+        t_end = 1 / tdt_photometry.streams["Dv1A"].fs * (len(tdt_photometry.streams["Dv1A"].data) - 1)
+        return ttl_timestamps2 + t_end
 
     def get_ttl_timestamps(self, ttl_name, tdt_photometry, len_behavior):
         if ttl_name == "PrtN":

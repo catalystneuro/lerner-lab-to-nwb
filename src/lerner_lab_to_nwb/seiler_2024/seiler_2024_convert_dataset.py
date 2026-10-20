@@ -722,6 +722,8 @@ def opto_to_nwb(
                     )
                 ]
                 for subject_path in subject_paths:
+                    if subject_path.relative_to(opto_path).as_posix() == "DLS Excitatory/ChR2/290.407":
+                        continue  # CSV exports of 290.407's DMS Excitatory runs that are in the DLS files by date
                     subject_id = get_opto_subject_id(subject_path)
                     header_variables = get_opto_header_variables(subject_path=subject_path, subject_id=subject_id)
                     start_dates, start_times, msns, file_paths, subjects, box_numbers = header_variables
@@ -766,6 +768,9 @@ def opto_to_nwb(
     }
 
     # DLS Excitatory raw files by date
+    # 290.407 and 291.407 ran their first two days (09/23/20 and 09/24/20) on the DLS rig, but the demographics sheet
+    # and all of their later sessions put them in DMS Excitatory
+    dms_excitatory_subject_id_to_optogenetic_treatment = {"290.407": "ChR2Scrambled", "291.407": "EYFP"}
     raw_files_by_date_path = data_dir_path / "Opto Experiments" / "DLS Excitatory"
     start_dates, start_times, msns, file_paths, subjects, box_numbers = [], [], [], [], [], []
     for file in raw_files_by_date_path.iterdir():
@@ -801,6 +806,12 @@ def opto_to_nwb(
             subject = partial_subject_ids_to_subject_id[subject]
         if (subject, start_date, start_time) in subject_session_starts:
             continue  # already converted from the subject's own folder, which also gives the treatment
+        if subject in dms_excitatory_subject_id_to_optogenetic_treatment:
+            experimental_group = "DMS-Excitatory"
+            optogenetic_treatment = dms_excitatory_subject_id_to_optogenetic_treatment[subject]
+        else:
+            experimental_group = "DLS-Excitatory"
+            optogenetic_treatment = "Unknown"
         session_to_nwb_args = dict(
             data_dir_path=data_dir_path,
             output_dir_path=output_dir_path,
@@ -809,8 +820,8 @@ def opto_to_nwb(
             session_conditions=session_conditions,
             start_variable=start_variable,
             experiment_type=experiment_type,
-            experimental_group="DLS-Excitatory",
-            optogenetic_treatment="Unknown",
+            experimental_group=experimental_group,
+            optogenetic_treatment=optogenetic_treatment,
             stub_test=stub_test,
             verbose=verbose,
         )
