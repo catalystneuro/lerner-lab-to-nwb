@@ -84,6 +84,24 @@ MISFILED_RUN_TO_SUBJECT_ID = {  # (subject ID of the file, start date, start tim
     ("267.476", "10/28/21", "14:23:02"): "260.478",
 }
 
+# Runs that share a start time with another run in the same MedPC file, whose Subject field, box, and program match
+# the mouse they belong to
+UNLISTED_RUN_TO_SUBJECT_ID = {  # (file relative to data_dir_path, start date, start time, box): subject ID of the run
+    ("Opto Experiments/DMS Inhibitory/Group 1/Halo/123.411", "11/20/20", "13:43:03", "2"): "128.424",
+    ("Opto Experiments/DMS Inhibitory/Group 1/Halo/123.411", "11/20/20", "13:43:03", "6"): "437.422",
+    ("Opto Experiments/DMS Inhibitory/Group 2/Scrambled/2021-10-21_343", "10/21/21", "15:25:37", "5"): "268.476",
+    ("Opto Experiments/DMS Inhibitory/Group 2/Scrambled/2021-10-21_343", "10/21/21", "15:25:37", "4"): "259.478",
+    ("Opto Experiments/DMS Inhibitory/Group 2/Scrambled/2021-10-21_343", "10/21/21", "15:25:37", "6"): "270.476",
+    ("FP Experiments/Behavior/DPR/272.396/272.396", "07/28/20", "13:21:15", "4"): "334.394",
+    (
+        "Opto Experiments/DLS Excitatory/Scrambled/338/2020-09-07_09h08m_Subject 338.398",
+        "09/07/20",
+        "09:09:13",
+        "3",
+    ): "311.403",
+    ("Opto Experiments/DMS Excitatory/ChR2/121.280", "06/26/19", "14:16:57", "3"): "114.273",
+}
+
 
 def dataset_to_nwb(
     *,
@@ -123,8 +141,12 @@ def dataset_to_nwb(
         stub_test=stub_test,
         verbose=verbose,
     )
-    pre_skip_session_to_nwb_args_per_session = reassign_misfiled_runs(
-        fp_session_to_nwb_args_per_session + opto_session_to_nwb_args_per_session
+    pre_skip_session_to_nwb_args_per_session = add_unlisted_runs(
+        session_to_nwb_args_per_session=reassign_misfiled_runs(
+            fp_session_to_nwb_args_per_session + opto_session_to_nwb_args_per_session
+        ),
+        data_dir_path=data_dir_path,
+        unlisted_run_to_subject_id=UNLISTED_RUN_TO_SUBJECT_ID,
     )
     port_entry_duration_path = data_dir_path / "sessions_without_port_entry_durations.yaml"
     no_port_entry_duration_sessions = get_no_port_entry_duration_sessions(
@@ -278,6 +300,43 @@ def reassign_misfiled_runs(session_to_nwb_args_per_session: list[dict]) -> list[
             )
         reassigned_session_to_nwb_args_per_session.append(session_to_nwb_args)
     return reassigned_session_to_nwb_args_per_session
+
+
+def add_unlisted_runs(
+    *, session_to_nwb_args_per_session: list[dict], data_dir_path: Path, unlisted_run_to_subject_id: dict
+) -> list[dict]:
+    """Add a session for each run in unlisted_run_to_subject_id.
+
+    Each run takes the subject ID, experiment type, experimental group, and optogenetic treatment of a behavior-only
+    session of the mouse it belongs to.
+
+    Parameters
+    ----------
+    session_to_nwb_args_per_session : list[dict]
+        The arguments for session_to_nwb for each session.
+    data_dir_path : Path
+        The path to the directory containing the raw data.
+    unlisted_run_to_subject_id : dict
+        Maps (file relative to data_dir_path, start date, start time, box) of each run to the subject ID of the run.
+
+    Returns
+    -------
+    list[dict]
+        The arguments for session_to_nwb for each session, followed by the added runs.
+    """
+    subject_id_to_session_to_nwb_args = {}
+    for session_to_nwb_args in session_to_nwb_args_per_session:
+        if "fiber_photometry_folder_path" not in session_to_nwb_args:
+            subject_id_to_session_to_nwb_args.setdefault(session_to_nwb_args["subject_id"], session_to_nwb_args)
+    added_session_to_nwb_args_per_session = [
+        dict(
+            subject_id_to_session_to_nwb_args[subject_id],
+            behavior_file_path=data_dir_path / file_path,
+            session_conditions={"Start Date": start_date, "Start Time": start_time, "Box": box_number},
+        )
+        for (file_path, start_date, start_time, box_number), subject_id in unlisted_run_to_subject_id.items()
+    ]
+    return session_to_nwb_args_per_session + added_session_to_nwb_args_per_session
 
 
 def get_session_key_from_kwargs(session_to_nwb_kwargs: dict):

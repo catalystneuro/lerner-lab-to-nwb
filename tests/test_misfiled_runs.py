@@ -5,6 +5,7 @@ import pytest
 
 from lerner_lab_to_nwb.seiler_2024.medpc_helpers import read_medpc_file
 from lerner_lab_to_nwb.seiler_2024.seiler_2024_convert_dataset import (
+    add_unlisted_runs,
     opto_to_nwb,
     reassign_misfiled_runs,
     subject_field_refers_to_subject,
@@ -166,4 +167,42 @@ class TestReassignMisfiledRuns:
             ),
             own_run,
             other_mouse_run,
+        ]
+
+
+class TestAddUnlistedRuns:
+    def test_run_is_added_for_the_mouse_it_belongs_to(self, tmp_path):
+        # 334.394's run on 07/28/20 shares its start time with 272.396's run in 272.396's file
+        photometry_session = dict(
+            behavior_file_path=tmp_path / "FP Experiments/Behavior/DPR/334.394/334.394",
+            fiber_photometry_folder_path=tmp_path / "FP Experiments/Photometry/Photo_334_394-200727-131426",
+            subject_id="334.394",
+            session_conditions={"Start Date": "07/27/20", "Start Time": "13:14:26", "Box": "4"},
+            experiment_type="FP",
+            experimental_group="DPR",
+        )
+        behavior_session = dict(
+            behavior_file_path=tmp_path / "FP Experiments/Behavior/DPR/334.394/334.394",
+            subject_id="334.394",
+            session_conditions={"Start Date": "07/29/20", "Start Time": "11:35:37", "Box": "4"},
+            experiment_type="FP",
+            experimental_group="DPR",
+        )
+        session_to_nwb_args_per_session = add_unlisted_runs(
+            session_to_nwb_args_per_session=[photometry_session, behavior_session],
+            data_dir_path=tmp_path,
+            unlisted_run_to_subject_id={
+                ("FP Experiments/Behavior/DPR/272.396/272.396", "07/28/20", "13:21:15", "4"): "334.394"
+            },
+        )
+        assert session_to_nwb_args_per_session == [
+            photometry_session,
+            behavior_session,
+            dict(
+                behavior_file_path=tmp_path / "FP Experiments/Behavior/DPR/272.396/272.396",
+                subject_id="334.394",
+                session_conditions={"Start Date": "07/28/20", "Start Time": "13:21:15", "Box": "4"},
+                experiment_type="FP",
+                experimental_group="DPR",
+            ),
         ]
