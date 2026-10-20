@@ -17,9 +17,10 @@ def csv_file_path(tmp_path) -> Path:
     file_path.write_text(
         ",Start Date,End Date,Subject,Experiment,Group,Box,Start Time,End Time,MSN,"
         "LeftNoseTs,LeftRewardTs,RightNoseTs,RightRewardTs,DurationOfPE,portEntryTs,H\n"
-        "0,09/29/20,09/29/20,300.405,,,5,11:36:53,12:36:45,Footshock Degradation Left,15.2,15.2,0.85,,1.0,52.2,116.3\n"
-        "1,,,,,,,,,,31.65,31.65,14.2,,2.0,90.5,160.6\n"
-        "2,,,,,,,,,,43.0,43.0,,,2.0,120.0,0.0\n"
+        # The left program writes left rewards to MedPC array D, which is exported as RightRewardTs
+        "0,09/29/20,09/29/20,300.405,,,5,11:36:53,12:36:45,Footshock Degradation Left,15.2,,0.85,15.2,1.0,52.2,116.3\n"
+        "1,,,,,,,,,,31.65,,14.2,31.65,2.0,90.5,160.6\n"
+        "2,,,,,,,,,,43.0,,,43.0,2.0,120.0,0.0\n"
     )
     return file_path
 
@@ -33,14 +34,24 @@ def metadata(csv_file_path) -> dict:
     return metadata
 
 
+@pytest.fixture
+def nwbfile(csv_file_path, metadata) -> NWBFile:
+    interface = Seiler2024CSVBehaviorInterface(file_path=str(csv_file_path), verbose=False)
+    nwbfile = NWBFile(
+        session_description="test",
+        identifier="test",
+        session_start_time=datetime(2020, 9, 29, 11, 36, 53, tzinfo=ZoneInfo("America/Chicago")),
+    )
+    interface.add_to_nwbfile(nwbfile=nwbfile, metadata=metadata)
+    return nwbfile
+
+
 class TestSeiler2024CSVBehaviorInterface:
-    def test_footshock_times(self, csv_file_path, metadata):
-        interface = Seiler2024CSVBehaviorInterface(file_path=str(csv_file_path), verbose=False)
-        nwbfile = NWBFile(
-            session_description="test",
-            identifier="test",
-            session_start_time=datetime(2020, 9, 29, 11, 36, 53, tzinfo=ZoneInfo("America/Chicago")),
-        )
-        interface.add_to_nwbfile(nwbfile=nwbfile, metadata=metadata)
+    def test_footshock_times(self, nwbfile):
         footshock_times = nwbfile.processing["behavior"]["footshock_times"].timestamps
         np.testing.assert_array_equal(footshock_times, np.array([116.3, 160.6]))
+
+    def test_left_footshock_rewards_are_left_rewards(self, nwbfile):
+        left_reward_times = nwbfile.processing["behavior"]["left_reward_times"].timestamps
+        np.testing.assert_array_equal(left_reward_times, np.array([15.2, 31.65, 43.0]))
+        assert "right_reward_times" not in nwbfile.processing["behavior"].data_interfaces
