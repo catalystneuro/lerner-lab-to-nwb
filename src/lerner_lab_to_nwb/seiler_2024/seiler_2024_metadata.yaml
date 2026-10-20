@@ -138,11 +138,11 @@ MedPC:
       D: right_reward_times
       E: duration_of_port_entry
       G: reward_port_entry_times
-    Footshock Degradation Left:
+    Footshock Degradation Left:  # this program writes left rewards to D and never writes B
       A: left_nose_poke_times
-      B: left_reward_times
+      B: right_reward_times
       C: right_nose_poke_times
-      D: right_reward_times
+      D: left_reward_times
       E: duration_of_port_entry
       G: reward_port_entry_times
       H: footshock_times
