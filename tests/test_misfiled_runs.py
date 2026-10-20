@@ -4,7 +4,11 @@ import numpy as np
 import pytest
 
 from lerner_lab_to_nwb.seiler_2024.medpc_helpers import read_medpc_file
-from lerner_lab_to_nwb.seiler_2024.seiler_2024_convert_dataset import opto_to_nwb, subject_field_refers_to_subject
+from lerner_lab_to_nwb.seiler_2024.seiler_2024_convert_dataset import (
+    opto_to_nwb,
+    reassign_misfiled_runs,
+    subject_field_refers_to_subject,
+)
 
 TREATMENT_FOLDERS = [
     "DLS Excitatory/ChR2",
@@ -123,3 +127,43 @@ class TestOptoToNwb:
         np.testing.assert_array_equal(start_date_to_port_entry_times["07/30/20"], np.array([20.0]))
         # a run alone at its start time is kept whatever its Subject field says
         np.testing.assert_array_equal(start_date_to_port_entry_times["07/31/20"], np.array([30.0]))
+
+
+class TestReassignMisfiledRuns:
+    def test_run_is_assigned_to_the_mouse_it_belongs_to(self):
+        # 123.280's run on 07/18/19 is saved in 113.283's file
+        misfiled_run = dict(
+            behavior_file_path=Path("FP Experiments/Behavior/PS/113.283/113.283"),
+            subject_id="113.283",
+            session_conditions={"Start Date": "07/18/19", "Start Time": "12:36:46", "Box": "1"},
+            experiment_type="FP",
+            experimental_group="PS",
+        )
+        own_run = dict(
+            behavior_file_path=Path("FP Experiments/Behavior/PS/113.283/113.283"),
+            subject_id="113.283",
+            session_conditions={"Start Date": "07/18/19", "Start Time": "12:01:24", "Box": "4"},
+            experiment_type="FP",
+            experimental_group="PS",
+        )
+        other_mouse_run = dict(
+            behavior_file_path=Path("Opto Experiments/DMS Excitatory/EYFP/123.280"),
+            subject_id="123.280",
+            session_conditions={"Start Date": "07/17/19", "Start Time": "11:33:25", "Box": "1"},
+            experiment_type="Opto",
+            experimental_group="DMS-Excitatory",
+            optogenetic_treatment="EYFP",
+        )
+        session_to_nwb_args_per_session = reassign_misfiled_runs([misfiled_run, own_run, other_mouse_run])
+        assert session_to_nwb_args_per_session == [
+            dict(
+                behavior_file_path=Path("FP Experiments/Behavior/PS/113.283/113.283"),
+                subject_id="123.280",
+                session_conditions={"Start Date": "07/18/19", "Start Time": "12:36:46", "Box": "1"},
+                experiment_type="Opto",
+                experimental_group="DMS-Excitatory",
+                optogenetic_treatment="EYFP",
+            ),
+            own_run,
+            other_mouse_run,
+        ]

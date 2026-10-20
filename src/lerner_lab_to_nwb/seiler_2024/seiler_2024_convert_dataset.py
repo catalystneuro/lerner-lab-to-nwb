@@ -74,6 +74,16 @@ SUBJECTS_TO_SKIP = {  # subject IDs that are not in the demographics sheet
     "364.426",
 }
 
+# Runs saved in another mouse's MedPC file, whose Subject field, box, and program match the mouse they belong to
+MISFILED_RUN_TO_SUBJECT_ID = {  # (subject ID of the file, start date, start time): subject ID of the run
+    ("113.283", "07/18/19", "12:36:46"): "123.280",
+    ("322.415", "10/26/20", "11:48:23"): "321.415",
+    ("123.411", "11/20/20", "13:43:03"): "441.424",
+    ("429.419", "11/20/20", "13:43:53"): "130.425",
+    ("343.483", "10/21/21", "15:25:37"): "262.478",
+    ("267.476", "10/28/21", "14:23:02"): "260.478",
+}
+
 
 def dataset_to_nwb(
     *,
@@ -113,7 +123,9 @@ def dataset_to_nwb(
         stub_test=stub_test,
         verbose=verbose,
     )
-    pre_skip_session_to_nwb_args_per_session = fp_session_to_nwb_args_per_session + opto_session_to_nwb_args_per_session
+    pre_skip_session_to_nwb_args_per_session = reassign_misfiled_runs(
+        fp_session_to_nwb_args_per_session + opto_session_to_nwb_args_per_session
+    )
     port_entry_duration_path = data_dir_path / "sessions_without_port_entry_durations.yaml"
     no_port_entry_duration_sessions = get_no_port_entry_duration_sessions(
         port_entry_file_path=port_entry_duration_path,
@@ -230,6 +242,42 @@ def get_no_port_entry_duration_sessions(
     with open(port_entry_file_path, mode="w") as f:
         yaml.dump(no_port_entry_duration_sessions, f)
     return no_port_entry_duration_sessions
+
+
+def reassign_misfiled_runs(session_to_nwb_args_per_session: list[dict]) -> list[dict]:
+    """Assign each run in MISFILED_RUN_TO_SUBJECT_ID to the mouse it belongs to.
+
+    The run keeps its behavior file and session conditions, and takes the subject ID, experiment type, experimental
+    group, and optogenetic treatment of that mouse's other sessions.
+
+    Parameters
+    ----------
+    session_to_nwb_args_per_session : list[dict]
+        The arguments for session_to_nwb for each session.
+
+    Returns
+    -------
+    list[dict]
+        The arguments for session_to_nwb for each session, with the misfiled runs reassigned.
+    """
+    subject_id_to_session_to_nwb_args = {}
+    for session_to_nwb_args in session_to_nwb_args_per_session:
+        subject_id_to_session_to_nwb_args.setdefault(session_to_nwb_args["subject_id"], session_to_nwb_args)
+    reassigned_session_to_nwb_args_per_session = []
+    for session_to_nwb_args in session_to_nwb_args_per_session:
+        run = (
+            session_to_nwb_args["subject_id"],
+            session_to_nwb_args["session_conditions"]["Start Date"],
+            session_to_nwb_args["session_conditions"]["Start Time"],
+        )
+        if run in MISFILED_RUN_TO_SUBJECT_ID:
+            session_to_nwb_args = dict(
+                subject_id_to_session_to_nwb_args[MISFILED_RUN_TO_SUBJECT_ID[run]],
+                behavior_file_path=session_to_nwb_args["behavior_file_path"],
+                session_conditions=session_to_nwb_args["session_conditions"],
+            )
+        reassigned_session_to_nwb_args_per_session.append(session_to_nwb_args)
+    return reassigned_session_to_nwb_args_per_session
 
 
 def get_session_key_from_kwargs(session_to_nwb_kwargs: dict):
