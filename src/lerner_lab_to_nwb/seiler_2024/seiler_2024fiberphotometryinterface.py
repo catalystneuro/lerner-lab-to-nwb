@@ -23,6 +23,17 @@ import os
 from contextlib import redirect_stdout
 from typing import Optional
 
+# Stereotaxic coordinates (AP, ML, DV) in mm from the Methods of Seiler et al. 2022
+DMS_FIBER_COORDINATES_IN_MM = (0.8, 1.5, -2.8)
+DLS_FIBER_COORDINATES_IN_MM = (-0.1, 2.8, -3.5)
+MEDIAL_SNC_INJECTION_COORDINATES_IN_MM = (-3.1, 0.8, -4.7)
+LATERAL_SNC_INJECTION_COORDINATES_IN_MM = (-3.1, 1.3, -4.2)
+INDICATOR_DESCRIPTION = (
+    "Mice for fiber photometry experiments received infusions of 1 μl of AAV5-CAG-FLEX-jGCaMP7b-WPRE (1.02e13 vg/mL, "
+    "Addgene, lot 18-429) into lateral SNc (AP -3.1, ML 1.3, DV -4.2) in one hemisphere and medial SNc (AP -3.1, "
+    "ML 0.8, DV -4.7) in the other. Hemispheres were counterbalanced between mice."
+)
+
 
 class Seiler2024FiberPhotometryInterface(BaseDataInterface):
     """Fiber Photometry interface for seiler_2024 conversion."""
@@ -85,7 +96,7 @@ class Seiler2024FiberPhotometryInterface(BaseDataInterface):
         # Optical Fibers
         optical_fiber = OpticalFiber(
             name="optical_fiber",
-            description="Fiber optic implants (Doric Lenses; 400 um, 0.48 NA) were placed above DMS (AP 0.8, ML 1.5, DV 2.8) and DLS (AP 0.1, ML 2.8, DV 3.5). The DMS implant was placed in the hemisphere receiving a medial SNc viral injection, while the DLS implant was placed in the hemisphere receiving a lateral SNc viral injection. Calcium signals from dopamine terminals in DMS and DLS were recorded during RI30, on the first and last days of RI60/RR20 training as well as on both footshock probes for each mouse. All recordings were done using a fiber photometry rig with optical components from Doric lenses controlled by a real-time processor from Tucker Davis Technologies (TDT; RZ5P). TDT Synapse software was used for data acquisition.",
+            description="Fiber optic implants (Doric Lenses; 400 um, 0.48 NA) were placed above DMS (AP 0.8, ML 1.5, DV -2.8) and DLS (AP -0.1, ML 2.8, DV -3.5). The DMS implant was placed in the hemisphere receiving a medial SNc viral injection, while the DLS implant was placed in the hemisphere receiving a lateral SNc viral injection. Calcium signals from dopamine terminals in DMS and DLS were recorded during RI30, on the first and last days of RI60/RR20 training as well as on both footshock probes for each mouse. All recordings were done using a fiber photometry rig with optical components from Doric lenses controlled by a real-time processor from Tucker Davis Technologies (TDT; RZ5P). TDT Synapse software was used for data acquisition.",
             manufacturer="Doric Lenses",
             model="Fiber Optic Implant",
             numerical_aperture=0.48,
@@ -161,19 +172,19 @@ class Seiler2024FiberPhotometryInterface(BaseDataInterface):
         # Indicators (aka Fluorophores)
         dms_green_fluorophore = Indicator(
             name="dms_green_fluorophore",
-            description="Mice for fiber photometry experiments received infusions of 1ml of AAV5-CAG-FLEX-jGCaMP7b-WPRE (1.02e13 vg/mL, Addgene, lot 18-429) into lateral SNc (AP 3.1, ML 1.3, DV 4.2) in one hemisphere and medial SNc (AP 3.1, ML 0.8, DV 4.7) in the other. Hemispheres were counterbalanced between mice.",
+            description=INDICATOR_DESCRIPTION,
             manufacturer="Addgene",
             label="GCaMP7b",
             injection_location="medial SNc",
-            injection_coordinates_in_mm=(3.1, 0.8, 4.7),
+            injection_coordinates_in_mm=MEDIAL_SNC_INJECTION_COORDINATES_IN_MM,
         )
         dls_green_fluorophore = Indicator(
             name="dls_green_fluorophore",
-            description="Mice for fiber photometry experiments received infusions of 1ml of AAV5-CAG-FLEX-jGCaMP7b-WPRE (1.02e13 vg/mL, Addgene, lot 18-429) into lateral SNc (AP 3.1, ML 1.3, DV 4.2) in one hemisphere and medial SNc (AP 3.1, ML 0.8, DV 4.7) in the other. Hemispheres were counterbalanced between mice.",
+            description=INDICATOR_DESCRIPTION,
             manufacturer="Addgene",
             label="GCaMP7b",
             injection_location="lateral SNc",
-            injection_coordinates_in_mm=(3.1, 1.3, 4.2),
+            injection_coordinates_in_mm=LATERAL_SNC_INJECTION_COORDINATES_IN_MM,
         )
 
         # Commanded Voltage Series
@@ -268,12 +279,12 @@ class Seiler2024FiberPhotometryInterface(BaseDataInterface):
         # Fiber Photometry Table
         fiber_photometry_table = FiberPhotometryTable(
             name="fiber_photometry_table",
-            description="Fiber optic implants (Doric Lenses; 400 um, 0.48 NA) were placed above DMS (AP 0.8, ML 1.5, DV 2.8) and DLS (AP 0.1, ML 2.8, DV 3.5). The DMS implant was placed in the hemisphere receiving a medial SNc viral injection, while the DLS implant was placed in the hemisphere receiving a lateral SNc viral injection. Calcium signals from dopamine terminals in DMS and DLS were recorded during RI30, on the first and last days of RI60/RR20 training as well as on both footshock probes for each mouse. All recordings were done using a fiber photometry rig with optical components from Doric lenses controlled by a real-time processor from Tucker Davis Technologies (TDT; RZ5P). TDT Synapse software was used for data acquisition.",
+            description="Fiber optic implants (Doric Lenses; 400 um, 0.48 NA) were placed above DMS (AP 0.8, ML 1.5, DV -2.8) and DLS (AP -0.1, ML 2.8, DV -3.5). The DMS implant was placed in the hemisphere receiving a medial SNc viral injection, while the DLS implant was placed in the hemisphere receiving a lateral SNc viral injection. Calcium signals from dopamine terminals in DMS and DLS were recorded during RI30, on the first and last days of RI60/RR20 training as well as on both footshock probes for each mouse. All recordings were done using a fiber photometry rig with optical components from Doric lenses controlled by a real-time processor from Tucker Davis Technologies (TDT; RZ5P). TDT Synapse software was used for data acquisition.",
         )
         if has_demodulated_commanded_voltages:
             fiber_photometry_table.add_row(
                 location="DMS",
-                coordinates=(0.8, 1.5, 2.8),
+                coordinates=DMS_FIBER_COORDINATES_IN_MM,
                 commanded_voltage_series=commanded_voltage_series_dms_calcium_signal,
                 indicator=dms_green_fluorophore,
                 optical_fiber=optical_fiber,
@@ -285,7 +296,7 @@ class Seiler2024FiberPhotometryInterface(BaseDataInterface):
             )
             fiber_photometry_table.add_row(
                 location="DMS",
-                coordinates=(0.8, 1.5, 2.8),
+                coordinates=DMS_FIBER_COORDINATES_IN_MM,
                 commanded_voltage_series=commanded_voltage_series_dms_isosbestic_control,
                 indicator=dms_green_fluorophore,
                 optical_fiber=optical_fiber,
@@ -297,7 +308,7 @@ class Seiler2024FiberPhotometryInterface(BaseDataInterface):
             )
             fiber_photometry_table.add_row(
                 location="DLS",
-                coordinates=(0.1, 2.8, 3.5),
+                coordinates=DLS_FIBER_COORDINATES_IN_MM,
                 commanded_voltage_series=commanded_voltage_series_dls_calcium_signal,
                 indicator=dls_green_fluorophore,
                 optical_fiber=optical_fiber,
@@ -309,7 +320,7 @@ class Seiler2024FiberPhotometryInterface(BaseDataInterface):
             )
             fiber_photometry_table.add_row(
                 location="DLS",
-                coordinates=(0.1, 2.8, 3.5),
+                coordinates=DLS_FIBER_COORDINATES_IN_MM,
                 commanded_voltage_series=commanded_voltage_series_dls_isosbestic_control,
                 indicator=dls_green_fluorophore,
                 optical_fiber=optical_fiber,
@@ -322,7 +333,7 @@ class Seiler2024FiberPhotometryInterface(BaseDataInterface):
         else:
             fiber_photometry_table.add_row(
                 location="DMS",
-                coordinates=(0.8, 1.5, 2.8),
+                coordinates=DMS_FIBER_COORDINATES_IN_MM,
                 commanded_voltage_series=commanded_voltage_series_dms,
                 indicator=dms_green_fluorophore,
                 optical_fiber=optical_fiber,
@@ -334,7 +345,7 @@ class Seiler2024FiberPhotometryInterface(BaseDataInterface):
             )
             fiber_photometry_table.add_row(
                 location="DMS",
-                coordinates=(0.8, 1.5, 2.8),
+                coordinates=DMS_FIBER_COORDINATES_IN_MM,
                 commanded_voltage_series=commanded_voltage_series_dms,
                 indicator=dms_green_fluorophore,
                 optical_fiber=optical_fiber,
@@ -346,7 +357,7 @@ class Seiler2024FiberPhotometryInterface(BaseDataInterface):
             )
             fiber_photometry_table.add_row(
                 location="DLS",
-                coordinates=(0.1, 2.8, 3.5),
+                coordinates=DLS_FIBER_COORDINATES_IN_MM,
                 commanded_voltage_series=commanded_voltage_series_dls,
                 indicator=dls_green_fluorophore,
                 optical_fiber=optical_fiber,
@@ -358,7 +369,7 @@ class Seiler2024FiberPhotometryInterface(BaseDataInterface):
             )
             fiber_photometry_table.add_row(
                 location="DLS",
-                coordinates=(0.1, 2.8, 3.5),
+                coordinates=DLS_FIBER_COORDINATES_IN_MM,
                 commanded_voltage_series=commanded_voltage_series_dls,
                 indicator=dls_green_fluorophore,
                 optical_fiber=optical_fiber,
