@@ -60,28 +60,27 @@ class Seiler2024FiberPhotometryInterface(BaseDataInterface):
                 tdt_photometry = read_block(str(folder_path))
             else:
                 tdt_photometry = read_block(str(folder_path), t2=t2)
+            tdt_blocks = [tdt_photometry]
             if second_folder_path is not None:
-                tdt_photometry2 = read_block(str(second_folder_path))
-                tdt_photometry.streams["Dv1A"].data = np.concatenate(
-                    [tdt_photometry.streams["Dv1A"].data, tdt_photometry2.streams["Dv1A"].data], axis=0
-                )
-                tdt_photometry.streams["Dv2A"].data = np.concatenate(
-                    [tdt_photometry.streams["Dv2A"].data, tdt_photometry2.streams["Dv2A"].data], axis=0
-                )
-                tdt_photometry.streams["Dv3B"].data = np.concatenate(
-                    [tdt_photometry.streams["Dv3B"].data, tdt_photometry2.streams["Dv3B"].data], axis=0
-                )
-                tdt_photometry.streams["Dv4B"].data = np.concatenate(
-                    [tdt_photometry.streams["Dv4B"].data, tdt_photometry2.streams["Dv4B"].data], axis=0
-                )
-                if has_demodulated_commanded_voltages:
-                    tdt_photometry.streams["Fi1d"].data = np.concatenate(
-                        [tdt_photometry.streams["Fi1d"].data, tdt_photometry2.streams["Fi1d"].data], axis=1
-                    )
-                else:
-                    tdt_photometry.streams["Fi1r"].data = np.concatenate(
-                        [tdt_photometry.streams["Fi1r"].data, tdt_photometry2.streams["Fi1r"].data], axis=1
-                    )
+                tdt_blocks.append(read_block(str(second_folder_path)))
+
+        # Sessions split across blocks are joined with each block placed at its own start time
+        block_start_times = get_block_start_times(tdt_blocks)
+        commanded_voltage_stream_name = "Fi1d" if has_demodulated_commanded_voltages else "Fi1r"
+        stream_name_to_timing_kwargs = {}
+        for stream_name in ("Dv1A", "Dv2A", "Dv3B", "Dv4B", commanded_voltage_stream_name):
+            rate = tdt_photometry.streams[stream_name].fs
+            if len(tdt_blocks) == 1:
+                stream_name_to_timing_kwargs[stream_name] = dict(starting_time=0.0, rate=rate)
+                continue
+            timestamps = [
+                block_start_time + np.arange(tdt_block.streams[stream_name].data.shape[-1]) / rate
+                for tdt_block, block_start_time in zip(tdt_blocks, block_start_times)
+            ]
+            stream_name_to_timing_kwargs[stream_name] = dict(timestamps=np.concatenate(timestamps))
+            tdt_photometry.streams[stream_name].data = np.concatenate(
+                [tdt_block.streams[stream_name].data for tdt_block in tdt_blocks], axis=-1
+            )
 
         # Optical Fibers
         optical_fiber = OpticalFiber(
@@ -185,8 +184,7 @@ class Seiler2024FiberPhotometryInterface(BaseDataInterface):
                 data=tdt_photometry.streams["Fi1d"].data[0, :],
                 unit="volts",
                 frequency=211.0,
-                starting_time=0.0,
-                rate=tdt_photometry.streams["Fi1d"].fs,
+                **stream_name_to_timing_kwargs["Fi1d"],
             )
             commanded_voltage_series_dms_isosbestic_control = CommandedVoltageSeries(
                 name="commanded_voltage_series_dms_isosbestic_control",
@@ -194,8 +192,7 @@ class Seiler2024FiberPhotometryInterface(BaseDataInterface):
                 data=tdt_photometry.streams["Fi1d"].data[1, :],
                 unit="volts",
                 frequency=330.0,
-                starting_time=0.0,
-                rate=tdt_photometry.streams["Fi1d"].fs,
+                **stream_name_to_timing_kwargs["Fi1d"],
             )
             commanded_voltage_series_dls_calcium_signal = CommandedVoltageSeries(
                 name="commanded_voltage_series_dls_calcium_signal",
@@ -203,8 +200,7 @@ class Seiler2024FiberPhotometryInterface(BaseDataInterface):
                 data=tdt_photometry.streams["Fi1d"].data[2, :],
                 unit="volts",
                 frequency=450.0,
-                starting_time=0.0,
-                rate=tdt_photometry.streams["Fi1d"].fs,
+                **stream_name_to_timing_kwargs["Fi1d"],
             )
             commanded_voltage_series_dls_isosbestic_control = CommandedVoltageSeries(
                 name="commanded_voltage_series_dls_isosbestic_control",
@@ -212,8 +208,7 @@ class Seiler2024FiberPhotometryInterface(BaseDataInterface):
                 data=tdt_photometry.streams["Fi1d"].data[3, :],
                 unit="volts",
                 frequency=270.0,
-                starting_time=0.0,
-                rate=tdt_photometry.streams["Fi1d"].fs,
+                **stream_name_to_timing_kwargs["Fi1d"],
             )
         elif tdt_photometry.streams["Fi1r"].data.shape[0] == 6:
             has_demodulated_commanded_voltages = (
@@ -225,8 +220,7 @@ class Seiler2024FiberPhotometryInterface(BaseDataInterface):
                 data=tdt_photometry.streams["Fi1r"].data[0, :],
                 unit="volts",
                 frequency=211.0,
-                starting_time=0.0,
-                rate=tdt_photometry.streams["Fi1r"].fs,
+                **stream_name_to_timing_kwargs["Fi1r"],
             )
             commanded_voltage_series_dms_isosbestic_control = CommandedVoltageSeries(
                 name="commanded_voltage_series_dms_isosbestic_control",
@@ -234,17 +228,15 @@ class Seiler2024FiberPhotometryInterface(BaseDataInterface):
                 data=tdt_photometry.streams["Fi1r"].data[1, :],
                 unit="volts",
                 frequency=330.0,
-                starting_time=0.0,
-                rate=tdt_photometry.streams["Fi1r"].fs,
+                **stream_name_to_timing_kwargs["Fi1r"],
             )
             commanded_voltage_series_dls_calcium_signal = CommandedVoltageSeries(
                 name="commanded_voltage_series_dls_calcium_signal",
                 description="The commanded voltage for the DLS calcium signal.",
                 data=tdt_photometry.streams["Fi1r"].data[2, :],
                 unit="volts",
-                starting_time=0.0,
+                **stream_name_to_timing_kwargs["Fi1r"],
                 frequency=450.0,
-                rate=tdt_photometry.streams["Fi1r"].fs,
             )
             commanded_voltage_series_dls_isosbestic_control = CommandedVoltageSeries(
                 name="commanded_voltage_series_dls_isosbestic_control",
@@ -252,8 +244,7 @@ class Seiler2024FiberPhotometryInterface(BaseDataInterface):
                 data=tdt_photometry.streams["Fi1r"].data[3, :],
                 unit="volts",
                 frequency=270.0,
-                starting_time=0.0,
-                rate=tdt_photometry.streams["Fi1r"].fs,
+                **stream_name_to_timing_kwargs["Fi1r"],
             )
         else:
             assert (
@@ -264,16 +255,14 @@ class Seiler2024FiberPhotometryInterface(BaseDataInterface):
                 description="The commanded voltage for the frequency-modulated DMS calcium signal and DMS isosbestic control.",
                 data=tdt_photometry.streams["Fi1r"].data[0, :],
                 unit="volts",
-                starting_time=0.0,
-                rate=tdt_photometry.streams["Fi1r"].fs,
+                **stream_name_to_timing_kwargs["Fi1r"],
             )
             commanded_voltage_series_dls = CommandedVoltageSeries(
                 name="commanded_voltage_series_dls",
                 description="The commanded voltage for the frequency-modulated DLS calcium signal and DLS isosbestic control.",
                 data=tdt_photometry.streams["Fi1r"].data[1, :],
                 unit="volts",
-                starting_time=0.0,
-                rate=tdt_photometry.streams["Fi1r"].fs,
+                **stream_name_to_timing_kwargs["Fi1r"],
             )
 
         # Fiber Photometry Table
@@ -402,7 +391,7 @@ class Seiler2024FiberPhotometryInterface(BaseDataInterface):
             description="The fluorescence from the DMS calcium signal, DMS isosbestic control, DLS calcium signal, and DLS isosbestic control.",
             data=fiber_photometry_data,
             unit="a.u.",
-            rate=tdt_photometry.streams["Dv1A"].fs,
+            **stream_name_to_timing_kwargs["Dv1A"],
             fiber_photometry_table_region=fiber_photometry_table_region,
         )
 
@@ -426,3 +415,20 @@ class Seiler2024FiberPhotometryInterface(BaseDataInterface):
             nwbfile.add_acquisition(commanded_voltage_series_dls)
         nwbfile.add_lab_meta_data(fiber_photometry_table_metadata)
         nwbfile.add_acquisition(fiber_photometry_response_series)
+
+
+def get_block_start_times(tdt_blocks: list) -> list[float]:
+    """Get the start time of each TDT block in seconds relative to the start of the first block.
+
+    Parameters
+    ----------
+    tdt_blocks : list
+        The TDT blocks of a session, in recording order, as returned by tdt.read_block.
+
+    Returns
+    -------
+    list[float]
+        The start time of each block relative to the first block.
+    """
+    first_start_date = tdt_blocks[0].info.start_date
+    return [(tdt_block.info.start_date - first_start_date).total_seconds() for tdt_block in tdt_blocks]

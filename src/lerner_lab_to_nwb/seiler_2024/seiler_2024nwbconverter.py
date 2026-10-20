@@ -13,6 +13,7 @@ from lerner_lab_to_nwb.seiler_2024 import (
 )
 from .medpcdatainterface import MedPCInterface
 from .medpc_helpers import read_medpc_file
+from .seiler_2024fiberphotometryinterface import get_block_start_times
 import numpy as np
 import pandas as pd
 from tdt import read_block
@@ -94,8 +95,9 @@ class Seiler2024NWBConverter(NWBConverter):
                 tdt_photometry = read_block(folder_path)
             else:
                 tdt_photometry = read_block(folder_path, t2=t2)
+            tdt_blocks = [tdt_photometry]
             if second_folder_path is not None:
-                tdt_photometry2 = read_block(second_folder_path)
+                tdt_blocks.append(read_block(second_folder_path))
 
         # Aggregate TTLs and Behavior Timestamps
         right_ttl_names_to_behavior_names = {
@@ -139,27 +141,13 @@ class Seiler2024NWBConverter(NWBConverter):
         else:
             raise ValueError(f"MSN ({msn}) does not indicate appropriate TTLs for alignment.")
 
-        if folder_path.name == "Photo_332_393-200728-122403":
-            ttl_names_to_behavior_names = {  # This special session only has 2 TTLs bc it is split into 2 folders
-                "RNnR": "right_nose_poke_times",
-                "PrtN": "reward_port_entry_times",
-            }
         for ttl_name, behavior_name in ttl_names_to_behavior_names.items():
             if ttl_name == "Sock" and "ShockProbe" not in metadata["NWBFile"]["session_id"]:
                 continue  # If the session is not a shock probe session the tdt file will not have the appropriate TTL
             if len(session_dict[behavior_name]) == 0:
                 continue  # If behavior is not present the tdt file will not have the appropriate TTL
             len_behavior = len(session_dict[behavior_name])
-            if folder_path.name == "Photo_332_393-200728-122403":
-                ttl_timestamps = tdt_photometry.epocs[ttl_name].onset
-            else:
-                ttl_timestamps = self.get_ttl_timestamps(ttl_name, tdt_photometry, len_behavior)
-            if second_folder_path is not None:
-                ttl_timestamps2 = self.get_second_block_ttl_timestamps(
-                    ttl_name, tdt_photometry, tdt_photometry2, len_behavior
-                )
-                ttl_timestamps = np.concatenate((ttl_timestamps, ttl_timestamps2))
-            session_dict[behavior_name] = ttl_timestamps
+            session_dict[behavior_name] = self.get_session_ttl_timestamps(ttl_name, tdt_blocks, len_behavior)
         if "MedPC" in self.data_interface_objects.keys():
             behavioral_interface = "MedPC"
         elif "Behavior" in self.data_interface_objects.keys():
@@ -169,11 +157,21 @@ class Seiler2024NWBConverter(NWBConverter):
             session_dict.keys()
         )
 
-    def get_second_block_ttl_timestamps(self, ttl_name, tdt_photometry, tdt_photometry2, len_behavior):
-        """Get the TTL onsets of the second TDT block of a session, placed after the end of the first block."""
-        ttl_timestamps2 = self.get_ttl_timestamps(ttl_name, tdt_photometry2, len_behavior)
-        t_end = 1 / tdt_photometry.streams["Dv1A"].fs * (len(tdt_photometry.streams["Dv1A"].data) - 1)
-        return ttl_timestamps2 + t_end
+    def get_session_ttl_timestamps(self, ttl_name, tdt_blocks, len_behavior):
+        """Get the TTL onsets of a session recorded in one or more TDT blocks.
+
+        Onsets are in seconds from the start of the first block. Behavior counts cover the whole session, so when the
+        session spans several blocks, each block's TTLs are taken without checking them against len_behavior.
+        """
+        if len(tdt_blocks) == 1:
+            return self.get_ttl_timestamps(ttl_name, tdt_blocks[0], len_behavior)
+        return np.concatenate(
+            [
+                self.get_ttl_timestamps(ttl_name, tdt_block, len_behavior=None) + block_start_time
+                for tdt_block, block_start_time in zip(tdt_blocks, get_block_start_times(tdt_blocks))
+                if ttl_name == "PrtN" or ttl_name in tdt_block.epocs.keys()
+            ]
+        )
 
     def get_ttl_timestamps(self, ttl_name, tdt_photometry, len_behavior):
         if ttl_name == "PrtN":
@@ -187,19 +185,20 @@ class Seiler2024NWBConverter(NWBConverter):
             ttl_timestamps = np.sort(ttl_timestamps)
         elif ttl_name == "RNnR" or ttl_name == "LNnR" and len(tdt_photometry.epocs[ttl_name].onset) != len_behavior:
             rewarded_ttl_name = ttl_name[:2] + "RW"  # RNRW or LNRW
-            if (
-                len(tdt_photometry.epocs[ttl_name].onset) + len(tdt_photometry.epocs[rewarded_ttl_name].onset)
-                == len_behavior
-            ):
+            if rewarded_ttl_name in tdt_photometry.epocs.keys():
+                rewarded_onsets = tdt_photometry.epocs[rewarded_ttl_name].onset
+            else:  # no rewards in this block
+                rewarded_onsets = np.array([])
+            if len(tdt_photometry.epocs[ttl_name].onset) + len(rewarded_onsets) == len_behavior:
                 ttl_timestamps = []
                 for timestamp in tdt_photometry.epocs[ttl_name].onset:
                     ttl_timestamps.append(timestamp)
-                for timestamp in tdt_photometry.epocs[rewarded_ttl_name].onset:
+                for timestamp in rewarded_onsets:
                     ttl_timestamps.append(timestamp)
                 ttl_timestamps = np.sort(ttl_timestamps)
             else:  # TTLs and behavior do not match
                 NnR_has_all_nose_pokes = all_close_contains(
-                    query_array=tdt_photometry.epocs[rewarded_ttl_name].onset,
+                    query_array=rewarded_onsets,
                     target_array=tdt_photometry.epocs[ttl_name].onset,
                     tolerance=0.1,
                 )
@@ -209,7 +208,7 @@ class Seiler2024NWBConverter(NWBConverter):
                     ttl_timestamps = []
                     for timestamp in tdt_photometry.epocs[ttl_name].onset:
                         ttl_timestamps.append(timestamp)
-                    for timestamp in tdt_photometry.epocs[rewarded_ttl_name].onset:
+                    for timestamp in rewarded_onsets:
                         ttl_timestamps.append(timestamp)
                     ttl_timestamps = np.sort(ttl_timestamps)
         else:
