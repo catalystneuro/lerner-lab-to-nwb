@@ -28,6 +28,11 @@ DMS_FIBER_COORDINATES_IN_MM = (0.8, 1.5, -2.8)
 DLS_FIBER_COORDINATES_IN_MM = (-0.1, 2.8, -3.5)
 MEDIAL_SNC_INJECTION_COORDINATES_IN_MM = (-3.1, 0.8, -4.7)
 LATERAL_SNC_INJECTION_COORDINATES_IN_MM = (-3.1, 1.3, -4.2)
+INDICATOR_DESCRIPTION = (
+    "Mice for fiber photometry experiments received infusions of 1 μl of AAV5-CAG-FLEX-jGCaMP7b-WPRE (1.02e13 vg/mL, "
+    "Addgene, lot 18-429) into lateral SNc (AP -3.1, ML 1.3, DV -4.2) in one hemisphere and medial SNc (AP -3.1, "
+    "ML 0.8, DV -4.7) in the other. Hemispheres were counterbalanced between mice."
+)
 
 
 class Seiler2024FiberPhotometryInterface(BaseDataInterface):
@@ -167,7 +172,7 @@ class Seiler2024FiberPhotometryInterface(BaseDataInterface):
         # Indicators (aka Fluorophores)
         dms_green_fluorophore = Indicator(
             name="dms_green_fluorophore",
-            description="Mice for fiber photometry experiments received infusions of 1ml of AAV5-CAG-FLEX-jGCaMP7b-WPRE (1.02e13 vg/mL, Addgene, lot 18-429) into lateral SNc (AP -3.1, ML 1.3, DV -4.2) in one hemisphere and medial SNc (AP -3.1, ML 0.8, DV -4.7) in the other. Hemispheres were counterbalanced between mice.",
+            description=INDICATOR_DESCRIPTION,
             manufacturer="Addgene",
             label="GCaMP7b",
             injection_location="medial SNc",
@@ -175,7 +180,7 @@ class Seiler2024FiberPhotometryInterface(BaseDataInterface):
         )
         dls_green_fluorophore = Indicator(
             name="dls_green_fluorophore",
-            description="Mice for fiber photometry experiments received infusions of 1ml of AAV5-CAG-FLEX-jGCaMP7b-WPRE (1.02e13 vg/mL, Addgene, lot 18-429) into lateral SNc (AP -3.1, ML 1.3, DV -4.2) in one hemisphere and medial SNc (AP -3.1, ML 0.8, DV -4.7) in the other. Hemispheres were counterbalanced between mice.",
+            description=INDICATOR_DESCRIPTION,
             manufacturer="Addgene",
             label="GCaMP7b",
             injection_location="lateral SNc",
