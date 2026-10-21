@@ -67,6 +67,18 @@ MedPC:
       onset_name: reward_port_entry_times
       duration_name: duration_of_port_entry
 
+  Counters:
+    - name: left_nose_pokes
+      description: Number of left nose pokes counted by the MedPC program over the session
+    - name: left_rewards
+      description: Number of left rewards counted by the MedPC program over the session
+    - name: right_nose_pokes
+      description: Number of right nose pokes counted by the MedPC program over the session
+    - name: right_rewards
+      description: Number of right rewards counted by the MedPC program over the session
+    - name: reward_port_entries
+      description: Number of reward port entries counted by the MedPC program over the session
+
   msn_to_medpc_name_to_output_name:
     20sOmissions_TTL:
       A: left_nose_poke_times
@@ -306,6 +318,196 @@ MedPC:
       E: duration_of_port_entry
       G: reward_port_entry_times
       H: footshock_times
+
+  msn_to_medpc_name_to_counter_name:
+    20sOmissions_TTL:
+      O: right_rewards
+      P: reward_port_entries
+      R: right_nose_pokes
+      S: left_rewards
+      W: left_nose_pokes
+    20sOmissions:
+      O: right_rewards
+      P: reward_port_entries
+      R: right_nose_pokes
+      S: left_rewards
+      W: left_nose_pokes
+    FOOD_FR1 Habit Training TTL:
+      O: right_rewards
+      P: reward_port_entries
+      R: right_nose_pokes
+      S: left_rewards
+      W: left_nose_pokes
+    FOOD_FR1 HT TTL (Both):
+      O: right_rewards
+      P: reward_port_entries
+      R: right_nose_pokes
+      S: left_rewards
+      W: left_nose_pokes
+    FOOD_FR1 TTL Left:
+      O: right_rewards
+      P: reward_port_entries
+      R: right_nose_pokes
+      S: left_rewards
+      W: left_nose_pokes
+    FOOD_FR1 TTL Right:
+      O: right_rewards
+      P: reward_port_entries
+      R: right_nose_pokes
+      S: left_rewards
+      W: left_nose_pokes
+    FOOD_RI 30 LEFT:
+      O: right_rewards
+      P: reward_port_entries
+      R: right_nose_pokes
+      S: left_rewards
+      W: left_nose_pokes
+    FOOD_RI 30 RIGHT TTL:
+      O: right_rewards
+      P: reward_port_entries
+      R: right_nose_pokes
+      S: left_rewards
+      W: left_nose_pokes
+    FOOD_RI 60 LEFT TTL:
+      O: right_rewards
+      P: reward_port_entries
+      R: right_nose_pokes
+      S: left_rewards
+      W: left_nose_pokes
+    FOOD_RI 60 RIGHT TTL:
+      O: right_rewards
+      P: reward_port_entries
+      R: right_nose_pokes
+      S: left_rewards
+      W: left_nose_pokes
+    Footshock Degradation Left:  # this program counts left rewards in O, which matches array D
+      O: left_rewards
+      P: reward_port_entries
+      R: right_nose_pokes
+      S: right_rewards
+      W: left_nose_pokes
+    Footshock Degradation right:
+      O: right_rewards
+      P: reward_port_entries
+      R: right_nose_pokes
+      S: left_rewards
+      W: left_nose_pokes
+    FR1_BOTH_SCRAMBLED:
+      O: right_rewards
+      P: reward_port_entries
+      R: right_nose_pokes
+      S: left_rewards
+      W: left_nose_pokes
+    FR1_BOTH_WStim:
+      O: right_rewards
+      P: reward_port_entries
+      R: right_nose_pokes
+      S: left_rewards
+      W: left_nose_pokes
+    FR1_LEFT_SCRAM:
+      O: right_rewards
+      P: reward_port_entries
+      R: right_nose_pokes
+      S: left_rewards
+      W: left_nose_pokes
+    FR1_LEFT_STIM:
+      O: right_rewards
+      P: reward_port_entries
+      R: right_nose_pokes
+      S: left_rewards
+      W: left_nose_pokes
+    FR1_RIGHT_SCRAMBLED:
+      O: right_rewards
+      P: reward_port_entries
+      R: right_nose_pokes
+      S: left_rewards
+      W: left_nose_pokes
+    FR1_RIGHT_STIM:
+      O: right_rewards
+      P: reward_port_entries
+      R: right_nose_pokes
+      S: left_rewards
+      W: left_nose_pokes
+    Probe Test Habit Training TTL:
+      O: right_rewards
+      P: reward_port_entries
+      R: right_nose_pokes
+      S: left_rewards
+      W: left_nose_pokes
+    RI 30 RIGHT_STIM:
+      O: right_rewards
+      P: reward_port_entries
+      R: right_nose_pokes
+      S: left_rewards
+      W: left_nose_pokes
+    RI 60 RIGHT STIM:
+      O: right_rewards
+      P: reward_port_entries
+      R: right_nose_pokes
+      S: left_rewards
+      W: left_nose_pokes
+    RI 60 LEFT_STIM:
+      O: right_rewards
+      P: reward_port_entries
+      R: right_nose_pokes
+      S: left_rewards
+      W: left_nose_pokes
+    RI 30 LEFT_STIM:
+      O: right_rewards
+      P: reward_port_entries
+      R: right_nose_pokes
+      S: left_rewards
+      W: left_nose_pokes
+    RI30 Left Scrambled:  # this program uses O as the time between stimulations
+      P: reward_port_entries
+      R: right_nose_pokes
+      S: left_rewards
+      W: left_nose_pokes
+    RI30 Right SCRAMBLED:  # this program uses S as the time between stimulations
+      O: right_rewards
+      P: reward_port_entries
+      R: right_nose_pokes
+      W: left_nose_pokes
+    RI60_LEFT_SCRAM:  # this program uses O as the time between stimulations
+      P: reward_port_entries
+      R: right_nose_pokes
+      S: left_rewards
+      W: left_nose_pokes
+    RI60_RIGHT_SCRAM:  # this program uses S as the time between stimulations
+      O: right_rewards
+      P: reward_port_entries
+      R: right_nose_pokes
+      W: left_nose_pokes
+    RR5_Left_CVC:
+      O: right_rewards
+      P: reward_port_entries
+      R: right_nose_pokes
+      S: left_rewards
+      W: left_nose_pokes
+    RR20Left:
+      O: right_rewards
+      P: reward_port_entries
+      R: right_nose_pokes
+      S: left_rewards
+      W: left_nose_pokes
+    RR20_Left:
+      O: right_rewards
+      P: reward_port_entries
+      R: right_nose_pokes
+      S: left_rewards
+      W: left_nose_pokes
+    RR20Right:
+      O: right_rewards
+      P: reward_port_entries
+      R: right_nose_pokes
+      S: left_rewards
+      W: left_nose_pokes
+    RR20_Right_AHJS:
+      O: right_rewards
+      P: reward_port_entries
+      R: right_nose_pokes
+      S: left_rewards
+      W: left_nose_pokes
 
   msn_to_session_description:
     20sOmissions_TTL: "Omission Probe"

@@ -1,6 +1,7 @@
 from typing import Optional
 
 import numpy as np
+from hdmf.common import DynamicTable
 from pynwb.behavior import BehavioralEpochs, IntervalSeries
 from pynwb.file import NWBFile
 
@@ -31,13 +32,16 @@ class MedPCInterface(BaseTemporalAlignmentInterface):
     Different sessions are usually separated by a blank line or two.
 
     This data is parsed by the MedPCInterface and added to the NWBFile as Events and IntervalSeries objects in the
-    behavior module.
+    behavior module. The session counters (ex. the total number of right nose pokes) are added to the behavior module as
+    a single-row table named 'session_counts'.
     """
 
     keywords = ["behavior"]
     default_medpc_name_to_info_dict = {}
     default_events = []
     default_interval_series = []
+    default_medpc_name_to_counter_name = {}
+    default_counters = []
     default_module_name = "behavior"
     default_module_description = "Operant behavioral data from MedPC."
 
@@ -243,4 +247,33 @@ class MedPCInterface(BaseTemporalAlignmentInterface):
             behavioral_epochs = BehavioralEpochs(name="behavioral_epochs")
             behavioral_epochs.add_interval_series(interval)
             behavior_module.add(behavioral_epochs)
+
+        medpc_name_to_counter_name = metadata["MedPC"].get(
+            "medpc_name_to_counter_name", self.default_medpc_name_to_counter_name
+        )
+        if medpc_name_to_counter_name:
+            counter_session_dict = read_medpc_file(
+                file_path=self.source_data["file_path"],
+                medpc_name_to_info_dict={
+                    medpc_name: {"name": counter_name, "is_array": False}
+                    for medpc_name, counter_name in medpc_name_to_counter_name.items()
+                },
+                session_conditions=self.source_data["session_conditions"],
+                start_variable=self.source_data["start_variable"],
+            )
+            session_counts = DynamicTable(
+                name="session_counts",
+                description="Totals counted by the MedPC program over the whole session.",
+            )
+            counter_name_to_description = {
+                counter_dict["name"]: counter_dict["description"]
+                for counter_dict in metadata["MedPC"].get("Counters", self.default_counters)
+            }
+            counts = {}
+            for name in medpc_name_to_counter_name.values():
+                session_counts.add_column(name=name, description=counter_name_to_description[name])
+                # some runs have a note after the value, ex. "50.000 (right rewards)"
+                counts[name] = int(float(counter_session_dict[name].split(" ")[0]))
+            session_counts.add_row(**counts)
+            behavior_module.add(session_counts)
         assert behavior_module.data_interfaces, "No behavior data was found for this session."
