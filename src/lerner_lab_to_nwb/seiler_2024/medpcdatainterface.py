@@ -230,7 +230,18 @@ class MedPCInterface(BaseTemporalAlignmentInterface):
             duration_data = session_dict[duration_name]
             if len(onset_data) == 0:
                 continue
-            assert not len(duration_data) == 0, f"Duration data for {name} is empty!"
+            # durations are recorded separately from onsets, so they pair with onsets only when the counts agree
+            original_onset_data = self.get_original_timestamps(
+                medpc_name_to_info_dict={info_name_to_medpc_name[onset_name]: {"name": onset_name, "is_array": True}}
+            )[onset_name]
+            if not len(onset_data) == len(original_onset_data) == len(duration_data):
+                event = ndx_events.Events(
+                    name=onset_name,
+                    description=interval_dict["onset_description"],
+                    timestamps=onset_data,
+                )
+                behavior_module.add(event)
+                continue
 
             interval_times, data = [], []
             for onset_time, duration in zip(onset_data, duration_data):
