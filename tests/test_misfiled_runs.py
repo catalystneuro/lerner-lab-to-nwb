@@ -5,6 +5,7 @@ import pytest
 
 from lerner_lab_to_nwb.seiler_2024.medpc_helpers import read_medpc_file
 from lerner_lab_to_nwb.seiler_2024.seiler_2024_convert_dataset import (
+    UNLISTED_RUN_TO_SUBJECT_ID,
     add_unlisted_runs,
     opto_to_nwb,
     reassign_misfiled_runs,
@@ -169,6 +170,77 @@ class TestReassignMisfiledRuns:
             other_mouse_run,
         ]
 
+    def test_run_in_a_file_named_for_an_unlisted_subject(self):
+        # 244.465's run on 10/27/21 is saved in a file named for 244.464, which is not in the demographics sheet
+        misfiled_run = dict(
+            behavior_file_path=Path("Opto Experiments/DMS Inhibitory/Group 2/EYFP/2021-10-27_244.464"),
+            subject_id="244.464",
+            session_conditions={"Start Date": "10/27/21", "Start Time": "11:15:55", "Box": "3"},
+            experiment_type="Opto",
+            experimental_group="DMS-Inhibitory",
+            optogenetic_treatment="EYFP",
+        )
+        own_session = dict(
+            behavior_file_path=Path("Opto Experiments/DMS Inhibitory/Group 2/EYFP/2021-10-26_244.465"),
+            subject_id="244.465",
+            session_conditions={"Start Date": "10/26/21", "Start Time": "11:29:13", "Box": "3"},
+            experiment_type="Opto",
+            experimental_group="DMS-Inhibitory",
+            optogenetic_treatment="EYFP",
+        )
+        session_to_nwb_args_per_session = reassign_misfiled_runs([misfiled_run, own_session])
+        assert session_to_nwb_args_per_session == [
+            dict(
+                behavior_file_path=Path("Opto Experiments/DMS Inhibitory/Group 2/EYFP/2021-10-27_244.464"),
+                subject_id="244.465",
+                session_conditions={"Start Date": "10/27/21", "Start Time": "11:15:55", "Box": "3"},
+                experiment_type="Opto",
+                experimental_group="DMS-Inhibitory",
+                optogenetic_treatment="EYFP",
+            ),
+            own_session,
+        ]
+
+    def test_run_is_assigned_to_a_mouse_in_another_treatment(self):
+        # 480's (EYFP) run at 09:43:23 on 06/13/19 is saved in 479's (ChR2) file, next to 479's own run that day
+        misfiled_run = dict(
+            behavior_file_path=Path("Opto Experiments/DMS Excitatory/ChR2/479"),
+            subject_id="479",
+            session_conditions={"Start Date": "06/13/19", "Start Time": "09:43:23", "Box": "2"},
+            experiment_type="Opto",
+            experimental_group="DMS-Excitatory",
+            optogenetic_treatment="ChR2",
+        )
+        own_run = dict(
+            behavior_file_path=Path("Opto Experiments/DMS Excitatory/ChR2/479"),
+            subject_id="479",
+            session_conditions={"Start Date": "06/13/19", "Start Time": "12:54:17", "Box": "4"},
+            experiment_type="Opto",
+            experimental_group="DMS-Excitatory",
+            optogenetic_treatment="ChR2",
+        )
+        other_mouse_run = dict(
+            behavior_file_path=Path("Opto Experiments/DMS Excitatory/EYFP/480"),
+            subject_id="480",
+            session_conditions={"Start Date": "06/13/19", "Start Time": "12:18:47", "Box": "2"},
+            experiment_type="Opto",
+            experimental_group="DMS-Excitatory",
+            optogenetic_treatment="EYFP",
+        )
+        session_to_nwb_args_per_session = reassign_misfiled_runs([misfiled_run, own_run, other_mouse_run])
+        assert session_to_nwb_args_per_session == [
+            dict(
+                behavior_file_path=Path("Opto Experiments/DMS Excitatory/ChR2/479"),
+                subject_id="480",
+                session_conditions={"Start Date": "06/13/19", "Start Time": "09:43:23", "Box": "2"},
+                experiment_type="Opto",
+                experimental_group="DMS-Excitatory",
+                optogenetic_treatment="EYFP",
+            ),
+            own_run,
+            other_mouse_run,
+        ]
+
 
 class TestAddUnlistedRuns:
     def test_run_is_added_for_the_mouse_it_belongs_to(self, tmp_path):
@@ -202,6 +274,33 @@ class TestAddUnlistedRuns:
                 behavior_file_path=tmp_path / "FP Experiments/Behavior/DPR/272.396/272.396",
                 subject_id="334.394",
                 session_conditions={"Start Date": "07/28/20", "Start Time": "13:21:15", "Box": "4"},
+                experiment_type="FP",
+                experimental_group="DPR",
+            ),
+        ]
+
+    def test_run_saved_only_in_another_mouse_file_is_added(self, tmp_path):
+        # 333.393's run on 07/31/20 is saved only in 346.394's file, at the same start time as 346.394's own run
+        behavior_session = dict(
+            behavior_file_path=tmp_path / "FP Experiments/Behavior/DPR/333.393/333.393",
+            subject_id="333.393",
+            session_conditions={"Start Date": "07/29/20", "Start Time": "11:53:42", "Box": "6"},
+            experiment_type="FP",
+            experimental_group="DPR",
+        )
+        session_to_nwb_args_per_session = add_unlisted_runs(
+            session_to_nwb_args_per_session=[behavior_session],
+            data_dir_path=tmp_path,
+            unlisted_run_to_subject_id={
+                run: subject_id for run, subject_id in UNLISTED_RUN_TO_SUBJECT_ID.items() if subject_id == "333.393"
+            },
+        )
+        assert session_to_nwb_args_per_session == [
+            behavior_session,
+            dict(
+                behavior_file_path=tmp_path / "FP Experiments/Behavior/DPR/346.394/346.394",
+                subject_id="333.393",
+                session_conditions={"Start Date": "07/31/20", "Start Time": "12:03:31", "Box": "6"},
                 experiment_type="FP",
                 experimental_group="DPR",
             ),

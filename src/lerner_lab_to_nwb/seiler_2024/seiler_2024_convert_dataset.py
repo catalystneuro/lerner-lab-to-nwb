@@ -82,6 +82,8 @@ MISFILED_RUN_TO_SUBJECT_ID = {  # (subject ID of the file, start date, start tim
     ("429.419", "11/20/20", "13:43:53"): "130.425",
     ("343.483", "10/21/21", "15:25:37"): "262.478",
     ("267.476", "10/28/21", "14:23:02"): "260.478",
+    ("244.464", "10/27/21", "11:15:55"): "244.465",
+    ("479", "06/13/19", "09:43:23"): "480",
 }
 
 # Runs that share a start time with another run in the same MedPC file, whose Subject field, box, and program match
@@ -100,6 +102,7 @@ UNLISTED_RUN_TO_SUBJECT_ID = {  # (file relative to data_dir_path, start date, s
         "3",
     ): "311.403",
     ("Opto Experiments/DMS Excitatory/ChR2/121.280", "06/26/19", "14:16:57", "3"): "114.273",
+    ("FP Experiments/Behavior/DPR/346.394/346.394", "07/31/20", "12:03:31", "6"): "333.393",
 }
 
 
