@@ -15,8 +15,9 @@ this function iterates through all of the behavior files to add the behavior ses
 
 The get_fp_header_variables() function obtains a group of header variables for all the behavioral sessions from a subject directory in the following way:
 1. From the medpc output files organized by subject,
-2. From the medpc output files organized by date that can be matched with a csv file organized by subject,
-3. From the csv files organized by subject that cannot be matched with a medpc output file.
+2. From the medpc output files organized by date whose Subject field names the subject, omitting runs that are also in 1,
+3. From the medpc output files organized by date that can be matched with a csv file organized by subject,
+4. From the csv files organized by subject that cannot be matched with a medpc output file.
     These sessions have placeholders for missing metadata: start_time = "00:00:00", msn = "Unknown".
 
 The opto_to_nwb() function obtains all of the session_to_nwb arguments for each session in the Opto Experiments portion of the dataset.
@@ -82,6 +83,8 @@ MISFILED_RUN_TO_SUBJECT_ID = {  # (subject ID of the file, start date, start tim
     ("429.419", "11/20/20", "13:43:53"): "130.425",
     ("343.483", "10/21/21", "15:25:37"): "262.478",
     ("267.476", "10/28/21", "14:23:02"): "260.478",
+    ("244.464", "10/27/21", "11:15:55"): "244.465",
+    ("479", "06/13/19", "09:43:23"): "480",
 }
 
 # Runs that share a start time with another run in the same MedPC file, whose Subject field, box, and program match
@@ -100,6 +103,15 @@ UNLISTED_RUN_TO_SUBJECT_ID = {  # (file relative to data_dir_path, start date, s
         "3",
     ): "311.403",
     ("Opto Experiments/DMS Excitatory/ChR2/121.280", "06/26/19", "14:16:57", "3"): "114.273",
+    ("FP Experiments/Behavior/DPR/346.394/346.394", "07/31/20", "12:03:31", "6"): "333.393",
+}
+
+
+# Subject fields in the MedPC files organized by date that mistype a subject ID, whose box and program match the mouse
+# they belong to
+MISTYPED_SUBJECT_FIELD_TO_SUBJECT_ID = {
+    "98.258": "98.257",
+    "101.26": "101.260",
 }
 
 
@@ -1343,26 +1355,31 @@ def get_fp_header_variables(subject_dir, subject_id, raw_file_to_info, start_var
     tuple
         A tuple containing the start dates, start times, MSNs, file paths, subjects, and box numbers.
     """
+    start_dates, start_times, msns, file_paths, subjects, box_numbers = [], [], [], [], [], []
     medpc_file_path = subject_dir / f"{subject_id}"
-    if medpc_file_path.exists():  # Medpc file with all the sessions for the subject is located in the subject directory
+    if medpc_file_path.exists():
         start_dates, start_times, msns, box_numbers = get_subject_medpc_header_variables(
             file_path=medpc_file_path, subject_id=subject_id
         )
         file_paths = [medpc_file_path] * len(start_dates)
         subjects = [None] * len(start_dates)
-    else:  # We need to grab all the subject's sessions from the Medpc files organized by date (rather than by subject)
-        start_dates, start_times, msns, file_paths, subjects = [], [], [], [], []
-        for file, info in raw_file_to_info.items():
-            for subject, start_date, start_time, msn in zip(
-                info["Subject"], info["Start Date"], info["Start Time"], info["MSN"]
-            ):
-                if subject == subject_id:
-                    start_dates.append(start_date)
-                    start_times.append(start_time)
-                    msns.append(msn)
-                    file_paths.append(file)
-                    subjects.append(subject_id)
-        box_numbers = [None] * len(start_dates)
+
+    # Add the subject's runs from the Medpc files organized by date that are not in the subject's own Medpc file
+    subject_starts = set(zip(start_dates, start_times))
+    for file, info in raw_file_to_info.items():
+        for subject, start_date, start_time, msn in zip(
+            info["Subject"], info["Start Date"], info["Start Time"], info["MSN"]
+        ):
+            if MISTYPED_SUBJECT_FIELD_TO_SUBJECT_ID.get(subject, subject) != subject_id:
+                continue
+            if (start_date, start_time) in subject_starts:
+                continue
+            start_dates.append(start_date)
+            start_times.append(start_time)
+            msns.append(msn)
+            file_paths.append(file)
+            subjects.append(subject)
+            box_numbers.append(None)
 
     # Some subjects have sessions in the Medpc files organized by date without identifying subject info
     # We can identify these sessions by matching them to the CSV files in the subject directory
