@@ -15,6 +15,7 @@ RUNS = {
     "FOOD_FR1 TTL Left": ("1", "15.200        31.650", None),
     "FR1_LEFT_STIM": ("2", "15.200        31.650", None),
     "RI60_LEFT_SCRAM": ("3", "15.200        31.650", "0.000"),
+    "RI60_RIGHT_SCRAM": ("4", "15.200        31.650", "0.000       32.000       63.000"),
 }
 
 
@@ -84,3 +85,8 @@ class TestSeiler2024OptogeneticInterface:
     def test_scrambled_program_without_stimulation_has_no_series(self, medpc_file_path):
         nwbfile = add_optogenetics(medpc_file_path, msn="RI60_LEFT_SCRAM")
         assert "OptogeneticSeries" not in nwbfile.stimulus
+
+    def test_scrambled_program_skips_unwritten_first_stimulation_slot(self, medpc_file_path):
+        nwbfile = add_optogenetics(medpc_file_path, msn="RI60_RIGHT_SCRAM")
+        timestamps = nwbfile.stimulus["OptogeneticSeries"].timestamps
+        np.testing.assert_array_equal(timestamps[:2], np.array([0.0, 32.0]))  # baseline, then first stimulation pulse
