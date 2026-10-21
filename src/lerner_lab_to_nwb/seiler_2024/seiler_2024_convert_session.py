@@ -207,6 +207,7 @@ def session_to_nwb(
             if event["name"] in medpc_name_to_output_name.values():
                 events.append(event)
         metadata["MedPC"]["Events"] = events
+        metadata["MedPC"]["medpc_name_to_counter_name"] = metadata["MedPC"]["msn_to_medpc_name_to_counter_name"][msn]
         if not has_port_entry_durations:
             metadata["MedPC"]["IntervalSeries"] = []
             metadata["MedPC"]["Events"].append(
