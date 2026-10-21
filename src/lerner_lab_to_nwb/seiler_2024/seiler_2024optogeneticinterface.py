@@ -124,7 +124,8 @@ class Seiler2024OptogeneticInterface(BaseDataInterface):
                 start_variable=self.source_data["start_variable"],
             )
         if "optogenetic_stimulation_times" in session_dict:  # stim times are recorded for scrambled trials
-            stim_times = session_dict.pop("optogenetic_stimulation_times")
+            # The scrambled programs write the first stim to Z(1), so Z(0) is always 0
+            stim_times = session_dict.pop("optogenetic_stimulation_times")[1:]
         else:  # otherwise, stim is delivered on either left or right reward -- usually interleaved
             stim_times = np.sort(
                 np.concatenate([session_dict["left_reward_times"], session_dict["right_reward_times"]])
