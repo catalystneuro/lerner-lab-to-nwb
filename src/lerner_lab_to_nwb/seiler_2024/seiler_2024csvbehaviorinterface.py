@@ -192,6 +192,7 @@ class Seiler2024CSVBehaviorInterface(BaseTemporalAlignmentInterface):
         session_dict = {}
         for csv_name, dict_name in csv_name_to_dict_name.items():
             session_dict[dict_name] = np.trim_zeros(session_df[csv_name].dropna().values, trim="b")
+        original_port_entry_times = session_dict["port_entry_times"]
         aligned_timestamps_dict = self.get_timestamps()
         for name in self.source_data["aligned_timestamp_names"]:
             session_dict[name] = aligned_timestamps_dict[name]
@@ -208,11 +209,15 @@ class Seiler2024CSVBehaviorInterface(BaseTemporalAlignmentInterface):
         )
 
         # Port Entry
-        if (
-            len(session_dict["duration_of_port_entry"]) == 0
-        ):  # some sessions are missing port entry durations ex. FP Experiments/Behavior/PR/028.392/07-09-20
+        # durations are recorded separately from port entries, so they pair with entries only when the counts agree
+        # some sessions are missing port entry durations ex. FP Experiments/Behavior/PR/028.392/07-09-20
+        if not (
+            len(session_dict["port_entry_times"])
+            == len(original_port_entry_times)
+            == len(session_dict["duration_of_port_entry"])
+        ):
             if self.verbose:
-                print(f"No port entry durations found for {metadata['NWBFile']['session_id']}")
+                print(f"Port entry durations do not match port entries for {metadata['NWBFile']['session_id']}")
             if len(session_dict["port_entry_times"]) > 0:
                 reward_port_entry_times = Events(
                     name="reward_port_entry_times",

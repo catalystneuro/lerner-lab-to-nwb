@@ -65,6 +65,7 @@ MedPC:
     - name: reward_port_intervals
       description: Interval of time spent in reward port (1 is entry, -1 is exit)
       onset_name: reward_port_entry_times
+      onset_description: Reward port entry times
       duration_name: duration_of_port_entry
 
   Counters:
