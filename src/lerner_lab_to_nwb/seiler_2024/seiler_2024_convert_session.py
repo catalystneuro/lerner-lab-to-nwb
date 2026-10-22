@@ -263,6 +263,24 @@ def western_blot_to_nwb(
         tzinfo=SESSION_TIMEZONE
     )
 
+    sex, region, protein, genotype = file_path.stem.split("_")
+    protein_name = {"DAT": "DAT", "Actin": "β-actin"}[protein]
+    genotype_name, genotype_description, subject_genotype = {
+        "WT": ("wild-type", "wild-type (C57BL/6J)", "WT: C57BL/6J"),
+        "DAT-IRES-Cre-het": (
+            "DAT-IRES-Cre heterozygous",
+            "DAT-IRES-Cre heterozygous (backcrossed to C57BL/6J)",
+            "DAT-IRES-Cre heterozygous: B6.SJL-Slc6a3tm1.1(cre)Bkmn/J",
+        ),
+    }[genotype]
+    metadata["NWBFile"]["session_description"] = (
+        f"Western blot of {protein_name} in {region} from {sex.lower()} {genotype_name} mice."
+    )
+    metadata["Subject"]["genotype"] = subject_genotype
+    metadata["Subject"]["description"] = (
+        f"Adult {sex.lower()} {genotype_description} mice whose {region} tissue was used for quantitative immunoblotting."
+    )
+
     nwbfile_path = output_dir_path / f"{file_path.stem}.nwb"
 
     # Run conversion
