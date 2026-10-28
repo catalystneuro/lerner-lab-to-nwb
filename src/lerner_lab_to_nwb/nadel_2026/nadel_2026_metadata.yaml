@@ -1,0 +1,89 @@
+NWBFile:
+  related_publications:
+    - doi:10.64898/2026.07.29.741478
+    - doi:10.5281/zenodo.21500422
+  experiment_description:
+    Adolescent stress is a lifelong risk factor for addiction, but the underlying neural circuit changes remain unknown.
+    Here, we show that chronic unpredictable stress in adolescent mice causes a prominent increase in
+    punishment-resistant reward-seeking - behavior tightly linked to the diagnostic criteria for addiction -
+    establishing a model for mechanistic investigation. Using this model, we find a "gain-of-function" in reward
+    processing wherein persistent hyperexcitability in a subset of central amygdala (CeA) neurons projecting to the
+    substantia nigra pars lateralis (SNL) disinhibits dopamine release in the tail of the striatum (TS), newly
+    recruiting TS to participate in punishment-resistant reward-seeking. Normalizing circuit-specific CeA
+    hyperexcitability or optogenetically counteracting excessive TS dopamine release prevented the increase in
+    punishment resistance. These results identify a novel circuit mediator for the lifelong effects of adolescent
+    stress on a core feature of addictive disorders, opening a new avenue for interventions targeted to at-risk
+    populations with specific formative experiences.
+  institution: Northwestern University
+  lab: Lerner
+  keywords:
+    - central amygdala
+    - adolescent stress
+    - chronic unpredictable stress
+    - intrinsic excitability
+    - whole-cell patch clamp
+    - retrograde tracing
+    - substantia nigra pars lateralis
+    - tail of the striatum
+  slices:
+    Coronal slices (250-300 um thick) were cut on a Leica VT1200S vibratome in ice-cold NMDG ACSF after transcardial
+    perfusion with ice-cold NMDG ACSF, following the protective recovery method of Ting and colleagues. Slices
+    recovered for 45 min in three 15 min baths (warm 33 C NMDG ACSF, warm 33 C recovery ACSF, room-temperature
+    recovery ACSF) and were then kept at room temperature in recording ACSF (in mM 125 NaCl, 26 NaHCO3, 1.25 NaH2PO4,
+    2.5 KCl, 1 MgCl2, 2 CaCl2, 11 glucose). During recordings, ACSF was perfused at about 1.5 ml/min and warmed to
+    30-32 C with an inline heater.
+  pharmacology:
+    Recording ACSF contained D-AP5 (50 uM), NBQX disodium (5 uM), and gabazine (10 uM) to block glutamatergic and
+    GABA-A receptor mediated synaptic transmission.
+  protocol: All experiments were approved by the Northwestern University Institutional Animal Care and Use Committee.
+
+Subject:
+  species: Mus musculus
+  strain: C57BL/6J
+  genotype: wild type
+
+Icephys:
+  Devices:
+    - name: MultiClamp700B
+      description: MultiClamp 700B patch clamp amplifier.
+      manufacturer: Molecular Devices
+    - name: PCIe6323
+      description:
+        National Instruments X series PCIe-6323 digitizer with a BNC-2090A breakout, controlled by WaveSurfer 0.945.
+      manufacturer: National Instruments
+  IntracellularElectrode:
+    description:
+      Borosilicate glass patch pipette (Warner Instruments G150TF-4, 3-7 MOhm, pulled on a Narishige PC-100) filled
+      with potassium gluconate internal solution (in mM 130 K-gluconate, 15 KCl, 10 HEPES, 2 Mg-ATP, 1 EGTA,
+      0.3 Na-GTP). Whole-cell recording of a central amygdala neuron, targeted under IR-DIC and LED epifluorescence
+      (40x 0.8 NA water-immersion objective, Olympus BX51WI).
+    location: Central amygdalar nucleus
+
+stress_group_to_description:
+  stress:
+    Adolescent chronic unpredictable stress, with three stressors a day (morning, afternoon, and overnight) from P28
+    to P40, adapted from Yohn and Blendy.
+  naive: Unstressed littermate control, handled only for ear tagging.
+
+experimenter_initials_to_name:
+  JN: Nadel, Jacob A.
+  MZ: Zhu, Manhua
+  ES: Swanson, Evan S.
+
+projection_target_to_surgery:
+  SNL:
+    Red Retrobeads (LumaFluor), diluted 1:4 in sterile saline, 250 nL infused at 100 nL/min through a blunt
+    33-gauge needle into the substantia nigra pars lateralis (SNL; AP -3.0, ML +/-1.5, DV -4.5 mm from bregma) under
+    isoflurane anesthesia.
+  BNST:
+    Red Retrobeads (LumaFluor), diluted 1:4 in sterile saline, 250 nL infused at 100 nL/min through a blunt
+    33-gauge needle into the bed nucleus of the stria terminalis (BNST; AP +0.5, ML +/-0.9, DV -4.5 mm from bregma)
+    under isoflurane anesthesia.
+  PAG:
+    Red Retrobeads (LumaFluor), diluted 1:4 in sterile saline, 250 nL infused at 100 nL/min through a blunt
+    33-gauge needle into the periaqueductal gray (PAG; AP -4.3, ML +/-0.4, DV -3.2 mm from bregma) under isoflurane
+    anesthesia.
+  TS:
+    Red Retrobeads (LumaFluor), diluted 1:4 in sterile saline, 250 nL infused at 100 nL/min through a blunt
+    33-gauge needle into the tail of the striatum (TS; AP -1.3, ML +/-3.4, DV -3.5 to -3.6 mm from bregma) under
+    isoflurane anesthesia.
