@@ -2,3 +2,7 @@ species:
   Mus musculus: {id: "NCBITaxon:10090", uri: "http://purl.obolibrary.org/obo/NCBITaxon_10090"}
 institution:
   Northwestern University: {id: "ROR:000e0be47", uri: "https://ror.org/000e0be47"}
+brain_regions:
+  Central amygdalar nucleus:
+    - {id: "MBA:536", uri: "https://purl.brain-bican.org/ontology/mbao/MBA_536"}
+    - {id: "UBERON:0002883", uri: "http://purl.obolibrary.org/obo/UBERON_0002883"}
