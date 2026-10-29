@@ -80,7 +80,7 @@ Current behavior: no recorded command for those 263 runs. The stimulus template,
 
 Current behavior: notes are not converted.
 
-21\. Retrobead status: we describe every converted cell as retrobead-positive, based on the preprint's statement that bead-positive cells were targeted and on no paper cell being marked bead-negative. The folder names mark bead status only in 2023, and the log sheets' "Retrob+" column is blank for 76 of the 198 cells. One cell is logged as "y?": `m103 s3c5` (20240529 675-L). Were all analyzed cells bead-positive, including that one?
+21\. Retrobead status: we describe every converted cell as retrobead-positive, based on the preprint's statement that bead-positive cells were targeted and on no paper cell being marked bead-negative. The folder names mark bead status only in 2023, and the log sheets' "Retrob+" column is blank for 79 of the 198 cells in his scraped table. One cell is logged as "y?": `m103 s3c5` (20240529 675-L). Were all analyzed cells bead-positive, including that one?
 
 Current behavior: every cell is described as retrobead-positive.
 
