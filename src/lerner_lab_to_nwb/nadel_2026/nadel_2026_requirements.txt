@@ -1,0 +1,19 @@
+neuroconv
+pynwb
+hdmf
+nwbinspector
+h5py
+pandas
+numpy
+openpyxl
+pydantic
+tqdm
+pyyaml
+pytest
+black
+matplotlib
+jupyter
+ipykernel
+nbconvert
+# neuroconv 0.10.2 calls zarr.codec_registry, which zarr 3 removed
+zarr<3
