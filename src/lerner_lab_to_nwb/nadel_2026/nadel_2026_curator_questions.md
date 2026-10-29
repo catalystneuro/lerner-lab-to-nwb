@@ -6,6 +6,8 @@ Open decisions say what the code does now under "Current behavior". Closed decis
 
 ## Open
 
+None. All curator decisions are closed as of 2026-10-29.
+
 ## Closed
 
 1\. Is this dataset going to be published on DANDI?
