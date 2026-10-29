@@ -6,10 +6,6 @@ Open decisions say what the code does now under "Current behavior". Closed decis
 
 ## Open
 
-3\. Should the analysis outputs go in the NWB files? Candidates are the per-cell features in the Zenodo bundle (`ALL_INTRINSIC_EPHYS/analysis`), the SNL cluster labels (`metadata/clusters.csv`), and the paper inclusion list (`metadata/used cells.csv`).
-
-Current behavior: the cluster label is per-cell metadata, the feature tables stay on Zenodo, and the Zenodo record is linked in `related_publications`. Every converted cell is in the paper (decision 2), so no paper inclusion column is needed.
-
 4\. The per-cell slice images (`pics/*.tif`, 4.8 GB) were left out of the hand-off. Should we ask Jacob for them and include them? They would go in each NWB file as images of the recorded cell.
 
 Current behavior: not included.
@@ -43,3 +39,7 @@ Decision (Paul, 2026-10-29): only the cells in the preprint's figures, taken fro
 8\. The stray `AJ_Ch1_VC_test pulse.cfg` file in `855-L/m402 s1c1ES`: include it or drop it?
 
 Closed (2026-10-29): no longer needed. It belongs to one of ES's cells, which are not in the paper (decision 2).
+
+3\. Should the analysis outputs go in the NWB files? Candidates are the per-cell features, clustering outputs, and spike waveforms in the Zenodo bundle (`aCUS_zenodo_bundle/ALL_INTRINSIC_EPHYS/analysis`).
+
+Decision (Paul, 2026-10-29): no. They are not part of the raw data hand-off, and this conversion is a reference for the slice ephys pipeline, not the final conversion of this dataset. The SNL cluster label from `metadata/clusters.csv`, which is part of the hand-off, stays as a per-cell column, and the Zenodo record stays in `related_publications`.
