@@ -6,9 +6,7 @@ Open decisions say what the code does now under "Current behavior". Closed decis
 
 ## Open
 
-12\. Stress group and projection target are stored only as text, in the subject description (for example "Unstressed littermate control ... Retrobeads injected into the TS.") and the session description. NWB's Subject has no group field, so a reader has to parse the text to group cells, as the example notebook does. Should they also be stored in a structured form?
-
-Current behavior: text only.
+None. All curator decisions are closed as of 2026-10-29.
 
 ## Closed
 
@@ -51,3 +49,7 @@ Decision (Paul, 2026-10-29): yes, for every cell and day that has them, extracte
 10\. Retrobead status for cells recorded from 2024 on.
 
 Decision (Paul, 2026-10-29): every converted cell is retrobead-positive. The preprint says recordings targeted bead-positive cells, every converted cell is in the paper, and no paper cell is marked bead-negative in a folder name or the log sheets. The `retrobead_positive` column is dropped, and the electrode description says the cell is retrobead-positive. Jacob is asked to confirm in lab question 21.
+
+12\. Stress group and projection target are stored only as text, in the subject and session descriptions. Should they also be stored in a structured form?
+
+Decision (Paul, 2026-10-29): yes, as per-cell columns `stress_group` and `projection_target`, alongside the existing text. NWB's `Subject` has no field for an experimental group; this was raised in https://github.com/NeurodataWithoutBorders/nwb-schema/issues/715.

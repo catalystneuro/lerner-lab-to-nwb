@@ -48,7 +48,8 @@ One NWB file per recording day (one mouse), `sub-<animal id>_ses-<date>.nwb`, 34
   run (`stimulus_type` is the protocol file name, `source_file` the WaveSurfer file), and one repetition per cell and
   protocol (the runs of a protocol on one cell, usually three).
 - Per-cell columns on the `electrodes` category of the intracellular recordings table: `cell_folder`,
-  `experimenter`, `snl_cluster`. Every converted cell is retrobead-positive (curator decision 10), which the
+  `experimenter`, `snl_cluster`, `stress_group`, `projection_target` (curator decision 12; the latter two repeat what the
+  subject and session descriptions say). Every converted cell is retrobead-positive (curator decision 10), which the
   electrode description states.
 
 ## Interface mapping
