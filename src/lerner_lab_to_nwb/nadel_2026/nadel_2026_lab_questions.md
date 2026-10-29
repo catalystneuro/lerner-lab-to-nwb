@@ -72,6 +72,10 @@ Current behavior: C57BL/6J for every mouse, not linked to a registry entry.
 
 Current behavior: these names are used, without ORCIDs.
 
+19\. The second analog input in Jacob's Sept 2023 files. The README (item 1) describes this channel as a command loopback that doesn't track the stimulus, attributed to the user settings that month. In these files the channel instead records the membrane potential a second time: converted to volts at the DAQ, it follows the primary voltage channel with a slope of 0.92 to 1.00 and r of 0.96 to 1.00 (1.000 on the sag runs). Its "-336 pA" baseline in `m009_1005-1015.h5` is the -83 mV resting potential at the primary channel's gain. MZ's files from the same days have identical headers (same user settings file, same input terminal AI4, same scales) and record the true command. That suggests a cabling difference: AI4 connected to an amplifier voltage output on the setup Jacob used, and to the DAQ command output on MZ's. Did you and MZ record on different rigs or with different cabling that month? We suggest correcting README item 1 to say that the channel records membrane potential in your Sept 2023 files and that the delivered command was not recorded there.
+
+Current behavior: no recorded command for those 241 runs. The stimulus template, built from the protocol library, is the only stimulus.
+
 ## Closed
 
 4\. Was the VC spontaneous run in `m405 s1c1` deliberate, like MZ's?

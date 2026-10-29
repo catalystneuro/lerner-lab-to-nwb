@@ -6,10 +6,6 @@ Open decisions say what the code does now under "Current behavior". Closed decis
 
 ## Open
 
-7\. How should the stimulus be represented? Jacob suggested building it from the stimulus library in each file header and keeping the recorded command loopback as an extra trace where it is valid (May 2024 onward, excluding the two test pulses run in CC).
-
-Current behavior: the stimulus is built from the library for every sweep, and the loopback is not written. Compared over all files, the loopback matches the library stimulus within ADC noise wherever it is valid, so it would duplicate the stimulus.
-
 9\. The log sheets have per-cell pipette resistance, access resistance, holding current, resting potential, and free-text notes, but the fields are sparse and inconsistently formatted. Should any of them go in the files? The most useful would be pipette resistance and initial access resistance, which NWB has fields for. Converting them would mean cleaning the scraped values, possibly with Jacob's help.
 
 Current behavior: not converted.
@@ -43,3 +39,7 @@ Decision (Paul, 2026-10-29): no. The scope is the slice ephys data for the lab's
 6\. One NWB file per mouse/day, or one file per cell?
 
 Decision (Paul, 2026-10-29): one file per mouse/day, with one electrode per cell, which is the usual NWB organization.
+
+7\. How should the stimulus be represented? Jacob suggested building it from the stimulus library in each file header and keeping the recorded command loopback as an extra trace where it is valid.
+
+Decision (Paul, 2026-10-29): include both. The waveform built from the stimulus library is the stimulus template for every run, and the recorded loopback is the delivered stimulus for every run that has one. Jacob's Sept 2023 runs have no loopback, because their second analog input recorded the membrane potential instead (lab question 19), so those runs have a template only.

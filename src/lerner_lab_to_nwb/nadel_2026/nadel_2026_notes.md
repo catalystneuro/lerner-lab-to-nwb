@@ -39,7 +39,7 @@ One NWB file per recording day (one mouse), `sub-<animal id>_ses-<date>.nwb`, 34
 - One `IntracellularElectrode` per cell, named `electrode_<cell id>`, with `cell_id`, `slice`, and `location`.
 - Each sweep is its own `CurrentClampSeries`, `VoltageClampSeries`, or `IZeroClampSeries` in acquisition
   (`<file stem>_sweep_<sweep number>_response`, for example `m203_0571-0581_sweep_0575_response`) with a matching
-  stimulus series (`..._stimulus`). Names include the file stem because sweep numbers repeat within a day: besides the
+  stimulus template (`..._stimulus_template`) and, where the command was recorded, a stimulus (`..._stimulus`). Names include the file stem because sweep numbers repeat within a day: besides the
   cases in the README, the counter was set back in `758-L/m114 s2c2` (`m114_0422-0432.h5` and `m114_0432-0434.h5` both
   hold sweep 432). Writing one series per
   sweep keeps `starting_time` and `rate`; one continuous series per run would need per-sample timestamps because of the
@@ -70,9 +70,15 @@ dependency. Whether it generalizes enough to port to NeuroConv is to be assessed
 - Stimulus series are built from the stimulus library stored in each file header (selected map, stimuli bound to
   the run's analog output channel, amplitude expressions evaluated with i = sweep position in the run). Only
   `SquarePulse` and `TwoSquarePulses` occur in this dataset; other types raise.
-- The recorded command loopback (second analog input) is not written. Compared over all 3,489 files, it matches the
-  library stimulus within ADC noise from May 2024 on and in MZ's Sept 2023 files, is wrong in Jacob's Sept 2023 files
-  (README item 1), and is flat in the four ES folders. Where it is valid it duplicates the library stimulus.
+- The library waveform is written as each sweep's stimulus template (`/stimulus/templates`). The command loopback
+  recorded on the second analog input is written as the delivered stimulus (`/stimulus/presentation`, raw int16 with
+  that channel's scaling) wherever it exists (curator decision 7). Where it is valid it matches the library waveform
+  within ADC noise.
+- Jacob's Sept 2023 runs have no recorded command. Their second analog input is labeled as the command loopback but
+  records the membrane potential a second time (slope 0.92 to 1.00 and r 0.96 to 1.00 against the primary channel),
+  most likely a cabling difference, since MZ's files from the same days have identical headers and a true loopback
+  (lab question 19). Those runs have a template only, and the duplicate voltage channel is not written. Runs whose
+  second input has units that do not match the clamp mode, and the I=0 run, also have no recorded command.
 - Voltage clamp stimuli are stored relative to the holding potential, with `offset` = -70 mV (set on the amplifier and
   not stored in the file).
 - The clamp mode in the header decides the series type (README item 5): the spontaneous run MZ recorded in VC in
