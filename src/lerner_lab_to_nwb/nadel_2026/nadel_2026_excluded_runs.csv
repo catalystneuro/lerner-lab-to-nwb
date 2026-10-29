@@ -1,24 +1,4 @@
 tree,mouse_folder,cell_folder,filename,reason
-raw_data_organized,20230914 607-022,m022 s1c2 -,m022_1380.h5,held near -60 mV with DC current; 2 - CC spont firing holding at -60 mV (4.7 pA)
-raw_data_organized,20230914 607-022,m022 s1c2 -,m022_1381-1391.h5,held near -60 mV with DC current; 3 - CC excitability 20 pA to 200 pA holding at -60 mV
-raw_data_organized,20230914 607-022,m022 s1c2 -,m022_1392-1402.h5,held near -60 mV with DC current; 3 - CC excitability 20 pA to 200 pA holding at -60 mV
-raw_data_organized,20230914 607-022,m022 s1c2 -,m022_1403-1413.h5,held near -60 mV with DC current; 3 - CC excitability 20 pA to 200 pA holding at -60 mV
-raw_data_organized,20230914 607-022,m022 s1c2 -,m022_1414-1417.h5,held near -60 mV with DC current; 4 - CC Ih -50 pA to -150 pA holding at -60 mV
-raw_data_organized,20230914 607-022,m022 s1c2 -,m022_1418-1421.h5,held near -60 mV with DC current; 4 - CC Ih -50 pA to -150 pA holding at -60 mV
-raw_data_organized,20230914 607-022,m022 s1c2 -,m022_1422-1425.h5,held near -60 mV with DC current; 4 - CC Ih -50 pA to -150 pA holding at -60 mV
-raw_data_organized,20230914 607-022,m022 s1c2 -,m022_1426-1446.h5,held near -60 mV with DC current; 5 - CC rheobase 5 pA to 100 pA holding at -60 mV
-raw_data_organized,20230914 607-022,m022 s1c2 -,m022_1447-1467.h5,held near -60 mV with DC current; 5 - CC rheobase 5 pA to 100 pA holding at -60 mV
-raw_data_organized,20230914 607-022,m022 s1c2 -,m022_1468-1488.h5,held near -60 mV with DC current; 5 - CC rheobase 5 pA to 100 pA holding at -60 mV
-raw_data_organized,20230914 607-022,m022 s1c3 +,m022_1695.h5,held near -60 mV with DC current; 2 - CC spont firing holding at -60 mV
-raw_data_organized,20230914 607-022,m022 s1c3 +,m022_1696-1706.h5,held near -60 mV with DC current; 3 - CC excitability 20 pA to 200 pA holding at -60 mV
-raw_data_organized,20230914 607-022,m022 s1c3 +,m022_1707-1717.h5,held near -60 mV with DC current; 3 - CC excitability 20 pA to 200 pA holding at -60 mV
-raw_data_organized,20230914 607-022,m022 s1c3 +,m022_1718-1728.h5,held near -60 mV with DC current; 3 - CC excitability 20 pA to 200 pA holding at -60 mV
-raw_data_organized,20230914 607-022,m022 s1c3 +,m022_1729-1732.h5,held near -60 mV with DC current; 4 - CC Ih -50 pA to -150 pA holding at -60 mV
-raw_data_organized,20230914 607-022,m022 s1c3 +,m022_1733-1736.h5,held near -60 mV with DC current; 4 - CC Ih -50 pA to -150 pA holding at -60 mV
-raw_data_organized,20230914 607-022,m022 s1c3 +,m022_1737-1740.h5,held near -60 mV with DC current; 4 - CC Ih -50 pA to -150 pA holding at -60 mV
-raw_data_organized,20230914 607-022,m022 s1c3 +,m022_1741-1761.h5,held near -60 mV with DC current; 5 - CC rheobase 5 pA to 100 pA holding at -60 mV
-raw_data_organized,20230914 607-022,m022 s1c3 +,m022_1762-1782.h5,held near -60 mV with DC current; 5 - CC rheobase 5 pA to 100 pA holding at -60 mV
-raw_data_organized,20230914 607-022,m022 s1c3 +,m022_1783-1803.h5,held near -60 mV with DC current; 5 - CC rheobase 5 pA to 100 pA holding at -60 mV
 raw_data_organized,20230914 607-022,m022 s2c1 +,m022_2069.h5,held near -60 mV with DC current; 2 - CC spont firing holding at -60 mV
 raw_data_organized,20230914 607-022,m022 s2c1 +,m022_2071-2081.h5,held near -60 mV with DC current; 3 - CC excitability 20 pA to 200 pA holding at -60 mV
 raw_data_organized,20230914 607-022,m022 s2c1 +,m022_2082-2092.h5,held near -60 mV with DC current; 3 - CC excitability 20 pA to 200 pA holding at -60 mV
@@ -47,23 +27,6 @@ raw_data_organized,20230914 607-022,m022 s3c2 +,m022_2555-2558.h5,held near -60 
 raw_data_organized,20230914 607-022,m022 s3c2 +,m022_2559-2579.h5,held near -60 mV with DC current; 5 - CC rheobase 5 pA to 100 pA holding at -60 mV
 raw_data_organized,20230914 607-022,m022 s3c2 +,m022_2580-2600.h5,held near -60 mV with DC current; 5 - CC rheobase 5 pA to 100 pA holding at -60 mV
 raw_data_organized,20230914 607-022,m022 s3c2 +,m022_2604-2624.h5,held near -60 mV with DC current; 5 - CC rheobase 5 pA to 100 pA holding at -60 mV
-raw_data_organized,20230914 607-022,m022 s3c3 -,m022_2740.h5,held near -60 mV with DC current; 2 - CC spont firing holding at -60 mV
-raw_data_organized,20230914 607-022,m022 s3c3 -,m022_2741-2751.h5,held near -60 mV with DC current; 3 - CC excitability 20 pA to 200 pA holding at -60 mV
-raw_data_organized,20230914 607-022,m022 s3c3 -,m022_2752-2762.h5,held near -60 mV with DC current; 3 - CC excitability 20 pA to 200 pA holding at -60 mV
-raw_data_organized,20230914 607-022,m022 s3c3 -,m022_2763-2773.h5,held near -60 mV with DC current; 3 - CC excitability 20 pA to 200 pA holding at -60 mV
-raw_data_organized,20230914 607-022,m022 s3c3 -,m022_2774-2777.h5,held near -60 mV with DC current; 4 - CC Ih -50 pA to -150 pA holding at -60 mV
-raw_data_organized,20230914 607-022,m022 s3c3 -,m022_2778-2781.h5,held near -60 mV with DC current; 4 - CC Ih -50 pA to -150 pA holding at -60 mV
-raw_data_organized,20230914 607-022,m022 s3c3 -,m022_2782-2785.h5,held near -60 mV with DC current; 4 - CC Ih -50 pA to -150 pA holding at -60 mV
-raw_data_organized,20230916 614-023,m023 s2c1 -,m023_0294.h5,held near -60 mV with DC current; 2 - CC spont firing holding at -60 mV
-raw_data_organized,20230916 614-023,m023 s2c1 -,m023_0295-0305.h5,held near -60 mV with DC current; 3 - CC excitability 20 pA to 200 pA holding at -60 mV
-raw_data_organized,20230916 614-023,m023 s2c1 -,m023_0306-0316.h5,held near -60 mV with DC current; 3 - CC excitability 20 pA to 200 pA holding at -60 mV
-raw_data_organized,20230916 614-023,m023 s2c1 -,m023_0317-0327.h5,held near -60 mV with DC current; 3 - CC excitability 20 pA to 200 pA holding at -60 mV
-raw_data_organized,20230916 614-023,m023 s2c1 -,m023_0328-0331.h5,held near -60 mV with DC current; 4 - CC Ih -50 pA to -150 pA holding at -60 mV
-raw_data_organized,20230916 614-023,m023 s2c1 -,m023_0332-0335.h5,held near -60 mV with DC current; 4 - CC Ih -50 pA to -150 pA holding at -60 mV
-raw_data_organized,20230916 614-023,m023 s2c1 -,m023_0336-0339.h5,held near -60 mV with DC current; 4 - CC Ih -50 pA to -150 pA holding at -60 mV
-raw_data_organized,20230916 614-023,m023 s2c1 -,m023_0340-0360.h5,held near -60 mV with DC current; 5 - CC rheobase 5 pA to 100 pA holding at -60 mV
-raw_data_organized,20230916 614-023,m023 s2c1 -,m023_0361-0381.h5,held near -60 mV with DC current; 5 - CC rheobase 5 pA to 100 pA holding at -60 mV
-raw_data_organized,20230916 614-023,m023 s2c1 -,m023_0382-0402.h5,held near -60 mV with DC current; 5 - CC rheobase 5 pA to 100 pA holding at -60 mV
 raw_data_organized,20230918 611-323,m323 s1c2 +,m323_0238.h5,held near -60 mV with DC current; 2 - CC spont firing holding at -60 mV
 raw_data_organized,20230918 611-323,m323 s1c2 +,m323_0239-0249.h5,held near -60 mV with DC current; 3 - CC excitability 20 pA to 200 pA holding at -60 mV
 raw_data_organized,20230918 611-323,m323 s1c2 +,m323_0250-0260.h5,held near -60 mV with DC current; 3 - CC excitability 20 pA to 200 pA holding at -60 mV
@@ -82,16 +45,6 @@ raw_data_organized,20230918 611-323,m323 s1c3 +,m323_0489-0492.h5,held near -60 
 raw_data_organized,20230918 611-323,m323 s1c3 +,m323_0493-0513.h5,held near -60 mV with DC current; 5 - CC rheobase 5 pA to 100 pA holding at -60 mV
 raw_data_organized,20230918 611-323,m323 s1c3 +,m323_0514-0544.h5,held near -60 mV with DC current; 5 - CC rheobase 5 pA to 100 pA holding at -60 mV
 raw_data_organized,20230918 611-323,m323 s1c3 +,m323_0545-0575.h5,held near -60 mV with DC current; 5 - CC rheobase 5 pA to 100 pA holding at -60 mV
-raw_data_organized,20230918 611-323,m323 s2c2 -,m323_0715.h5,held near -60 mV with DC current; 2 - CC spont firing holding at -60 mV
-raw_data_organized,20230918 611-323,m323 s2c2 -,m323_0716-0726.h5,held near -60 mV with DC current; 3 - CC excitability 20 pA to 200 pA holding at -60 mV
-raw_data_organized,20230918 611-323,m323 s2c2 -,m323_0727-0737.h5,held near -60 mV with DC current; 3 - CC excitability 20 pA to 200 pA holding at -60 mV
-raw_data_organized,20230918 611-323,m323 s2c2 -,m323_0738-0748.h5,held near -60 mV with DC current; 3 - CC excitability 20 pA to 200 pA holding at -60 mV
-raw_data_organized,20230918 611-323,m323 s2c2 -,m323_0749-0752.h5,held near -60 mV with DC current; 4 - CC Ih -50 pA to -150 pA holding at -60 mV
-raw_data_organized,20230918 611-323,m323 s2c2 -,m323_0753-0756.h5,held near -60 mV with DC current; 4 - CC Ih -50 pA to -150 pA holding at -60 mV
-raw_data_organized,20230918 611-323,m323 s2c2 -,m323_0757-0760.h5,held near -60 mV with DC current; 4 - CC Ih -50 pA to -150 pA holding at -60 mV
-raw_data_organized,20230918 611-323,m323 s2c2 -,m323_0761-0781.h5,held near -60 mV with DC current; 5 - CC rheobase 5 pA to 100 pA holding at -60 mV
-raw_data_organized,20230918 611-323,m323 s2c2 -,m323_0782-0812.h5,held near -60 mV with DC current; 5 - CC rheobase 5 pA to 100 pA holding at -60 mV
-raw_data_organized,20230918 611-323,m323 s2c2 -,m323_0813-0843.h5,held near -60 mV with DC current; 5 - CC rheobase 5 pA to 100 pA holding at -60 mV
 raw_data_organized,20230921 608-021,m021 s1c2 +,m021_0258.h5,held near -60 mV with DC current; 2 - CC spont firing holding at -60 mV
 raw_data_organized,20230921 608-021,m021 s1c2 +,m021_0259-0269.h5,held near -60 mV with DC current; 3 - CC excitability 20 pA to 200 pA holding at -60 mV
 raw_data_organized,20230921 608-021,m021 s1c2 +,m021_0270-0280.h5,held near -60 mV with DC current; 3 - CC excitability 20 pA to 200 pA holding at -60 mV
@@ -130,28 +83,5 @@ raw_data_organized,20230921 608-021,m021 s2c7 +,m021_1471-1474.h5,held near -60 
 raw_data_organized,20230921 608-021,m021 s2c7 +,m021_1475-1495.h5,held near -60 mV with DC current; 5 - CC rheobase 5 pA to 100 pA holding at -60 mV
 raw_data_organized,20230921 608-021,m021 s2c7 +,m021_1496-1516.h5,held near -60 mV with DC current; 5 - CC rheobase 5 pA to 100 pA holding at -60 mV
 raw_data_organized,20230921 608-021,m021 s2c7 +,m021_1517-1537.h5,held near -60 mV with DC current; 5 - CC rheobase 5 pA to 100 pA holding at -60 mV
-raw_data_organized,20230920 608-011,m011 s1c1 -,m011_0109.h5,held near -60 mV with DC current; log sweep numbers shifted by 4 relative to file names; held runs after spont firing 0109
-raw_data_organized,20230920 608-011,m011 s1c1 -,m011_0201-0221.h5,held near -60 mV with DC current; log sweep numbers shifted by 4 relative to file names; held runs after spont firing 0109
-raw_data_organized,20230920 608-011,m011 s1c1 -,m011_0143-0146.h5,held near -60 mV with DC current; log sweep numbers shifted by 4 relative to file names; held runs after spont firing 0109
-raw_data_organized,20230920 608-011,m011 s1c1 -,m011_0155-0158.h5,held near -60 mV with DC current; log sweep numbers shifted by 4 relative to file names; held runs after spont firing 0109
-raw_data_organized,20230920 608-011,m011 s1c1 -,m011_0132-0142.h5,held near -60 mV with DC current; log sweep numbers shifted by 4 relative to file names; held runs after spont firing 0109
-raw_data_organized,20230920 608-011,m011 s1c1 -,m011_0180-0200.h5,held near -60 mV with DC current; log sweep numbers shifted by 4 relative to file names; held runs after spont firing 0109
-raw_data_organized,20230920 608-011,m011 s1c1 -,m011_0159-0179.h5,held near -60 mV with DC current; log sweep numbers shifted by 4 relative to file names; held runs after spont firing 0109
-raw_data_organized,20230920 608-011,m011 s1c1 -,m011_0110-0120.h5,held near -60 mV with DC current; log sweep numbers shifted by 4 relative to file names; held runs after spont firing 0109
-raw_data_organized,20230920 608-011,m011 s1c1 -,m011_0151-0154.h5,held near -60 mV with DC current; log sweep numbers shifted by 4 relative to file names; held runs after spont firing 0109
-raw_data_organized,20230920 608-011,m011 s1c1 -,m011_0121-0131.h5,held near -60 mV with DC current; log sweep numbers shifted by 4 relative to file names; held runs after spont firing 0109
-raw_data_organized,20230920 608-011,m011 s1c1 -,m011_0147-0150.h5,held near -60 mV with DC current; log sweep numbers shifted by 4 relative to file names; held runs after spont firing 0109
 raw_data_organized,20230913 607-009,m009 s1c1 +,m009_1027-1037.h5,held near -60 mV with DC current; third run done with +80 pA holding current (to -60 mV)
 raw_data_organized,20230913 607-009,m009 s1c1 +,m009_1112-1152.h5,held near -60 mV with DC current; third run done with +80 pA holding current (to -60 mV)
-raw_data_organized,20230913 607-009,m009 s3c1 - (mz_s2c1),m009_1071-1111.h5,"duplicate: byte-identical copy of a run of Jacob's cell m009 s1c1, filed in MZ's s2c1 folder (README item 3)"
-raw_data_organized,20230913 607-009,m009 s3c1 - (mz_s2c1),m009_1005-1015.h5,"duplicate: byte-identical copy of a run of Jacob's cell m009 s1c1, filed in MZ's s2c1 folder (README item 3)"
-raw_data_organized,20230913 607-009,m009 s3c1 - (mz_s2c1),m009_1046-1049.h5,"duplicate: byte-identical copy of a run of Jacob's cell m009 s1c1, filed in MZ's s2c1 folder (README item 3)"
-raw_data_organized,20230913 607-009,m009 s3c1 - (mz_s2c1),m009_1027-1037.h5,"duplicate: byte-identical copy of a run of Jacob's cell m009 s1c1, filed in MZ's s2c1 folder (README item 3)"
-raw_data_organized,20230913 607-009,m009 s3c1 - (mz_s2c1),m009_1016-1026.h5,"duplicate: byte-identical copy of a run of Jacob's cell m009 s1c1, filed in MZ's s2c1 folder (README item 3)"
-raw_data_organized,20230913 607-009,m009 s3c1 - (mz_s2c1),m009_1154-1156.h5,"duplicate: byte-identical copy of a run of Jacob's cell m009 s1c1, filed in MZ's s2c1 folder (README item 3)"
-raw_data_organized,20230913 607-009,m009 s3c1 - (mz_s2c1),m009_1042-1045.h5,"duplicate: byte-identical copy of a run of Jacob's cell m009 s1c1, filed in MZ's s2c1 folder (README item 3)"
-raw_data_organized,20230913 607-009,m009 s3c1 - (mz_s2c1),m009_1153.h5,"duplicate: byte-identical copy of a run of Jacob's cell m009 s1c1, filed in MZ's s2c1 folder (README item 3)"
-raw_data_organized,20230913 607-009,m009 s3c1 - (mz_s2c1),m009_1112-1152.h5,"duplicate: byte-identical copy of a run of Jacob's cell m009 s1c1, filed in MZ's s2c1 folder (README item 3)"
-raw_data_organized,20230913 607-009,m009 s3c1 - (mz_s2c1),m009_1157-1159.h5,"duplicate: byte-identical copy of a run of Jacob's cell m009 s1c1, filed in MZ's s2c1 folder (README item 3)"
-raw_data_organized,20230913 607-009,m009 s3c1 - (mz_s2c1),m009_1038-1041.h5,"duplicate: byte-identical copy of a run of Jacob's cell m009 s1c1, filed in MZ's s2c1 folder (README item 3)"
-raw_data_organized,20230913 607-009,m009 s3c1 - (mz_s2c1),m009_1050-1070.h5,"duplicate: byte-identical copy of a run of Jacob's cell m009 s1c1, filed in MZ's s2c1 folder (README item 3)"

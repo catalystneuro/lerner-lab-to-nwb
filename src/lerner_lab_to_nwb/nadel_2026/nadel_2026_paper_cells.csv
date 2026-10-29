@@ -1,0 +1,199 @@
+tree,mouse_folder,cell_folder,source
+raw_data_organized,20230912 611-006,m006 s2c2 +,used cells.csv
+raw_data_organized,20230912 611-006,m006 s2c6 +,used cells.csv
+raw_data_organized,20230912 611-006,m006 s2c7 +,used cells.csv
+raw_data_organized,20230912 611-006,m006 s4c1 + (mz_s2c1),used cells.csv
+raw_data_organized,20230913 607-009,m009 s1c1 +,used cells.csv
+raw_data_organized,20230914 607-022,m022 s1c4 +,used cells.csv
+raw_data_organized,20230914 607-022,m022 s2c1 +,used cells.csv
+raw_data_organized,20230914 607-022,m022 s2c2 +,used cells.csv
+raw_data_organized,20230914 607-022,m022 s3c2 +,used cells.csv
+raw_data_organized,20230918 611-323,m323 s1c1 +,used cells.csv
+raw_data_organized,20230918 611-323,m323 s1c2 +,used cells.csv
+raw_data_organized,20230918 611-323,m323 s1c3 +,used cells.csv
+raw_data_organized,20230918 611-323,m323 s2c1 +,used cells.csv
+raw_data_organized,20230918 611-323,m323 s3c2 + (mz_s1c2),used cells.csv
+raw_data_organized,20230920 608-011,m011 s3c1 +,used cells.csv
+raw_data_organized,20230921 608-021,m021 s1c1 +,used cells.csv
+raw_data_organized,20230921 608-021,m021 s1c2 +,used cells.csv
+raw_data_organized,20230921 608-021,m021 s1c3 +,used cells.csv
+raw_data_organized,20230921 608-021,m021 s2c2 +,used cells.csv
+raw_data_organized,20230921 608-021,m021 s2c3 +,used cells.csv
+raw_data_organized,20230921 608-021,m021 s2c4 +,used cells.csv
+raw_data_organized,20230921 608-021,m021 s2c6 +,used cells.csv
+raw_data_organized,20230921 608-021,m021 s2c7 +,used cells.csv
+raw_data_organized,20240523 674-R,m001 s3c1,used cells.csv
+raw_data_organized,20240523 674-R,m001 s3c3,used cells.csv
+raw_data_organized,20240523 674-R,m001 s4c1,used cells.csv
+raw_data_organized,20240523 674-R,m001 s5c1,used cells.csv
+raw_data_organized,20240524 671-L,m101 s1c1,used cells.csv
+raw_data_organized,20240524 671-L,m101 s1c2,used cells.csv
+raw_data_organized,20240524 671-L,m101 s1c3,used cells.csv
+raw_data_organized,20240524 671-L,m101 s1c4,used cells.csv
+raw_data_organized,20240524 671-L,m101 s2c1,used cells.csv
+raw_data_organized,20240524 671-L,m101 s2c2,used cells.csv
+raw_data_organized,20240524 671-L,m101 s2c3,used cells.csv
+raw_data_organized,20240524 671-L,m101 s3c1,used cells.csv
+raw_data_organized,20240524 671-L,m101 s3c2,used cells.csv
+raw_data_organized,20240524 671-L,m101 s3c3,used cells.csv
+raw_data_organized,20240527 675-RL,m102 s1c1,used cells.csv
+raw_data_organized,20240527 675-RL,m102 s1c2,used cells.csv
+raw_data_organized,20240529 675-L,m103 s1c1,used cells.csv
+raw_data_organized,20240529 675-L,m103 s2c1,used cells.csv
+raw_data_organized,20240529 675-L,m103 s2c2,used cells.csv
+raw_data_organized,20240529 675-L,m103 s3c1,used cells.csv
+raw_data_organized,20240529 675-L,m103 s3c2,used cells.csv
+raw_data_organized,20240529 675-L,m103 s3c3,used cells.csv
+raw_data_organized,20240529 675-L,m103 s3c4,used cells.csv
+raw_data_organized,20240529 675-L,m103 s3c5,used cells.csv
+raw_data_organized,20240529 675-L,m103 s3c6,used cells.csv
+raw_data_organized,20240530 671-0,m104 s1c1,used cells.csv
+raw_data_organized,20240530 671-0,m104 s2c1,used cells.csv
+raw_data_organized,20240530 671-0,m104 s2c2,used cells.csv
+raw_data_organized,20240530 671-0,m104 s2c3,used cells.csv
+raw_data_organized,20240530 671-0,m104 s3c1,used cells.csv
+raw_data_organized,20240530 671-0,m104 s4c1,used cells.csv
+raw_data_organized,20240531 674-L,m105 s1c1,used cells.csv
+raw_data_organized,20240531 674-L,m105 s2c2,used cells.csv
+raw_data_organized,20240531 674-L,m105 s2c3,used cells.csv
+raw_data_organized,20240531 674-L,m105 s3c2,used cells.csv
+raw_data_organized,20240603 675-R,m106 s1c1,used cells.csv
+raw_data_organized,20240603 675-R,m106 s1c2,used cells.csv
+raw_data_organized,20240603 675-R,m106 s1c3,used cells.csv
+raw_data_organized,20240603 675-R,m106 s1c4,used cells.csv
+raw_data_organized,20240603 675-R,m106 s2c1,used cells.csv
+raw_data_organized,20240603 675-R,m106 s3c1,used cells.csv
+raw_data_organized,20240603 675-R,m106 s4c1,used cells.csv
+raw_data_organized,20240603 675-R,m106 s4c2,used cells.csv
+raw_data_organized,20240603 675-R,m106 s5c1,used cells.csv
+raw_data_organized,20240604 674-0,m107 s1c1,used cells.csv
+raw_data_organized,20240604 674-0,m107 s1c2,used cells.csv
+raw_data_organized,20240604 674-0,m107 s1c3,used cells.csv
+raw_data_organized,20240604 674-0,m107 s2c1,used cells.csv
+raw_data_organized,20240604 674-0,m107 s2c2,used cells.csv
+raw_data_organized,20240604 674-0,m107 s4c1,used cells.csv
+raw_data_organized,20240604 674-0,m107 s5c1,used cells.csv
+raw_data_organized,20240605 670-L,m108 s2c1,used cells.csv
+raw_data_organized,20240605 670-L,m108 s2c2,used cells.csv
+raw_data_organized,20240605 670-L,m108 s3c1,used cells.csv
+raw_data_organized,20240606 670-RL,m109 s1c1,used cells.csv
+raw_data_organized,20240606 670-RL,m109 s1c2,used cells.csv
+raw_data_organized,20250207 755-L,m201 s1c1,used cells.csv
+raw_data_organized,20250207 755-L,m201 s2c1,used cells.csv
+raw_data_organized,20250207 755-L,m201 s2c2,used cells.csv
+raw_data_organized,20250207 755-L,m201 s2c3,used cells.csv
+raw_data_organized,20250210 755-0,m202 s1c1,used cells.csv
+raw_data_organized,20250210 755-0,m202 s1c2,used cells.csv
+raw_data_organized,20250210 755-0,m202 s1c3,used cells.csv
+raw_data_organized,20250210 755-0,m202 s1c4,used cells.csv
+raw_data_organized,20250210 755-0,m202 s2c1,used cells.csv
+raw_data_organized,20250210 755-0,m202 s2c2,used cells.csv
+raw_data_organized,20250210 755-0,m202 s2c3,used cells.csv
+raw_data_organized,20250213 756-0,m203 s1c1,used cells.csv
+raw_data_organized,20250213 756-0,m203 s2c1,used cells.csv
+raw_data_organized,20250213 756-0,m203 s2c4,used cells.csv
+raw_data_organized,20250213 756-0,m203 s3c1,used cells.csv
+raw_data_organized,20250213 756-0,m203 s3c2,used cells.csv
+raw_data_organized,20250217 751-R,m110 s1c1,used cells.csv
+raw_data_organized,20250217 751-R,m110 s1c2,used cells.csv
+raw_data_organized,20250217 751-R,m110 s2c1,used cells.csv
+raw_data_organized,20250217 751-R,m110 s2c2,used cells.csv
+raw_data_organized,20250217 751-R,m110 s2c3,used cells.csv
+raw_data_organized,20250217 751-R,m110 s3c1,used cells.csv
+raw_data_organized,20250217 751-R,m110 s3c2,used cells.csv
+raw_data_organized,20250217 751-R,m110 s3c3,used cells.csv
+raw_data_organized,20250219 756-L,m111 s1c1,used cells.csv
+raw_data_organized,20250219 756-L,m111 s1c2,used cells.csv
+raw_data_organized,20250219 756-L,m111 s1c3,used cells.csv
+raw_data_organized,20250219 756-L,m111 s2c1,used cells.csv
+raw_data_organized,20250219 756-L,m111 s2c2,used cells.csv
+raw_data_organized,20250219 756-L,m111 s3c1,used cells.csv
+raw_data_organized,20250219 756-L,m111 s3c2,used cells.csv
+raw_data_organized,20250219 756-L,m111 s3c4,used cells.csv
+raw_data_organized,20250220 752-0,m204 s2c1,used cells.csv
+raw_data_organized,20250220 752-0,m204 s2c2,used cells.csv
+raw_data_organized,20250220 752-0,m204 s2c3,used cells.csv
+raw_data_organized,20250220 752-0,m204 s3c1,used cells.csv
+raw_data_organized,20250220 752-0,m204 s4c1,used cells.csv
+raw_data_organized,20250224 752-L,m205 s1c1,used cells.csv
+raw_data_organized,20250224 752-L,m205 s2c1,used cells.csv
+raw_data_organized,20250224 752-L,m205 s2c2,used cells.csv
+raw_data_organized,20250224 752-L,m205 s2c3,used cells.csv
+raw_data_organized,20250224 752-L,m205 s2c4,used cells.csv
+raw_data_organized,20250224 752-L,m205 s2c5,used cells.csv
+raw_data_organized,20250224 752-L,m205 s2c6,used cells.csv
+raw_data_organized,20250226 751-RL,m206 s1c1,used cells.csv
+raw_data_organized,20250226 751-RL,m206 s2c1,used cells.csv
+raw_data_organized,20250226 751-RL,m206 s2c2,used cells.csv
+raw_data_organized,20250226 751-RL,m206 s2c3,used cells.csv
+raw_data_organized,20250227 751-L,m112 s1c1,used cells.csv
+raw_data_organized,20250227 751-L,m112 s2c1,used cells.csv
+raw_data_organized,20250227 751-L,m112 s2c2,used cells.csv
+raw_data_organized,20250227 751-L,m112 s3c1,used cells.csv
+raw_data_organized,20250227 751-L,m112 s3c2,used cells.csv
+raw_data_organized,20250227 751-L,m112 s3c3,used cells.csv
+raw_data_organized,20250227 751-L,m112 s3c4,used cells.csv
+raw_data_organized,20250227 751-L,m112 s4c1,used cells.csv
+raw_data_organized,20250227 751-L,m112 s4c2,used cells.csv
+raw_data_organized,20250303 751-0,m207 s1c2,used cells.csv
+raw_data_organized,20250303 751-0,m207 s1c3,used cells.csv
+raw_data_organized,20250303 751-0,m207 s1c4,used cells.csv
+raw_data_organized,20250305 757-0,m208 s1c1,used cells.csv
+raw_data_organized,20250305 757-0,m208 s1c2,used cells.csv
+raw_data_organized,20250305 757-0,m208 s1c3,used cells.csv
+raw_data_organized,20250305 757-0,m208 s1c4,used cells.csv
+raw_data_organized,20250305 757-0,m208 s2c1,used cells.csv
+raw_data_organized,20250305 757-0,m208 s2c2,used cells.csv
+raw_data_organized,20250305 757-0,m208 s3c1,used cells.csv
+raw_data_organized,20250306 757-L,m113 s1c1,used cells.csv
+raw_data_organized,20250306 757-L,m113 s1c2,used cells.csv
+raw_data_organized,20250306 757-L,m113 s2c1,used cells.csv
+raw_data_organized,20250306 757-L,m113 s2c2,used cells.csv
+raw_data_organized,20250306 757-L,m113 s3c1,used cells.csv
+raw_data_organized,20250306 757-L,m113 s4c1,used cells.csv
+raw_data_organized,20250306 757-L,m113 s4c2,used cells.csv
+raw_data_organized,20250310 758-L,m114 s1c1,used cells.csv
+raw_data_organized,20250310 758-L,m114 s2c1,used cells.csv
+raw_data_organized,20250310 758-L,m114 s2c2,used cells.csv
+raw_data_organized,20250310 758-L,m114 s2c3,used cells.csv
+raw_data_organized,20250310 758-L,m114 s2c4,used cells.csv
+raw_data_organized,20250310 758-L,m114 s2c5,used cells.csv
+raw_data_organized,20250310 758-L,m114 s2c6,used cells.csv
+raw_data_organized,20260610 2006-151,m410 s1c1,"Fig. 2E and 2H (PAG unstressed, 3 mice and 14 cells)"
+raw_data_organized,20260610 2006-151,m410 s1c2,"Fig. 2E and 2H (PAG unstressed, 3 mice and 14 cells)"
+raw_data_organized,20260610 2006-151,m410 s2c1,"Fig. 2E and 2H (PAG unstressed, 3 mice and 14 cells)"
+timecourse_raw_data_organized,20251015 862-L,m401 s1c1,"Fig. 2N (P40, 16 unstressed and 19 stressed cells)"
+timecourse_raw_data_organized,20251015 862-L,m401 s1c2,"Fig. 2N (P40, 16 unstressed and 19 stressed cells)"
+timecourse_raw_data_organized,20251015 862-L,m401 s2c1,"Fig. 2N (P40, 16 unstressed and 19 stressed cells)"
+timecourse_raw_data_organized,20251015 862-L,m401 s2c2,"Fig. 2N (P40, 16 unstressed and 19 stressed cells)"
+timecourse_raw_data_organized,20251015 862-L,m401 s2c3,"Fig. 2N (P40, 16 unstressed and 19 stressed cells)"
+timecourse_raw_data_organized,20251015 862-L,m401 s3c1,"Fig. 2N (P40, 16 unstressed and 19 stressed cells)"
+timecourse_raw_data_organized,20251015 862-L,m401 s3c2,"Fig. 2N (P40, 16 unstressed and 19 stressed cells)"
+timecourse_raw_data_organized,20251016 855-L,m402 s1c1,"Fig. 2N (P40, 16 unstressed and 19 stressed cells)"
+timecourse_raw_data_organized,20251016 855-L,m402 s1c2,"Fig. 2N (P40, 16 unstressed and 19 stressed cells)"
+timecourse_raw_data_organized,20251016 855-L,m402 s1c3,"Fig. 2N (P40, 16 unstressed and 19 stressed cells)"
+timecourse_raw_data_organized,20251016 855-L,m402 s1c4,"Fig. 2N (P40, 16 unstressed and 19 stressed cells)"
+timecourse_raw_data_organized,20251016 855-L,m402 s1c6,"Fig. 2N (P40, 16 unstressed and 19 stressed cells)"
+timecourse_raw_data_organized,20251016 855-L,m402 s2c1,"Fig. 2N (P40, 16 unstressed and 19 stressed cells)"
+timecourse_raw_data_organized,20251016 855-L,m402 s2c2,"Fig. 2N (P40, 16 unstressed and 19 stressed cells)"
+timecourse_raw_data_organized,20251016 855-L,m402 s2c3,"Fig. 2N (P40, 16 unstressed and 19 stressed cells)"
+timecourse_raw_data_organized,20251016 855-L,m402 s3c1,"Fig. 2N (P40, 16 unstressed and 19 stressed cells)"
+timecourse_raw_data_organized,20251017 854-L,m403 s1c2,"Fig. 2N (P40, 16 unstressed and 19 stressed cells)"
+timecourse_raw_data_organized,20251017 854-L,m403 s2c1,"Fig. 2N (P40, 16 unstressed and 19 stressed cells)"
+timecourse_raw_data_organized,20251017 854-L,m403 s2c2,"Fig. 2N (P40, 16 unstressed and 19 stressed cells)"
+timecourse_raw_data_organized,20251017 854-L,m403 s2c3,"Fig. 2N (P40, 16 unstressed and 19 stressed cells)"
+timecourse_raw_data_organized,20251017 854-L,m403 s2c4,"Fig. 2N (P40, 16 unstressed and 19 stressed cells)"
+timecourse_raw_data_organized,20251017 854-L,m403 s3c1,"Fig. 2N (P40, 16 unstressed and 19 stressed cells)"
+timecourse_raw_data_organized,20251017 854-L,m403 s3c2,"Fig. 2N (P40, 16 unstressed and 19 stressed cells)"
+timecourse_raw_data_organized,20251017 854-L,m403 s3c3,"Fig. 2N (P40, 16 unstressed and 19 stressed cells)"
+timecourse_raw_data_organized,20251017 854-L,m403 s3c4,"Fig. 2N (P40, 16 unstressed and 19 stressed cells)"
+timecourse_raw_data_organized,20251017 854-L,m403 s3c5,"Fig. 2N (P40, 16 unstressed and 19 stressed cells)"
+timecourse_raw_data_organized,20251017 854-L,m403 s3c6,"Fig. 2N (P40, 16 unstressed and 19 stressed cells)"
+timecourse_raw_data_organized,20251017 854-L,m403 s3c7,"Fig. 2N (P40, 16 unstressed and 19 stressed cells)"
+timecourse_raw_data_organized,20251018 853-L,m404 s1c1,"Fig. 2N (P40, 16 unstressed and 19 stressed cells)"
+timecourse_raw_data_organized,20251018 853-L,m404 s1c2,"Fig. 2N (P40, 16 unstressed and 19 stressed cells)"
+timecourse_raw_data_organized,20251018 853-L,m404 s1c3,"Fig. 2N (P40, 16 unstressed and 19 stressed cells)"
+timecourse_raw_data_organized,20251018 853-L,m404 s1c4,"Fig. 2N (P40, 16 unstressed and 19 stressed cells)"
+timecourse_raw_data_organized,20251018 853-L,m404 s2c1,"Fig. 2N (P40, 16 unstressed and 19 stressed cells)"
+timecourse_raw_data_organized,20251018 853-L,m404 s2c2,"Fig. 2N (P40, 16 unstressed and 19 stressed cells)"
+timecourse_raw_data_organized,20251018 853-L,m404 s2c3,"Fig. 2N (P40, 16 unstressed and 19 stressed cells)"

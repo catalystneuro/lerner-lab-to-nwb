@@ -184,8 +184,8 @@ def metadata() -> dict:
                     device_name="MultiClamp700B", description="Patch pipette.", cell_id="m203 s3c2"
                 )
             ),
-            Cells=dict(electrode_m203_s3c2=dict(in_paper=True)),
-            CellColumns=dict(in_paper="Whether the cell is in the paper."),
+            Cells=dict(electrode_m203_s3c2=dict(experimenter="JN")),
+            CellColumns=dict(experimenter="Initials of the person who recorded the cell."),
         )
     )
 
@@ -318,7 +318,7 @@ class TestNadel2026NWBConverter:
         sequential_recordings = nwbfile.get_icephys_sequential_recordings()
         assert list(sequential_recordings["source_file"].data) == ["m203_0571-0573.h5", "m203_0610.h5"]
         assert len(nwbfile.get_icephys_repetitions()) == 2
-        assert list(nwbfile.intracellular_recordings.category_tables["electrodes"]["in_paper"].data) == [True] * 4
+        assert list(nwbfile.intracellular_recordings.category_tables["electrodes"]["experimenter"].data) == ["JN"] * 4
 
     def test_repeated_sweep_numbers(self, current_clamp_file_path, reset_counter_file_path, metadata):
         converter = Nadel2026NWBConverter(

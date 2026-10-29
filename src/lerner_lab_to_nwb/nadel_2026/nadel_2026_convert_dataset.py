@@ -16,7 +16,7 @@ def dataset_to_nwb(
     max_workers: int = 1,
     overwrite: bool = False,
 ):
-    """Convert every recording day in both data trees to NWB, one file per day.
+    """Convert every recording day with cells in the preprint to NWB, one file per day.
 
     Parameters
     ----------
@@ -30,16 +30,15 @@ def dataset_to_nwb(
         Whether to overwrite existing NWB files, by default False
     """
     data_dir_path = Path(data_dir_path)
-    cells = pd.read_csv(data_dir_path / "tables" / "cells_master.csv")
-    tree_names = {"main": "raw_data_organized", "timecourse": "timecourse_raw_data_organized"}
-    sessions = cells[["tree", "mouse_folder"]].drop_duplicates()
+    paper_cells = pd.read_csv(Path(__file__).parent / "nadel_2026_paper_cells.csv")
+    sessions = paper_cells[["tree", "mouse_folder"]].drop_duplicates()
     with ProcessPoolExecutor(max_workers=max_workers) as executor:
         futures = [
             executor.submit(
                 session_to_nwb,
                 data_dir_path=data_dir_path,
                 output_dir_path=output_dir_path,
-                tree=tree_names[tree],
+                tree=tree,
                 mouse_folder=mouse_folder,
                 overwrite=overwrite,
             )
