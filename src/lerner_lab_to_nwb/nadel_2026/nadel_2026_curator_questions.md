@@ -6,10 +6,6 @@ Open decisions say what the code does now under "Current behavior". Closed decis
 
 ## Open
 
-10\. Retrobead status for cells recorded from 2024 on. Only the 2023 cell folder names carry "+" or "-", so the `retrobead_positive` column is "unknown" for every later cell. Two other sources could fill it: the log sheets' "Retrob+" column, and the preprint's statement that bead-positive cells were targeted under LED illumination. Should the column use the log sheets, the preprint, or stay as it is?
-
-Current behavior: "yes" or "no" from the 2023 folder names, "unknown" for every other cell.
-
 11\. Electrode slice and location. The `slice` field is "Slice N of the recording day", taken from the cell ID. `location` is "Central amygdalar nucleus" (Allen CEA) for every cell, with no hemisphere (lab question 16). Is that enough?
 
 Current behavior: as described.
@@ -55,3 +51,7 @@ Decision (Paul, 2026-10-29): include both. The waveform built from the stimulus 
 9\. Should the log sheet fields go in the files?
 
 Decision (Paul, 2026-10-29): yes, for every cell and day that has them, extracted from the three Excel log sheets directly instead of Jacob's scraped CSVs, to recover more of the entries and handle the inconsistent formatting. Entries that hold two readings are kept as text, exactly as written, and ambiguous entries are left blank instead of guessed. The free-text notes wait on lab question 20.
+
+10\. Retrobead status for cells recorded from 2024 on.
+
+Decision (Paul, 2026-10-29): every converted cell is retrobead-positive. The preprint says recordings targeted bead-positive cells, every converted cell is in the paper, and no paper cell is marked bead-negative in a folder name or the log sheets. The `retrobead_positive` column is dropped, and the electrode description says the cell is retrobead-positive. Jacob is asked to confirm in lab question 21.

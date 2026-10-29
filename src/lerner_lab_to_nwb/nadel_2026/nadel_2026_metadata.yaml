@@ -55,7 +55,7 @@ Icephys:
     description:
       Borosilicate glass patch pipette (Warner Instruments G150TF-4, 3-7 MOhm, pulled on a Narishige PC-100) filled
       with potassium gluconate internal solution (in mM 130 K-gluconate, 15 KCl, 10 HEPES, 2 Mg-ATP, 1 EGTA,
-      0.3 Na-GTP). Whole-cell recording of a central amygdala neuron, targeted under IR-DIC and LED epifluorescence
+      0.3 Na-GTP). Whole-cell recording of a retrobead-positive central amygdala neuron, targeted under IR-DIC and LED epifluorescence
       (40x 0.8 NA water-immersion objective, Olympus BX51WI).
     location: Central amygdalar nucleus
 
