@@ -1,10 +1,5 @@
 # -*- coding: utf-8 -*-
-from pathlib import Path
 from setuptools import setup, find_packages
-
-requirements_file_path = Path(__file__).parent / "requirements.txt"
-with open(requirements_file_path) as file:
-    install_requires = file.readlines()
 
 with open("README.md", "r") as f:
     long_description = f.read()
@@ -22,5 +17,4 @@ setup(
     package_dir={"": "src"},
     include_package_data=True,
     python_requires=">=3.8",
-    install_requires=install_requires,
 )

@@ -2,29 +2,20 @@
 NWB conversion scripts for Lerner lab data to the [Neurodata Without Borders](https://nwb-overview.readthedocs.io/) data format.
 
 ## Installation from Github
-We recommend installing this package directly from Github. This option has the advantage that the source code can be modifed if you need to amend some of the code we originally provided to adapt to future experimental differences. To install the conversion from GitHub you will need to use `git` ([installation instructions](https://github.com/git-guides/install-git)). We also recommend the installation of `conda` ([installation instructions](https://docs.conda.io/en/latest/miniconda.html)) as it contains all the required machinery in a single and simple install.
+Each conversion in this repository has its own requirements file in its folder, for example `src/lerner_lab_to_nwb/seiler_2024/seiler_2024_requirements.txt`. The package itself declares no dependencies, so set up a separate environment for each conversion: install that conversion's requirements, then install the repository in [editable mode](https://pip.pypa.io/en/stable/cli/pip_install/#editable-installs) without dependencies.
 
-From a terminal (note that conda should be installed on your system) you can do the following:
-
-```bash
-git clone https://github.com/catalystneuro/lerner-lab-to-nwb
-cd lerner-lab-to-nwb
-conda env create --file make_env.yml
-conda activate lerner_lab_to_nwb_env
-```
-
-This creates a [conda environment](https://docs.conda.io/projects/conda/en/latest/user-guide/concepts/environments.html) which isolates the conversion code from your system libraries.  We recommend that you run all your conversion related tasks and analysis from the created environment in order to minimize issues related to package dependencies.
-
-Alternatively, if you want to avoid conda altogether (for example if you use another virtual environment tool) you can install the repository with the following commands using only pip:
+For example, to set up the `seiler_2024` conversion with Python 3.11:
 
 ```bash
 git clone https://github.com/catalystneuro/lerner-lab-to-nwb
 cd lerner-lab-to-nwb
-pip install -e .
+python3.11 -m venv seiler_2024_env
+source seiler_2024_env/bin/activate
+pip install -r src/lerner_lab_to_nwb/seiler_2024/seiler_2024_requirements.txt
+pip install -e . --no-deps
 ```
 
-Note:
-both of the methods above install the repository in [editable mode](https://pip.pypa.io/en/stable/cli/pip_install/#editable-installs).
+Any environment manager works the same way. With [uv](https://docs.astral.sh/uv/), replace the venv and pip lines with `uv venv --python 3.11`, `uv pip install -r ...`, and `uv pip install -e . --no-deps`. The `seiler_2024` requirements are pinned to the versions used for the original conversion.
 
 ## Helpful Definitions
 
@@ -47,14 +38,10 @@ Each conversion is organized in a directory of its own in the `src` directory:
     lerner-lab-to-nwb/
     ├── .gitignore
     ├── .pre-commit-config.yaml
-    ├── freeze_dependencies.py
-    ├── frozen_dependencies.txt
     ├── LICENSE
-    ├── make_env.yml
     ├── MANIFEST.in
     ├── pyproject.toml
     ├── README.md
-    ├── requirements.txt
     ├── setup.py
     └── src
         └── lerner_lab_to_nwb
@@ -68,6 +55,7 @@ Each conversion is organized in a directory of its own in the `src` directory:
                 ├── seiler_2024_convert_session.py
                 ├── seiler_2024_metadata.yaml
                 ├── seiler_2024_notes.md
+                ├── seiler_2024_requirements.txt
                 ├── seiler_2024csvbehaviorinterface.py
                 ├── seiler_2024excelmetadatainterface.py
                 ├── seiler_2024fiberphotometryinterface.py
@@ -100,6 +88,7 @@ For the conversion `seiler_2024` you can find a directory located in `src/lerner
     and Optogenetics/experimental_group_to_metadata/DMS-Excitatory provides a dictionary with all of the relevant optogenetic stim metadata (ex. injection_location, excitaiton_lambda, etc.).
 * `seiler_2024notes.md` : This markdown file contains my notes from the conversion for each of the data interfaces.
     It specifically highlights various edge cases as well as questions I had for the Lerner Lab (active and resolved).
+* `seiler_2024_requirements.txt` : This file pins the dependencies for this conversion (see Installation).
 
 Future conversions for this repo should follow the example of seiler_2024 and create another folder of
 conversion scripts and datainterfaces.  As a placeholder, here we have `src/lerner-lab-to-nwb/another_conversion`.
