@@ -1,0 +1,87 @@
+tree,mouse_folder,cell_folder,filename,reason
+raw_data_organized,20230914 607-022,m022 s2c1 +,m022_2069.h5,held near -60 mV with DC current; 2 - CC spont firing holding at -60 mV
+raw_data_organized,20230914 607-022,m022 s2c1 +,m022_2071-2081.h5,held near -60 mV with DC current; 3 - CC excitability 20 pA to 200 pA holding at -60 mV
+raw_data_organized,20230914 607-022,m022 s2c1 +,m022_2082-2092.h5,held near -60 mV with DC current; 3 - CC excitability 20 pA to 200 pA holding at -60 mV
+raw_data_organized,20230914 607-022,m022 s2c1 +,m022_2093-2103.h5,held near -60 mV with DC current; 3 - CC excitability 20 pA to 200 pA holding at -60 mV
+raw_data_organized,20230914 607-022,m022 s2c1 +,m022_2104-2107.h5,held near -60 mV with DC current; 4 - CC Ih -50 pA to -150 pA holding at -60 mV
+raw_data_organized,20230914 607-022,m022 s2c1 +,m022_2108-2111.h5,held near -60 mV with DC current; 4 - CC Ih -50 pA to -150 pA holding at -60 mV
+raw_data_organized,20230914 607-022,m022 s2c1 +,m022_2112-2115.h5,held near -60 mV with DC current; 4 - CC Ih -50 pA to -150 pA holding at -60 mV
+raw_data_organized,20230914 607-022,m022 s2c1 +,m022_2116-2136.h5,held near -60 mV with DC current; 5 - CC rheobase 5 pA to 100 pA holding at -60 mV
+raw_data_organized,20230914 607-022,m022 s2c2 +,m022_2249.h5,held near -60 mV with DC current; 2 - CC spont firing holding at -60 mV
+raw_data_organized,20230914 607-022,m022 s2c2 +,m022_2250-2260.h5,held near -60 mV with DC current; 3 - CC excitability 20 pA to 200 pA holding at -60 mV
+raw_data_organized,20230914 607-022,m022 s2c2 +,m022_2261-2271.h5,held near -60 mV with DC current; 3 - CC excitability 20 pA to 200 pA holding at -60 mV
+raw_data_organized,20230914 607-022,m022 s2c2 +,m022_2272-2282.h5,held near -60 mV with DC current; 3 - CC excitability 20 pA to 200 pA holding at -60 mV
+raw_data_organized,20230914 607-022,m022 s2c2 +,m022_2283-2286.h5,held near -60 mV with DC current; 4 - CC Ih -50 pA to -150 pA holding at -60 mV
+raw_data_organized,20230914 607-022,m022 s2c2 +,m022_2287-2290.h5,held near -60 mV with DC current; 4 - CC Ih -50 pA to -150 pA holding at -60 mV
+raw_data_organized,20230914 607-022,m022 s2c2 +,m022_2291-2294.h5,held near -60 mV with DC current; 4 - CC Ih -50 pA to -150 pA holding at -60 mV
+raw_data_organized,20230914 607-022,m022 s2c2 +,m022_2295-2315.h5,held near -60 mV with DC current; 5 - CC rheobase 5 pA to 100 pA holding at -60 mV
+raw_data_organized,20230914 607-022,m022 s2c2 +,m022_2316-2336.h5,held near -60 mV with DC current; 5 - CC rheobase 5 pA to 100 pA holding at -60 mV
+raw_data_organized,20230914 607-022,m022 s2c2 +,m022_2337-2357.h5,held near -60 mV with DC current; 5 - CC rheobase 5 pA to 100 pA holding at -60 mV
+raw_data_organized,20230914 607-022,m022 s3c2 +,m022_2513.h5,held near -60 mV with DC current; 2 - CC spont firing holding at -60 mV
+raw_data_organized,20230914 607-022,m022 s3c2 +,m022_2514-2524.h5,held near -60 mV with DC current; 3 - CC excitability 20 pA to 200 pA holding at -60 mV
+raw_data_organized,20230914 607-022,m022 s3c2 +,m022_2525-2535.h5,held near -60 mV with DC current; 3 - CC excitability 20 pA to 200 pA holding at -60 mV
+raw_data_organized,20230914 607-022,m022 s3c2 +,m022_2536-2546.h5,held near -60 mV with DC current; 3 - CC excitability 20 pA to 200 pA holding at -60 mV
+raw_data_organized,20230914 607-022,m022 s3c2 +,m022_2547-2550.h5,held near -60 mV with DC current; 4 - CC Ih -50 pA to -150 pA holding at -60 mV
+raw_data_organized,20230914 607-022,m022 s3c2 +,m022_2551-2554.h5,held near -60 mV with DC current; 4 - CC Ih -50 pA to -150 pA holding at -60 mV
+raw_data_organized,20230914 607-022,m022 s3c2 +,m022_2555-2558.h5,held near -60 mV with DC current; 4 - CC Ih -50 pA to -150 pA holding at -60 mV
+raw_data_organized,20230914 607-022,m022 s3c2 +,m022_2559-2579.h5,held near -60 mV with DC current; 5 - CC rheobase 5 pA to 100 pA holding at -60 mV
+raw_data_organized,20230914 607-022,m022 s3c2 +,m022_2580-2600.h5,held near -60 mV with DC current; 5 - CC rheobase 5 pA to 100 pA holding at -60 mV
+raw_data_organized,20230914 607-022,m022 s3c2 +,m022_2604-2624.h5,held near -60 mV with DC current; 5 - CC rheobase 5 pA to 100 pA holding at -60 mV
+raw_data_organized,20230918 611-323,m323 s1c2 +,m323_0238.h5,held near -60 mV with DC current; 2 - CC spont firing holding at -60 mV
+raw_data_organized,20230918 611-323,m323 s1c2 +,m323_0239-0249.h5,held near -60 mV with DC current; 3 - CC excitability 20 pA to 200 pA holding at -60 mV
+raw_data_organized,20230918 611-323,m323 s1c2 +,m323_0250-0260.h5,held near -60 mV with DC current; 3 - CC excitability 20 pA to 200 pA holding at -60 mV
+raw_data_organized,20230918 611-323,m323 s1c2 +,m323_0261-0271.h5,held near -60 mV with DC current; 3 - CC excitability 20 pA to 200 pA holding at -60 mV
+raw_data_organized,20230918 611-323,m323 s1c2 +,m323_0272-0275.h5,held near -60 mV with DC current; 4 - CC Ih -50 pA to -150 pA holding at -60 mV
+raw_data_organized,20230918 611-323,m323 s1c2 +,m323_0276-0279.h5,held near -60 mV with DC current; 4 - CC Ih -50 pA to -150 pA holding at -60 mV
+raw_data_organized,20230918 611-323,m323 s1c2 +,m323_0280-0283.h5,held near -60 mV with DC current; 4 - CC Ih -50 pA to -150 pA holding at -60 mV
+raw_data_organized,20230918 611-323,m323 s1c2 +,m323_0284-0304.h5,held near -60 mV with DC current; 5 - CC rheobase 5 pA to 100 pA holding at -60 mV
+raw_data_organized,20230918 611-323,m323 s1c3 +,m323_0447.h5,held near -60 mV with DC current; 2 - CC spont firing holding at -60 mV
+raw_data_organized,20230918 611-323,m323 s1c3 +,m323_0448-0458.h5,held near -60 mV with DC current; 3 - CC excitability 20 pA to 200 pA holding at -60 mV
+raw_data_organized,20230918 611-323,m323 s1c3 +,m323_0459-0469.h5,held near -60 mV with DC current; 3 - CC excitability 20 pA to 200 pA holding at -60 mV
+raw_data_organized,20230918 611-323,m323 s1c3 +,m323_0474-0484.h5,held near -60 mV with DC current; 3 - CC excitability 20 pA to 200 pA holding at -60 mV
+raw_data_organized,20230918 611-323,m323 s1c3 +,m323_0470-0473.h5,held near -60 mV with DC current; 4 - CC Ih -50 pA to -150 pA holding at -60 mV
+raw_data_organized,20230918 611-323,m323 s1c3 +,m323_0485-0488.h5,held near -60 mV with DC current; 4 - CC Ih -50 pA to -150 pA holding at -60 mV
+raw_data_organized,20230918 611-323,m323 s1c3 +,m323_0489-0492.h5,held near -60 mV with DC current; 4 - CC Ih -50 pA to -150 pA holding at -60 mV
+raw_data_organized,20230918 611-323,m323 s1c3 +,m323_0493-0513.h5,held near -60 mV with DC current; 5 - CC rheobase 5 pA to 100 pA holding at -60 mV
+raw_data_organized,20230918 611-323,m323 s1c3 +,m323_0514-0544.h5,held near -60 mV with DC current; 5 - CC rheobase 5 pA to 100 pA holding at -60 mV
+raw_data_organized,20230918 611-323,m323 s1c3 +,m323_0545-0575.h5,held near -60 mV with DC current; 5 - CC rheobase 5 pA to 100 pA holding at -60 mV
+raw_data_organized,20230921 608-021,m021 s1c2 +,m021_0258.h5,held near -60 mV with DC current; 2 - CC spont firing holding at -60 mV
+raw_data_organized,20230921 608-021,m021 s1c2 +,m021_0259-0269.h5,held near -60 mV with DC current; 3 - CC excitability 20 pA to 200 pA holding at -60 mV
+raw_data_organized,20230921 608-021,m021 s1c2 +,m021_0270-0280.h5,held near -60 mV with DC current; 3 - CC excitability 20 pA to 200 pA holding at -60 mV
+raw_data_organized,20230921 608-021,m021 s1c2 +,m021_0281-0291.h5,held near -60 mV with DC current; 3 - CC excitability 20 pA to 200 pA holding at -60 mV
+raw_data_organized,20230921 608-021,m021 s1c2 +,m021_0292-0295.h5,held near -60 mV with DC current; 4 - CC Ih -50 pA to -150 pA holding at -60 mV
+raw_data_organized,20230921 608-021,m021 s1c2 +,m021_0296-0299.h5,held near -60 mV with DC current; 4 - CC Ih -50 pA to -150 pA holding at -60 mV
+raw_data_organized,20230921 608-021,m021 s1c2 +,m021_0300-0303.h5,held near -60 mV with DC current; 4 - CC Ih -50 pA to -150 pA holding at -60 mV
+raw_data_organized,20230921 608-021,m021 s1c2 +,m021_0304-0324.h5,held near -60 mV with DC current; 5 - CC rheobase 5 pA to 100 pA holding at -60 mV
+raw_data_organized,20230921 608-021,m021 s1c2 +,m021_0325-0365.h5,held near -60 mV with DC current; 5 - CC rheobase 5 pA to 100 pA holding at -60 mV
+raw_data_organized,20230921 608-021,m021 s1c2 +,m021_0366-0396.h5,held near -60 mV with DC current; 5 - CC rheobase 5 pA to 100 pA holding at -60 mV
+raw_data_organized,20230921 608-021,m021 s2c3 +,m021_0758.h5,held near -60 mV with DC current; 2 - CC spont firing holding at -60 mV
+raw_data_organized,20230921 608-021,m021 s2c3 +,m021_0759-0769.h5,held near -60 mV with DC current; 3 - CC excitability 20 pA to 200 pA holding at -60 mV
+raw_data_organized,20230921 608-021,m021 s2c3 +,m021_0770-0780.h5,held near -60 mV with DC current; 3 - CC excitability 20 pA to 200 pA holding at -60 mV
+raw_data_organized,20230921 608-021,m021 s2c3 +,m021_0781-0791.h5,held near -60 mV with DC current; 3 - CC excitability 20 pA to 200 pA holding at -60 mV
+raw_data_organized,20230921 608-021,m021 s2c3 +,m021_0792-0795.h5,held near -60 mV with DC current; 4 - CC Ih -50 pA to -150 pA holding at -60 mV
+raw_data_organized,20230921 608-021,m021 s2c3 +,m021_0796-0799.h5,held near -60 mV with DC current; 4 - CC Ih -50 pA to -150 pA holding at -60 mV
+raw_data_organized,20230921 608-021,m021 s2c3 +,m021_0800-0820.h5,held near -60 mV with DC current; 5 - CC rheobase 5 pA to 100 pA holding at -60 mV
+raw_data_organized,20230921 608-021,m021 s2c3 +,m021_0821-0851.h5,held near -60 mV with DC current; 5 - CC rheobase 5 pA to 100 pA holding at -60 mV
+raw_data_organized,20230921 608-021,m021 s2c3 +,m021_0852-0882.h5,held near -60 mV with DC current; 5 - CC rheobase 5 pA to 100 pA holding at -60 mV
+raw_data_organized,20230921 608-021,m021 s2c6 +,m021_1227.h5,held near -60 mV with DC current; 2 - CC spont firing holding at -60 mV
+raw_data_organized,20230921 608-021,m021 s2c6 +,m021_1228-1238.h5,held near -60 mV with DC current; 3 - CC excitability 20 pA to 200 pA holding at -60 mV
+raw_data_organized,20230921 608-021,m021 s2c6 +,m021_1239-1249.h5,held near -60 mV with DC current; 3 - CC excitability 20 pA to 200 pA holding at -60 mV
+raw_data_organized,20230921 608-021,m021 s2c6 +,m021_1250-1260.h5,held near -60 mV with DC current; 3 - CC excitability 20 pA to 200 pA holding at -60 mV
+raw_data_organized,20230921 608-021,m021 s2c6 +,m021_1261-1264.h5,held near -60 mV with DC current; 4 - CC Ih -50 pA to -150 pA holding at -60 mV
+raw_data_organized,20230921 608-021,m021 s2c6 +,m021_1265-1268.h5,held near -60 mV with DC current; 4 - CC Ih -50 pA to -150 pA holding at -60 mV
+raw_data_organized,20230921 608-021,m021 s2c6 +,m021_1269-1272.h5,held near -60 mV with DC current; 4 - CC Ih -50 pA to -150 pA holding at -60 mV
+raw_data_organized,20230921 608-021,m021 s2c6 +,m021_1273-1293.h5,held near -60 mV with DC current; 5 - CC rheobase 5 pA to 100 pA holding at -60 mV
+raw_data_organized,20230921 608-021,m021 s2c6 +,m021_1294-1314.h5,held near -60 mV with DC current; 5 - CC rheobase 5 pA to 100 pA holding at -60 mV
+raw_data_organized,20230921 608-021,m021 s2c6 +,m021_1315-1335.h5,held near -60 mV with DC current; 5 - CC rheobase 5 pA to 100 pA holding at -60 mV
+raw_data_organized,20230921 608-021,m021 s2c7 +,m021_1433.h5,held near -60 mV with DC current; 2 - CC spont firing holding at -60 mV
+raw_data_organized,20230921 608-021,m021 s2c7 +,m021_1434-1444.h5,held near -60 mV with DC current; 3 - CC excitability 20 pA to 200 pA holding at -60 mV
+raw_data_organized,20230921 608-021,m021 s2c7 +,m021_1445-1455.h5,held near -60 mV with DC current; 3 - CC excitability 20 pA to 200 pA holding at -60 mV
+raw_data_organized,20230921 608-021,m021 s2c7 +,m021_1456-1466.h5,held near -60 mV with DC current; 3 - CC excitability 20 pA to 200 pA holding at -60 mV
+raw_data_organized,20230921 608-021,m021 s2c7 +,m021_1467-1470.h5,held near -60 mV with DC current; 4 - CC Ih -50 pA to -150 pA holding at -60 mV
+raw_data_organized,20230921 608-021,m021 s2c7 +,m021_1471-1474.h5,held near -60 mV with DC current; 4 - CC Ih -50 pA to -150 pA holding at -60 mV
+raw_data_organized,20230921 608-021,m021 s2c7 +,m021_1475-1495.h5,held near -60 mV with DC current; 5 - CC rheobase 5 pA to 100 pA holding at -60 mV
+raw_data_organized,20230921 608-021,m021 s2c7 +,m021_1496-1516.h5,held near -60 mV with DC current; 5 - CC rheobase 5 pA to 100 pA holding at -60 mV
+raw_data_organized,20230921 608-021,m021 s2c7 +,m021_1517-1537.h5,held near -60 mV with DC current; 5 - CC rheobase 5 pA to 100 pA holding at -60 mV
+raw_data_organized,20230913 607-009,m009 s1c1 +,m009_1027-1037.h5,held near -60 mV with DC current; third run done with +80 pA holding current (to -60 mV)
+raw_data_organized,20230913 607-009,m009 s1c1 +,m009_1112-1152.h5,held near -60 mV with DC current; third run done with +80 pA holding current (to -60 mV)
