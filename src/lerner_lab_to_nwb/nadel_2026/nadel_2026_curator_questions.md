@@ -6,7 +6,17 @@ Open decisions say what the code does now under "Current behavior". Closed decis
 
 ## Open
 
-None. All curator decisions are closed as of 2026-10-29.
+10\. Retrobead status for cells recorded from 2024 on. Only the 2023 cell folder names carry "+" or "-", so the `retrobead_positive` column is "unknown" for every later cell. Two other sources could fill it: the log sheets' "Retrob+" column, and the preprint's statement that bead-positive cells were targeted under LED illumination. Should the column use the log sheets, the preprint, or stay as it is?
+
+Current behavior: "yes" or "no" from the 2023 folder names, "unknown" for every other cell.
+
+11\. Electrode slice and location. The `slice` field is "Slice N of the recording day", taken from the cell ID. `location` is "Central amygdalar nucleus" (Allen CEA) for every cell, with no hemisphere (lab question 16). Is that enough?
+
+Current behavior: as described.
+
+12\. Stress group and projection target are stored only as text, in the subject description (for example "Unstressed littermate control ... Retrobeads injected into the TS.") and the session description. NWB's Subject has no group field, so a reader has to parse the text to group cells, as the example notebook does. Should they also be stored in a structured form?
+
+Current behavior: text only.
 
 ## Closed
 
