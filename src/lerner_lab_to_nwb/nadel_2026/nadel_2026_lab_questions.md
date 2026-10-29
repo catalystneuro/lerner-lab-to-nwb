@@ -9,7 +9,7 @@ Questions for Jacob about `aCUS_ephys_raw_for_NWB`. The conversion covers the 19
 1\. Which cells are in each Figure 2 panel?
 - Figs. 2D-F (P70): `baseline Firing Rate.csv` in the Zenodo bundle reproduces the figures' means and SEMs exactly, but its cells differ from `used cells.csv`. It adds the 3 m410 cells, `m108 s1c3`, and `m011 s2c1 +`, and leaves out `m105 s1c1` and `m114 s2c2`. Is that table the right list?
 - Fig. 2N (P40): the counts (16 unstressed, 19 stressed) match your cells in 853-L, 854-L, 855-L, and 862-L. Are those the cells?
-- `m011 s2c1 +`: the table's F-I sweeps (297-307) are in its rheobase runs, not its F-I runs. Are the paper's values from the right sweeps? The cell has no log entry, so which of its runs were held at -60 mV?
+- `m011 s2c1 +` is not in `used cells.csv`, but it is in `baseline Firing Rate.csv`, and the Fig. 2F unstressed values in the preprint match that table only with this cell included. Is it in Fig. 2F? If so, which of its runs were used, and which were held at -60 mV? It has no log entry. Its `sweep` value is 297 in `baseline Firing Rate.csv` and 351 in `firing rate from -60.csv`. What does that column record?
 
 The P40 and m410 parts repeat our Oct 21 email.
 
