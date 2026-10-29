@@ -13,10 +13,9 @@ SESSION_TIMEZONE = ZoneInfo("America/Chicago")
 VOLTAGE_CLAMP_HOLDING_POTENTIAL = -70.0  # mV, set on the amplifier for every voltage clamp run
 CELL_COLUMNS = {
     "cell_folder": "Name of the cell's folder in the lab's raw data, which carries bead status and MZ's cell number.",
-    "experimenter": "Initials of the person who recorded the cell (JN, MZ, or ES).",
+    "experimenter": "Initials of the person who recorded the cell (JN or MZ).",
     "retrobead_positive": "Whether the cell contained retrobeads, from the cell folder name ('+' or '-'); "
     "'unknown' where the folder name does not say.",
-    "in_paper": "Whether the cell is in the 160 cells analyzed in the preprint (metadata/used cells.csv).",
     "snl_cluster": "Electrophysiological cluster of the CeA-SNL cell in the preprint's clustering (1 regular "
     "spiking, 2 low-threshold bursting, 3 late firing); 0 for cells that were not clustered.",
 }
@@ -31,7 +30,7 @@ def session_to_nwb(
     stub_test: bool = False,
     overwrite: bool = False,
 ):
-    """Convert one recording day (one mouse) to NWB.
+    """Convert the cells of one recording day (one mouse) that are in the preprint to NWB.
 
     Parameters
     ----------
@@ -54,9 +53,10 @@ def session_to_nwb(
         output_dir_path = output_dir_path / "nwb_stub"
     output_dir_path.mkdir(parents=True, exist_ok=True)
 
+    paper_cells = pd.read_csv(Path(__file__).parent / "nadel_2026_paper_cells.csv")
+    paper_cells = paper_cells[(paper_cells.tree == tree) & (paper_cells.mouse_folder == mouse_folder)]
     cells = pd.read_csv(data_dir_path / "tables" / "cells_master.csv")
-    cells = cells[(cells.tree == ("main" if tree == "raw_data_organized" else "timecourse"))]
-    cells = cells[cells.mouse_folder == mouse_folder]
+    cells = cells.merge(paper_cells[["mouse_folder", "cell_folder"]], on=["mouse_folder", "cell_folder"])
     if stub_test:
         cells = cells.iloc[:1]
     excluded_runs = pd.read_csv(Path(__file__).parent / "nadel_2026_excluded_runs.csv")
@@ -95,7 +95,7 @@ def session_to_nwb(
                 electrode_name=electrode_name,
                 voltage_clamp_holding_potential=VOLTAGE_CLAMP_HOLDING_POTENTIAL,
             )
-        slice_number = re.fullmatch(r"m\d+ s(\d+)c\d+(ES)?", cell.cell_id).group(1)
+        slice_number = re.fullmatch(r"m\d+ s(\d+)c\d+", cell.cell_id).group(1)
         electrodes_metadata[electrode_name] = dict(
             device_name="MultiClamp700B",
             description=editable_metadata["Icephys"]["IntracellularElectrode"]["description"],
@@ -107,7 +107,6 @@ def session_to_nwb(
             cell_folder=cell.cell_folder,
             experimenter=experimenter,
             retrobead_positive={"+": "yes", "-": "no"}.get(cell.bead, "unknown"),
-            in_paper=bool(cell.in_used_cells),
             snl_cluster=0 if pd.isna(cell.snl_cluster) else int(cell.snl_cluster),
         )
 
@@ -163,8 +162,6 @@ def get_experimenter_initials(cell_folder: str) -> str:
     """Return the initials of the person who recorded a cell, from the naming of its folder."""
     if "(mz_" in cell_folder:
         return "MZ"
-    if cell_folder.endswith("ES"):
-        return "ES"
     return "JN"
 
 
@@ -175,8 +172,8 @@ if __name__ == "__main__":
 
     example_sessions = [
         ("raw_data_organized", "20250213 756-0"),  # TS, 2025, recorded command matches the library stimulus
-        ("raw_data_organized", "20230913 607-009"),  # Sept 2023, MZ cells and runs held at -60 mV
-        ("timecourse_raw_data_organized", "20251016 855-L"),  # ES cells and the 20 kHz gap-free recording
+        ("raw_data_organized", "20230913 607-009"),  # Sept 2023, with held and misfiled runs of m009 s1c1
+        ("timecourse_raw_data_organized", "20251015 862-L"),  # P40 cohort (Fig. 2N), with an I=0 recording
     ]
     for tree, mouse_folder in example_sessions:
         session_to_nwb(
