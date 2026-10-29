@@ -118,6 +118,9 @@ change the `max_workers` argument to `dataset_to_nwb()`.
 `nadel_2026_notes.md`, open questions for the lab are in `nadel_2026_lab_questions.md`, and open decisions about the conversion are in
 `nadel_2026_curator_questions.md`.
 
+Set up its environment from `src/lerner_lab_to_nwb/nadel_2026/nadel_2026_requirements.txt` with Python 3.12: install
+that file with pip, then install this repository with `pip install -e . --no-deps`.
+
 To convert the three example days, run
 ```bash
 python src/lerner_lab_to_nwb/nadel_2026/nadel_2026_convert_session.py
