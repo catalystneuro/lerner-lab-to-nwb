@@ -76,6 +76,10 @@ Current behavior: these names are used, without ORCIDs.
 
 Current behavior: no recorded command for those 241 runs. The stimulus template, built from the protocol library, is the only stimulus.
 
+20\. The free-text notes in your log sheets. Many of them carry useful experimental information, for example that the holding current from the previous cell was left on during some runs, or that access resistance doubled during a recording. That information is mixed with informal wording. We'd like to include it in the NWB files, which may eventually be shared publicly. Our proposal: keep the experimental content of each note, remove expletives and purely personal remarks, and leave out notes that have no experimental content. Is that OK, or would you prefer the notes verbatim, or left out entirely? Either way, we can send you the edited notes to review before anything is shared.
+
+Current behavior: notes are not converted.
+
 ## Closed
 
 4\. Was the VC spontaneous run in `m405 s1c1` deliberate, like MZ's?

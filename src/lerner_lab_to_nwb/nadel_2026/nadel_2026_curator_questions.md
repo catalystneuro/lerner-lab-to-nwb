@@ -6,10 +6,6 @@ Open decisions say what the code does now under "Current behavior". Closed decis
 
 ## Open
 
-9\. The log sheets have per-cell pipette resistance, access resistance, holding current, resting potential, and free-text notes, but the fields are sparse and inconsistently formatted. Should any of them go in the files? The most useful would be pipette resistance and initial access resistance, which NWB has fields for. Converting them would mean cleaning the scraped values, possibly with Jacob's help.
-
-Current behavior: not converted.
-
 ## Closed
 
 1\. Is this dataset going to be published on DANDI?
@@ -43,3 +39,7 @@ Decision (Paul, 2026-10-29): one file per mouse/day, with one electrode per cell
 7\. How should the stimulus be represented? Jacob suggested building it from the stimulus library in each file header and keeping the recorded command loopback as an extra trace where it is valid.
 
 Decision (Paul, 2026-10-29): include both. The waveform built from the stimulus library is the stimulus template for every run, and the recorded loopback is the delivered stimulus for every run that has one. Jacob's Sept 2023 runs have no loopback, because their second analog input recorded the membrane potential instead (lab question 19), so those runs have a template only.
+
+9\. Should the log sheet fields go in the files?
+
+Decision (Paul, 2026-10-29): yes, for every cell and day that has them, extracted from the three Excel log sheets directly instead of Jacob's scraped CSVs, to recover more of the entries and handle the inconsistent formatting. Entries that hold two readings are kept as text, exactly as written, and ambiguous entries are left blank instead of guessed. The free-text notes wait on lab question 20.
