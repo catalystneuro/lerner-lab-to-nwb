@@ -4,8 +4,6 @@ Questions about the data in `aCUS_ephys_raw_for_NWB`, collected while reading Ja
 
 The conversion covers the 198 cells in the preprint's figures, listed in `nadel_2026_paper_cells.csv`. Open questions say what the code does now under "Current behavior". Closed questions record the answer, its source, and the date. Numbers stay with a question when it moves from open to closed.
 
-Items from the README's "don't have" list that the preprint methods already answer are at the bottom so they can be confirmed in one pass.
-
 ## Open
 
 ### Cells and runs
@@ -94,26 +92,4 @@ Current behavior: as described; the values are in `nadel_2026_log_cells.csv`, `n
 
 ## Closed
 
-4\. Was the VC spontaneous run in `m405 s1c1` deliberate, like MZ's?
-
-Closed (2026-10-29): no longer needed. `m405 s1c1` is a P220 cell, and the P220 cohort is not in the paper, so it is not converted.
-
-7\. Was the rig ES used for the four `855-L` cells different from Jacob's?
-
-Closed (2026-10-29): no longer needed. ES's cells are not in the paper (Fig. 2N counts match without them), so they are not converted.
-
-## Answered by the preprint methods (to confirm)
-
-| Item | Value from the preprint |
-|---|---|
-| Amplifier | MultiClamp 700B (Molecular Devices) |
-| DAQ | National Instruments PCIe-6323 with BNC-2090A breakout |
-| Acquisition | WaveSurfer 0.945, 10 kHz |
-| Temperature | 30-32 °C, inline heater, ~1.5 ml/min |
-| Slices | coronal, 250-300 µm, Leica VT1200S, NMDG protective recovery |
-| Internal | 130 K-gluconate, 15 KCl, 10 HEPES, 2 Mg-ATP, 1 EGTA, 0.3 Na-GTP (mM) |
-| Bath drugs | D-AP5 50 µM, NBQX 5 µM, gabazine 10 µM |
-| Pipettes | 3-7 MΩ, borosilicate (Warner G150TF-4), Narishige PC-100 |
-| Beads | red Retrobeads (LumaFluor), 1:4 in saline, 250 nL |
-| Strain | C57BL/6J (Jackson), bred in house |
-| Time zone | America/Chicago (from `read_wavesurfer_example.py`) |
+None yet.
