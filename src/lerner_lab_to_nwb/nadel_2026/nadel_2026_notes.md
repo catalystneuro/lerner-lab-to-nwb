@@ -5,7 +5,8 @@ from Nadel et al., "Adolescent stress recruits a latent amygdala-dopamine circui
 reward-seeking" (bioRxiv, doi:10.64898/2026.07.29.741478). This is the reference dataset for the lab's slice
 electrophysiology pipeline (Aim 3 of the 2026 scope of work). It is converted locally and not uploaded to DANDI.
 
-Open questions for the lab are in `nadel_2026_questions.md`.
+Open questions for the lab are in `nadel_2026_lab_questions.md`, and open decisions about the conversion are in
+`nadel_2026_curator_questions.md`.
 
 ## Source data
 
@@ -71,7 +72,7 @@ dependency. Whether it generalizes enough to port to NeuroConv is to be assessed
 - The 20 kHz gap-free file in `m402 s1c1ES` (`AJ_Ch1_VC_test pulse.cfg`) has no stimulus bound to its output, so it
   has a response and no stimulus.
 - Excluded runs are listed with reasons in `nadel_2026_excluded_runs.csv`: the Sept 2023 runs held near -60 mV
-  (README "Holding"; matched from the log's sweep ranges, see question 3) and 12 byte-identical duplicates of
+  (README "Holding"; matched from the log's sweep ranges, see lab question 1) and 12 byte-identical duplicates of
   `m009 s1c1` runs filed in MZ's `m009 s3c1` folder.
 - `nadel_2026_misfiled_runs.csv` reassigns `m009_0001-0003.h5` and `m009_0004.h5`, which sit in MZ's folder but are
   the first test pulse and spontaneous run of Jacob's `m009 s1c1` (README item 3).
@@ -90,10 +91,10 @@ placement relative to Jacob's runs depends on the two rig computers' clocks agre
 
 - Session-level text (slices, pharmacology, internal, devices, surgery) is from the preprint methods.
 - Subject sex, stress group, and projection target come from `subjects_from_makeMice.csv`. Age is set only for the
-  timecourse mice (P40 or P220 from makeMice); the main-tree mice have no age or date of birth yet (question 13), which
+  timecourse mice (P40 or P220 from makeMice); the main-tree mice have no age or date of birth yet (lab question 10), which
   NWB Inspector reports as critical.
 - Experimenters are the people who recorded the cells in that file: JN = Jacob A. Nadel, MZ = Manhua Zhu,
-  ES = Evan S. Swanson (initials matched to the preprint author list, question 23).
+  ES = Evan S. Swanson (initials matched to the preprint author list, lab question 17).
 
 ## Ontology annotation
 

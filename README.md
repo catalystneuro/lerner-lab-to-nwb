@@ -114,7 +114,8 @@ change the `max_workers` argument to `dataset_to_nwb()`.
 (bioRxiv, doi:10.64898/2026.07.29.741478), recorded with WaveSurfer, to one NWB file per recording day.
 `WaveSurferIntracellularInterface` reads one WaveSurfer `.h5` file (one run of one protocol on one cell), and
 `Nadel2026NWBConverter` combines the runs of a day. Notes on the data and the conversion decisions are in
-`nadel_2026_notes.md`, and open questions for the lab are in `nadel_2026_questions.md`.
+`nadel_2026_notes.md`, open questions for the lab are in `nadel_2026_lab_questions.md`, and open decisions about the conversion are in
+`nadel_2026_curator_questions.md`.
 
 To convert the three example days, run
 ```bash
