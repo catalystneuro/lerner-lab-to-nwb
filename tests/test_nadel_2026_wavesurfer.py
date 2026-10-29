@@ -14,6 +14,13 @@ from pynwb.icephys import (
 from pynwb.testing.mock.file import mock_NWBFile
 
 from lerner_lab_to_nwb.nadel_2026 import Nadel2026NWBConverter, WaveSurferIntracellularInterface
+from lerner_lab_to_nwb.nadel_2026.nadel_2026_extract_log_sheets import parse_sweep_entry, read_cell_blocks
+from lerner_lab_to_nwb.nadel_2026.nadel_2026_log_sheets import (
+    get_log_cell_columns,
+    get_log_cell_metadata,
+    get_log_session_notes,
+    get_test_pulse_access_resistances,
+)
 
 # 10 Hz keeps sweeps short enough to write expected values by hand: a 2 s sweep is 20 samples.
 SAMPLING_RATE = 10.0
@@ -189,11 +196,30 @@ def metadata() -> dict:
             Devices=[dict(name="MultiClamp700B", description="MultiClamp 700B patch clamp amplifier.")],
             IntracellularElectrodes=dict(
                 electrode_m203_s3c2=dict(
-                    device_name="MultiClamp700B", description="Patch pipette.", cell_id="m203 s3c2"
+                    device_name="MultiClamp700B",
+                    description="Patch pipette.",
+                    cell_id="m203 s3c2",
+                    resistance="4.1 MOhm",
+                    initial_access_resistance="15.5 MOhm",
                 )
             ),
-            Cells=dict(electrode_m203_s3c2=dict(experimenter="JN")),
-            CellColumns=dict(experimenter="Initials of the person who recorded the cell."),
+            Cells=dict(
+                electrode_m203_s3c2=dict(
+                    experimenter="JN",
+                    stress_group="naive",
+                    projection_target="TS",
+                    pipette_offset=np.nan,
+                    time_of_recording="",
+                )
+            ),
+            CellColumns=dict(
+                experimenter="Initials of the person who recorded the cell.",
+                stress_group="Group of the mouse.",
+                projection_target="Region where retrobeads were injected.",
+                pipette_offset="Pipette offset.",
+                time_of_recording="Time the cell was recorded.",
+            ),
+            TestPulseAccessResistances={"m203_0610.h5": 12.5},
         )
     )
 
@@ -377,6 +403,17 @@ class TestWaveSurferIntracellularInterface:
         assert sequential_recordings["stimulus_type"].data == ["PA_Ch1_CC excitability 20 pA steps to 200 pA"]
         assert interface.sequential_recording_index == 0
 
+    def test_electrode_resistances(self, current_clamp_file_path, metadata):
+        interface = WaveSurferIntracellularInterface(
+            file_path=current_clamp_file_path, electrode_name="electrode_m203_s3c2"
+        )
+        nwbfile = mock_NWBFile()
+        interface.add_to_nwbfile(nwbfile=nwbfile, metadata=metadata)
+
+        electrode = nwbfile.icephys_electrodes["electrode_m203_s3c2"]
+        assert electrode.resistance == "4.1 MOhm"
+        assert electrode.initial_access_resistance == "15.5 MOhm"
+
 
 class TestNadel2026NWBConverter:
     def test_session_start_time(self, current_clamp_file_path, voltage_clamp_file_path):
@@ -455,3 +492,130 @@ class TestNadel2026NWBConverter:
 
         assert isinstance(nwbfile.acquisition["m203_0571-0573_sweep_0573_response"], CurrentClampSeries)
         assert isinstance(nwbfile.acquisition["m203_0573-0575_sweep_0573_response"], VoltageClampSeries)
+
+    def test_log_sheet_columns(self, current_clamp_file_path, voltage_clamp_file_path, metadata):
+        converter = Nadel2026NWBConverter(
+            data_interfaces=dict(
+                voltage_clamp=WaveSurferIntracellularInterface(
+                    file_path=voltage_clamp_file_path, electrode_name="electrode_m203_s3c2"
+                ),
+                current_clamp=WaveSurferIntracellularInterface(
+                    file_path=current_clamp_file_path, electrode_name="electrode_m203_s3c2"
+                ),
+            )
+        )
+        metadata["NWBFile"] = dict(session_start_time=datetime(2025, 2, 13, 16, 58, 12, 500000))
+        converter.temporally_align_data_interfaces(metadata=metadata)
+        nwbfile = mock_NWBFile()
+        converter.add_to_nwbfile(nwbfile=nwbfile, metadata=metadata)
+
+        sequential_recordings = nwbfile.get_icephys_sequential_recordings()
+        np.testing.assert_array_equal(sequential_recordings["access_resistance"].data, [np.nan, 12.5])
+        electrodes = nwbfile.intracellular_recordings.category_tables["electrodes"]
+        np.testing.assert_array_equal(electrodes["pipette_offset"].data, [np.nan] * 4)
+        assert list(electrodes["time_of_recording"].data) == [""] * 4
+        assert list(electrodes["stress_group"].data) == ["naive"] * 4
+        assert list(electrodes["projection_target"].data) == ["TS"] * 4
+
+
+class TestLogSheets:
+    def test_parse_sweep_entry(self):
+        assert parse_sweep_entry("1-3 (35)") == (1, 3, "35")
+        assert parse_sweep_entry("113 (20)") == (113, None, "20")
+        assert parse_sweep_entry("1115 (VC)") == (1115, None, "VC")
+        assert parse_sweep_entry("1122 bad") == (1122, None, None)
+        assert parse_sweep_entry("-8 pA") is None
+        assert parse_sweep_entry("died") is None
+
+    def test_read_cell_blocks(self):
+        header = {
+            "B": "L or R",
+            "C": "Retrob+",
+            "F": "Er",
+            "G": "P off",
+            "I": "Rt",
+            "J": "h",
+            "M": "i to hold -70 mV",
+            "N": "Resting",
+        }
+        rows = {
+            14: {"B": "@ (hh:mm)", "C": "2:15"},
+            15: {"B": "DRUGS:", "C": "NBQX", "D": "DAP5", "E": "GBZ"},
+            16: header,
+            17: {"A": "sXcX", "F": "4.5", "J": "22.78", "M": "-175", "N": "-60, -55"},
+            20: {"A": "Whole Cell KGluc for CC"},
+            21: {"A": "1 - VC test pulse", "B": "1-3 (35)", "C": "4-6 (11)"},
+            22: {"A": "2 - CC spont firing", "B": "7", "C": "dead :("},
+            24: {"B": "@ (hh:mm)"},
+            25: {"A": "s1c2", "B": "DRUGS:", "C": "NBQX"},
+            26: header,
+            27: {"G": "20.46"},
+            31: {"A": "1 - VC test pulse at end", "B": "116-118 (10.5)"},
+        }
+        first_block, second_block = read_cell_blocks(rows)
+
+        assert (first_block["first_row"], first_block["last_row"]) == (14, 23)
+        assert first_block["label"] == "sXcX"
+        assert first_block["time"] == "2:15"
+        assert first_block["drugs"] == "NBQX DAP5 GBZ"
+        assert first_block["values"] == {"Er": "4.5", "h": "22.78", "i to hold -70 mV": "-175", "Resting": "-60, -55"}
+        assert [run["entry"] for run in first_block["runs"]] == [(1, 3, "35"), (4, 6, "11"), (7, None, None)]
+        assert second_block["label"] == "s1c2"
+        assert second_block["time"] == ""
+        assert second_block["drugs"] == "NBQX"
+        assert second_block["values"] == {"P off": "20.46"}
+        assert [run["entry"] for run in second_block["runs"]] == [(116, 118, "10.5")]
+
+    def test_log_cell_metadata(self):
+        cells = get_log_cell_metadata(mouse_folder="20230914 607-022")
+
+        assert cells["m022 s2c1 +"]["electrode"] == {"resistance": "4.0 MOhm"}
+        columns = cells["m022 s2c1 +"]["columns"]
+        assert columns["pipette_offset"] == 24.97
+        assert columns["time_of_recording"] == ""
+        assert columns["holding_current_to_minus_70_mV"] == "+10"
+        assert cells["m022 s1c4 +"]["columns"]["pipette_offset"] == 23.18
+        assert cells["m022 s1c4 +"]["electrode"] == {}
+
+    def test_log_cell_columns_skip_empty_columns(self):
+        log_cells = {
+            "m203 s1c1": dict(
+                columns=dict(
+                    pipette_offset=np.nan,
+                    fast_capacitance_compensation=6.016,
+                    time_of_recording="",
+                    holding_current_to_minus_70_mV="",
+                    resting_potential="-51",
+                    bath_drugs="NBQX DAP5 GBZ",
+                )
+            ),
+            "m203 s2c1": dict(
+                columns=dict(
+                    pipette_offset=np.nan,
+                    fast_capacitance_compensation=np.nan,
+                    time_of_recording="2:15",
+                    holding_current_to_minus_70_mV="",
+                    resting_potential="",
+                    bath_drugs="NBQX DAP5 GBZ",
+                )
+            ),
+        }
+        assert list(get_log_cell_columns(log_cells)) == [
+            "fast_capacitance_compensation",
+            "time_of_recording",
+            "resting_potential",
+            "bath_drugs",
+        ]
+
+    def test_test_pulse_access_resistances(self):
+        access_resistances = get_test_pulse_access_resistances(mouse_folder="20230914 607-022")
+
+        assert access_resistances["m022_1924-1926.h5"] == 21.0
+        assert access_resistances["m022_1927-1929.h5"] == 11.6
+
+    def test_log_session_notes(self):
+        assert get_log_session_notes(mouse_folder="20230912 611-006") == (
+            "Log sheet: internal Kgluc for CC; surgery Beads SNL bilat, looks good; slicing outcome Good-ish, "
+            "ventral side of slices kinda goofy; days since surgery 7 ish."
+        )
+        assert get_log_session_notes(mouse_folder="20230913 607-009") == "Log sheet: days since surgery 7 ish."

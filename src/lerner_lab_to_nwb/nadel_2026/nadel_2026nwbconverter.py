@@ -1,6 +1,7 @@
 """Primary NWBConverter class for this dataset."""
 from pathlib import Path
 
+import numpy as np
 from neuroconv import ConverterPipe
 from neuroconv.utils import DeepDict, load_dict_from_file
 from pynwb import NWBFile
@@ -45,6 +46,15 @@ class Nadel2026NWBConverter(ConverterPipe):
             name="source_file",
             description="WaveSurfer file that holds the run.",
             data=[interface.source_data["file_path"].name for interface in interfaces],
+        )
+        access_resistances = metadata["Icephys"]["TestPulseAccessResistances"]
+        sequential_recordings.add_column(
+            name="access_resistance",
+            description=(
+                "Access resistance in MOhm noted in the lab log sheet after this VC test pulse run; NaN for other "
+                "runs and where none was noted."
+            ),
+            data=[access_resistances.get(interface.source_data["file_path"].name, np.nan) for interface in interfaces],
         )
         sequential_recording_indices = {}
         for interface in interfaces:

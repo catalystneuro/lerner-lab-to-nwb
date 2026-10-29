@@ -8,6 +8,12 @@ import pandas as pd
 from neuroconv.utils import dict_deep_update, load_dict_from_file
 
 from lerner_lab_to_nwb.nadel_2026 import Nadel2026NWBConverter, WaveSurferIntracellularInterface
+from lerner_lab_to_nwb.nadel_2026.nadel_2026_log_sheets import (
+    get_log_cell_columns,
+    get_log_cell_metadata,
+    get_log_session_notes,
+    get_test_pulse_access_resistances,
+)
 
 SESSION_TIMEZONE = ZoneInfo("America/Chicago")
 VOLTAGE_CLAMP_HOLDING_POTENTIAL = -70.0  # mV, set on the amplifier for every voltage clamp run
@@ -15,10 +21,12 @@ RECORDED_COMMAND_CHANNEL_INDEX = 1  # analog input that records the DAQ's comman
 CELL_COLUMNS = {
     "cell_folder": "Name of the cell's folder in the lab's raw data, which carries bead status and MZ's cell number.",
     "experimenter": "Initials of the person who recorded the cell (JN or MZ).",
-    "retrobead_positive": "Whether the cell contained retrobeads, from the cell folder name ('+' or '-'); "
-    "'unknown' where the folder name does not say.",
     "snl_cluster": "Electrophysiological cluster of the CeA-SNL cell in the preprint's clustering (1 regular "
     "spiking, 2 low-threshold bursting, 3 late firing); 0 for cells that were not clustered.",
+    "stress_group": "Group of the mouse: 'stress' for adolescent chronic unpredictable stress (P28-P40) or 'naive' "
+    "for an unstressed littermate control, from the lab's makeMice table.",
+    "projection_target": "Region where retrobeads were injected (SNL, BNST, PAG, or TS), so the retrobead-positive "
+    "cell projects there, from the lab's makeMice table.",
 }
 
 
@@ -77,6 +85,8 @@ def session_to_nwb(
     interfaces = {}
     electrodes_metadata = {}
     cells_metadata = {}
+    log_cells = get_log_cell_metadata(mouse_folder=mouse_folder)
+    log_cells = {cell_folder: log_cells[cell_folder] for cell_folder in cells.cell_folder}
     for cell in cells.itertuples():
         electrode_name = f"electrode_{cell.cell_id.replace(' ', '_')}"
         experimenter = get_experimenter_initials(cell.cell_folder)
@@ -109,12 +119,13 @@ def session_to_nwb(
             location=editable_metadata["Icephys"]["IntracellularElectrode"]["location"],
             cell_id=cell.cell_id,
             slice=f"Slice {slice_number} of the recording day",
+            **log_cells[cell.cell_folder]["electrode"],
         )
         cells_metadata[electrode_name] = dict(
             cell_folder=cell.cell_folder,
             experimenter=experimenter,
-            retrobead_positive={"+": "yes", "-": "no"}.get(cell.bead, "unknown"),
             snl_cluster=0 if pd.isna(cell.snl_cluster) else int(cell.snl_cluster),
+            **log_cells[cell.cell_folder]["columns"],
         )
 
     converter = Nadel2026NWBConverter(data_interfaces=interfaces)
@@ -127,6 +138,8 @@ def session_to_nwb(
     subject = subjects[subjects.animal_id == animal_id].iloc[0]
     target = subject.projection_target
     stress_description = editable_metadata["stress_group_to_description"][subject.stress]
+    for cell_metadata in cells_metadata.values():
+        cell_metadata.update(stress_group=subject.stress, projection_target=target)
     session_metadata = dict(
         NWBFile=dict(
             session_id=mouse_folder.replace(" ", "_"),
@@ -150,8 +163,16 @@ def session_to_nwb(
             sex={"female": "F", "male": "M"}[subject.sex],
             description=f"{stress_description} Retrobeads injected into the {target}.",
         ),
-        Icephys=dict(IntracellularElectrodes=electrodes_metadata, Cells=cells_metadata, CellColumns=CELL_COLUMNS),
+        Icephys=dict(
+            IntracellularElectrodes=electrodes_metadata,
+            Cells=cells_metadata,
+            CellColumns={**CELL_COLUMNS, **get_log_cell_columns(log_cells)},
+            TestPulseAccessResistances=get_test_pulse_access_resistances(mouse_folder=mouse_folder),
+        ),
     )
+    log_session_notes = get_log_session_notes(mouse_folder=mouse_folder)
+    if log_session_notes:
+        session_metadata["NWBFile"]["notes"] = log_session_notes
     if not pd.isna(subject.age_days):
         session_metadata["Subject"]["age"] = f"P{subject.age_days}D"
     metadata = dict_deep_update(metadata, editable_metadata)

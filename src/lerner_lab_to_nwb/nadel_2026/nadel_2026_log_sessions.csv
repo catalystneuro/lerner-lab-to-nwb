@@ -1,0 +1,35 @@
+mouse_folder,source_file,source_sheet,internal,surgery,slicing_outcome,ephys_outcome,days_since_surgery,extraction_note
+20230912 611-006,Ephys Log Sheet - aCUS CeA Beads (started 09-10-23).xlsx,20230912 m006,Kgluc for CC,"Beads SNL bilat, looks good","Good-ish, ventral side of slices kinda goofy",,7 ish,
+20230913 607-009,Ephys Log Sheet - aCUS CeA Beads (started 09-10-23).xlsx,20230913 m009,,,,,7 ish,
+20230914 607-022,Ephys Log Sheet - aCUS CeA Beads (started 09-10-23).xlsx,20230914 m022,Kgluc for CC,,,,7 ish,
+20230918 611-323,Ephys Log Sheet - aCUS CeA Beads (started 09-10-23).xlsx,20230918 m323,,beads SNL bilat,,,,
+20230920 608-011,Ephys Log Sheet - aCUS CeA Beads (started 09-10-23).xlsx,20230920 m011,,,,,7 ish,
+20230921 608-021,Ephys Log Sheet - aCUS CeA Beads (started 09-10-23).xlsx,20230921 m021,,,,,7 ish,internal: '021' left blank (the mouse number written in the Internal field); Mouse field reads '608' (subject is 608-021)
+20240523 674-R,Ephys Log Sheet - aCUS CeA Beads (started 09-10-23).xlsx,20240523 m001,Mod Kgluc for CC,Beads BNST Bilat,,,7 ish,
+20240524 671-L,Ephys Log Sheet - aCUS CeA Beads (started 09-10-23).xlsx,20240524 m101,Mod Kgluc for CC,Beads PAG bilat,,,7 ish,
+20240527 675-RL,Ephys Log Sheet - aCUS CeA Beads (started 09-10-23).xlsx,20240527 m102,Mod Kgluc for CC,Beads BNST bilat,,,,
+20240529 675-L,Ephys Log Sheet - aCUS CeA Beads (started 09-10-23).xlsx,20240529 m103,Mod Kgluc for CC,Beads PAG bilat,,,,
+20240530 671-0,Ephys Log Sheet - aCUS CeA Beads (started 09-10-23).xlsx,20240530 m104,Mod Kgluc for CC,Beads BNST bilat,,,,Date field reads '05/29/2024'
+20240531 674-L,Ephys Log Sheet - aCUS CeA Beads (started 09-10-23).xlsx,20240531 m105,Mod Kgluc for CC,Beads BNST bilat,,,,Date field reads '05/29/2024'
+20240603 675-R,Ephys Log Sheet - aCUS CeA Beads (started 09-10-23).xlsx,20240603 m106,Mod Kgluc for CC,,,,,surgery: 's' left blank (incomplete entry); Date field reads '05/29/2024'
+20240604 674-0,Ephys Log Sheet - aCUS CeA Beads (started 09-10-23).xlsx,20240604 m107,Mod Kgluc for CC,bilat PAG beads,,,,Date field reads '05/29/2024'
+20240605 670-L,Ephys Log Sheet - aCUS CeA Beads (started 09-10-23).xlsx,20240605 m108,Mod Kgluc for CC,bilat BNST beads,,,,
+20240606 670-RL,Ephys Log Sheet - aCUS CeA Beads (started 09-10-23).xlsx,20240606 m109,Mod Kgluc for CC,bilat PAG beads,"sliced @ 250, not so good",,,"slicing_outcome: kept 'sliced @ 250, not so good' (removed a trailing remark with no experimental content)"
+20250207 755-L,Ephys Log Sheet - aCUS SNL Beads (started 02-07-25).xlsx,20250207 m201,Modified Kgluc for CC,Beads TS bilat,,,,
+20250210 755-0,Ephys Log Sheet - aCUS SNL Beads (started 02-07-25).xlsx,20250210 m202,Modified Kgluc for CC,Beads TS bilat,,,,
+20250213 756-0,Ephys Log Sheet - aCUS SNL Beads (started 02-07-25).xlsx,20250213 m203,Modified Kgluc for CC,,,,,
+20250217 751-R,Ephys Log Sheet - aCUS CeA Beads (started 09-10-23).xlsx,20250217 m110,mod Kgluc for CC,,not great,,,
+20250219 756-L,Ephys Log Sheet - aCUS CeA Beads (started 09-10-23).xlsx,20250219 m111,mod Kgluc for CC,,,,,Mouse field reads '756-0' (subject is 756-L)
+20250220 752-0,Ephys Log Sheet - aCUS SNL Beads (started 02-07-25).xlsx,20250220 m204,Modified Kgluc for CC,,,,,Date field reads '2/13'
+20250224 752-L,Ephys Log Sheet - aCUS SNL Beads (started 02-07-25).xlsx,20250224 m205,,,,,,Mouse field reads '572-L' (subject is 752-L)
+20250226 751-RL,Ephys Log Sheet - aCUS SNL Beads (started 02-07-25).xlsx,20250226 m206,Kgluc for CC,beads TS bilat,good,,,Mouse field reads '751-LR' (subject is 751-RL)
+20250227 751-L,Ephys Log Sheet - aCUS CeA Beads (started 09-10-23).xlsx,20250227 m112,Kgluc for CC,,,,,
+20250303 751-0,Ephys Log Sheet - aCUS SNL Beads (started 02-07-25).xlsx,2025303 m207,Kgluc for CC,beads TS bilat,good,,,tab name '2025303 m207' does not start with the recording date 20250303
+20250305 757-0,Ephys Log Sheet - aCUS SNL Beads (started 02-07-25).xlsx,m20250305 m208,Kgluc for CC,,,,,tab name 'm20250305 m208' does not start with the recording date 20250305
+20250306 757-L,Ephys Log Sheet - aCUS CeA Beads (started 09-10-23).xlsx,20250306 m113,Kgluc for CC,,,,,
+20250310 758-L,Ephys Log Sheet - aCUS CeA Beads (started 09-10-23).xlsx,20250310 m114,Kgluc for CC,,,,,
+20260610 2006-151,Ephys Log Sheet - aCUS CeA Beads (started 09-10-23).xlsx,20260610 m410,Kgluc for CC,beads PAG,,,7 ish,
+20251015 862-L,Ephys Log Sheet - aCUS CeA Beads (started 09-10-23).xlsx,20251015 m401,Kgluc for CC,"beads snl, v posterior",,,,
+20251016 855-L,Ephys Log Sheet - aCUS CeA Beads (started 09-10-23).xlsx,20251016 m402,Kgluc for CC,"beads snl, v posterior",,,,Mouse field reads '853-L' (subject is 855-L)
+20251017 854-L,Ephys Log Sheet - aCUS CeA Beads (started 09-10-23).xlsx,20251017 m403,Kgluc for CC,beads snl,,,7 ish,Date field reads '10/1/25'
+20251018 853-L,Ephys Log Sheet - aCUS CeA Beads (started 09-10-23).xlsx,20251017 m404,Kgluc for CC,beads snl,,,7 ish,tab name '20251017 m404' does not start with the recording date 20251018; Mouse field reads '855-L' (subject is 853-L)
