@@ -21,9 +21,10 @@ Open questions for the lab are in `nadel_2026_lab_questions.md`, and open decisi
 ## Cells converted
 
 Only the cells in the preprint's figures, 198 in all, listed in `nadel_2026_paper_cells.csv` with the evidence for
-each (curator decision 2). `used cells.csv` lists 160 of them. The figures' source data add the 3 cells of the June
-2026 PAG mouse 2006-151 (Fig. 2E and 2H) and the 35 P40 cells Jacob recorded (Fig. 2N); F-I curves computed from the
-converted files reproduce those panels' values. Which cells make up Fig. 2D (BNST) is still open (lab question 18).
+each (curator decision 2). `used cells.csv` lists 160 of them. The figures' cell counts add the 3 cells of the June
+2026 PAG mouse 2006-151 (Fig. 2E and 2H) and the 35 P40 cells Jacob recorded (Fig. 2N). The lab's analysis table in the
+Zenodo bundle reproduces Figs. 2D to 2F exactly but differs from this list by four cells; until Jacob confirms which
+list is right (lab question 18), the conversion keeps the list above.
 The P220 cohort, ES's four P40 cells, 610-005, the bead-negative 2023 cells, and the cells dropped in QC are not
 converted.
 

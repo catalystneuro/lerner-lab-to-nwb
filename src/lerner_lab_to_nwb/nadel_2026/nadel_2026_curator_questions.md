@@ -34,7 +34,7 @@ Decision (Paul, 2026-10-28): no. The conversion is a local reference dataset for
 
 2\. Which cells should be converted?
 
-Decision (Paul, 2026-10-29): only the cells in the preprint's figures, taken from the figures and not from `used cells.csv`, since that list does not match them. That is the 160 cells in `used cells.csv`, the 3 cells of the June 2026 PAG mouse (Fig. 2E and 2H), and the 35 P40 cells Jacob recorded (Fig. 2N), 198 cells listed with the evidence for each in `nadel_2026_paper_cells.csv`. Left out: 610-005, the bead-negative 2023 cells, the cells dropped in QC, the P220 cohort, ES's four P40 cells, `bad/`, and `pics/`. Which cells are in Fig. 2D (BNST) is lab question 18.
+Decision (Paul, 2026-10-29): only the cells in the preprint's figures, taken from the figures and not from `used cells.csv`, since that list does not match them. That is the 160 cells in `used cells.csv`, the 3 cells of the June 2026 PAG mouse (Fig. 2E and 2H), and the 35 P40 cells Jacob recorded (Fig. 2N), 198 cells listed with the evidence for each in `nadel_2026_paper_cells.csv`. Left out: 610-005, the bead-negative 2023 cells, the cells dropped in QC, the P220 cohort, ES's four P40 cells, `bad/`, and `pics/`. Whether this list matches the figures is lab question 18; the list stays as is until Jacob confirms.
 
 8\. The stray `AJ_Ch1_VC_test pulse.cfg` file in `855-L/m402 s1c1ES`: include it or drop it?
 

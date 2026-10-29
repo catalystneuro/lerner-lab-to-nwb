@@ -10,15 +10,15 @@ Items from the README's "don't have" list that the preprint methods already answ
 
 ### Cells and runs
 
-18\. Which cells are in each Figure 2 panel? `used cells.csv` lists 160 cells, but the figures' source data point to more:
+18\. Which cells are in each Figure 2 panel? The conversion uses `used cells.csv` plus 38 cells the figures appear to include, but the lab's own analysis table points to a different list.
 
-- Fig. 2N (P40): 2 mice and 16 unstressed and 19 stressed cells. The four P40 timecourse mice have exactly that many cells once ES's four cells in `855-L` are left out (16 from 853-L and 855-L, 19 from 854-L and 862-L), and F-I curves computed from those cells reproduce the figure's values (unstressed 12.46 Hz at 100 pA in the converted data, 12.458 Hz in the figure).
-- Fig. 2E and 2H (PAG unstressed): 3 mice and 14 cells. Adding the 3 cells of 2006-151 (m410) to the 11 in `used cells.csv` gives 14 cells, and the F-I curve then matches the figure at 200 pA (18.381 Hz).
-- Fig. 2D (BNST): 15 unstressed and 13 stressed cells, while `used cells.csv` has 14 and 14. Stress is assigned per mouse, and moving a single cell between groups does not reproduce the figure's values, so we could not work out which cells the panel uses.
+- Figs. 2D, 2E, and 2F (P70 BNST, PAG, and SNL): `baseline Firing Rate.csv` in the Zenodo bundle (`ALL_INTRINSIC_EPHYS/analysis`), grouped by projection and stress, reproduces the figures' source data exactly, means and SEMs, at every current we checked (for example BNST unstressed at 100 pA is 18.6667 ± 3.7791 Hz in the table and 18.667 ± 3.779 Hz in the figure). Its cells differ from `used cells.csv`: it includes the 3 cells of 2006-151 (m410), `m108 s1c3` (BNST naive), and `m011 s2c1 +` (SNL naive), and leaves out `m105 s1c1` (BNST stressed) and `m114 s2c2` (SNL naive). Is that table the record of the cells in these panels? We have not checked the TS panels.
+- Fig. 2N (P40): 2 mice and 16 unstressed and 19 stressed cells. The four P40 timecourse mice have exactly that many cells once ES's four cells in `855-L` are left out (16 from 853-L and 855-L, 19 from 854-L and 862-L). The P40 cells are not in the Zenodo tables, so this rests on the counts only. Which cells are in this panel?
+- `m011 s2c1 +`: `baseline Firing Rate.csv` lists sweeps 297-307 as its F-I sweeps, but those sweeps are in its rheobase runs (`m011_0277-0297.h5` and `m011_0298-0338.h5`), not its F-I runs (`m011_0232-0242.h5` to `m011_0254-0264.h5`). Are the paper's values for this cell from the right sweeps? The cell also has no log entry, so if it is in the paper we need to know which of its runs were held at -60 mV. `firing rate from -60.csv` uses `m011_0351-0361.h5`, which is in the repeat set that starts with the second spontaneous run, `m011_0339.h5`.
 
-The P40 and m410 parts were asked by email on Oct 21 and have not been answered. Are those 38 cells in the paper, and which cells are in Fig. 2D?
+The P40 and m410 parts were asked by email on Oct 21 and have not been answered.
 
-Current behavior: the 160 cells in `used cells.csv`, the 3 cells of m410, and the 35 P40 cells Jacob recorded. All 28 BNST cells in `used cells.csv` are converted with their mice's stress groups.
+Current behavior: until this is confirmed, the 160 cells in `used cells.csv`, the 3 cells of m410, and the 35 P40 cells Jacob recorded.
 
 1\. The Sept 2023 runs held near -60 mV: the README says to exclude them, but the Zenodo bundle has `firing rate from -60.csv` and `rheobase from -60.csv`, which suggests they were analyzed. The preprint reports no analysis at -60 mV. Should they still be left out of the NWB files? Nothing in the .h5 files marks them, so we identified them from the sweep ranges in the log. Are those ranges reliable for this?
 
