@@ -6,18 +6,6 @@ Open decisions say what the code does now under "Current behavior". Closed decis
 
 ## Open
 
-4\. The per-cell slice images (`pics/*.tif`, 4.8 GB) were left out of the hand-off. Should we ask Jacob for them and include them? They would go in each NWB file as images of the recorded cell.
-
-Current behavior: not included.
-
-5\. The rest of the preprint (RI60 photometry, avoidance, Kir2.1, NpHR) is in the Zenodo bundle but not in this hand-off. Is it out of scope for this conversion?
-
-Current behavior: not converted.
-
-6\. Jacob suggested one NWB file per mouse/day with one electrode per cell. That puts up to 12 cells in one file. The alternative is one file per cell, which makes per-cell download and analysis simpler.
-
-Current behavior: one file per mouse/day, one electrode per cell.
-
 7\. How should the stimulus be represented? Jacob suggested building it from the stimulus library in each file header and keeping the recorded command loopback as an extra trace where it is valid (May 2024 onward, excluding the two test pulses run in CC).
 
 Current behavior: the stimulus is built from the library for every sweep, and the loopback is not written. Compared over all files, the loopback matches the library stimulus within ADC noise wherever it is valid, so it would duplicate the stimulus.
@@ -43,3 +31,15 @@ Closed (2026-10-29): no longer needed. It belongs to one of ES's cells, which ar
 3\. Should the analysis outputs go in the NWB files? Candidates are the per-cell features, clustering outputs, and spike waveforms in the Zenodo bundle (`aCUS_zenodo_bundle/ALL_INTRINSIC_EPHYS/analysis`).
 
 Decision (Paul, 2026-10-29): no. They are not part of the raw data hand-off, and this conversion is a reference for the slice ephys pipeline, not the final conversion of this dataset. The SNL cluster label from `metadata/clusters.csv`, which is part of the hand-off, stays as a per-cell column, and the Zenodo record stays in `related_publications`.
+
+4\. Should we ask Jacob for the per-cell slice images (`pics/*.tif`, 4.8 GB) and include them?
+
+Decision (Paul, 2026-10-29): no. The conversion covers the data in the hand-off, and the images were left out of it.
+
+5\. Should the rest of the preprint (RI60 photometry, avoidance, Kir2.1, NpHR) be converted?
+
+Decision (Paul, 2026-10-29): no. The scope is the slice ephys data for the lab's ephys pipeline.
+
+6\. One NWB file per mouse/day, or one file per cell?
+
+Decision (Paul, 2026-10-29): one file per mouse/day, with one electrode per cell, which is the usual NWB organization.
