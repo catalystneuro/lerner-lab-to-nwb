@@ -29,10 +29,11 @@ UNIT_TO_SI_CONVERSION = {"mV": 1e-3, "pA": 1e-12, "V": 1.0, "A": 1.0}
 class WaveSurferIntracellularInterface(BaseDataInterface):
     """Data interface for one WaveSurfer HDF5 file, which holds one run of one protocol from one electrode.
 
-    Every sweep is written as its own response series (raw int16 ADC counts with the file's scaling) and, when the
-    run drove a command, a stimulus series built from the stimulus library stored in the file header. Each sweep is
-    one row of the intracellular recordings table and one simultaneous recording, and the run is one sequential
-    recording whose stimulus type is the protocol file name.
+    Every sweep is written as its own response series (raw int16 ADC counts with the file's scaling). When the run
+    drove a command, the command built from the stimulus library stored in the file header is written as the
+    stimulus template, and the command output recorded back on an analog input, when there is one, is written as the
+    stimulus. Each sweep is one row of the intracellular recordings table and one simultaneous recording, and the run
+    is one sequential recording whose stimulus type is the protocol file name.
     """
 
     display_name = "WaveSurfer Intracellular"
@@ -45,6 +46,7 @@ class WaveSurferIntracellularInterface(BaseDataInterface):
         file_path: FilePath,
         electrode_name: str,
         voltage_clamp_holding_potential: Optional[float] = None,
+        recorded_command_channel_index: Optional[int] = None,
         verbose: bool = False,
     ):
         """Initialize the interface.
@@ -59,6 +61,10 @@ class WaveSurferIntracellularInterface(BaseDataInterface):
             Holding potential in mV set on the amplifier for voltage clamp runs. WaveSurfer stores the command relative
             to this holding potential, so it is written as the offset of the voltage clamp stimulus series.
             If None, the stimulus is written relative to the holding potential.
+        recorded_command_channel_index : int, optional
+            Index of the analog input that recorded the command output of the DAQ. Its data are written as the
+            stimulus of each sweep when the channel's units match the command units of the clamp mode. If None, no
+            recorded command is written.
         verbose : bool, optional
             Whether to print verbose output, by default False
         """
@@ -66,6 +72,7 @@ class WaveSurferIntracellularInterface(BaseDataInterface):
             file_path=file_path,
             electrode_name=electrode_name,
             voltage_clamp_holding_potential=voltage_clamp_holding_potential,
+            recorded_command_channel_index=recorded_command_channel_index,
             verbose=verbose,
         )
         self.sequential_recording_index = None
@@ -81,17 +88,26 @@ class WaveSurferIntracellularInterface(BaseDataInterface):
                 seconds=float(clock_at_run_start[5])
             )
             self.sampling_rate = float(np.asarray(header["Acquisition/SampleRate"]).ravel()[0])
-            self.response_unit = read_strings(header["Acquisition/AnalogChannelUnits"])[0]
-            response_scale = float(np.asarray(header["Acquisition/AnalogChannelScales"]).ravel()[0])
-            scaling_coefficients = np.asarray(header["Acquisition/AnalogScalingCoefficients"])[0]
+            self.input_channel_names = read_strings(header["Acquisition/AnalogChannelNames"])
+            self.input_channel_units = read_strings(header["Acquisition/AnalogChannelUnits"])
+            input_channel_scales = np.asarray(header["Acquisition/AnalogChannelScales"]).ravel()
+            scaling_coefficients = np.asarray(header["Acquisition/AnalogScalingCoefficients"])
             self.stimulus_bindings = read_stimulus_bindings(header)
             self.sweep_names = sorted(name for name in file if name.startswith("sweep_"))
 
         # WaveSurfer converts ADC counts to volts with a cubic polynomial whose quadratic and cubic terms shift the
         # result by less than one ADC count over the int16 range, so the linear terms are an exact enough scaling.
-        unit_conversion = UNIT_TO_SI_CONVERSION[self.response_unit]
-        self.response_conversion = float(scaling_coefficients[1]) / response_scale * unit_conversion
-        self.response_offset = float(scaling_coefficients[0]) / response_scale * unit_conversion
+        self.input_channel_conversions = [
+            float(coefficients[1]) / float(scale) * UNIT_TO_SI_CONVERSION[unit]
+            for coefficients, scale, unit in zip(scaling_coefficients, input_channel_scales, self.input_channel_units)
+        ]
+        self.input_channel_offsets = [
+            float(coefficients[0]) / float(scale) * UNIT_TO_SI_CONVERSION[unit]
+            for coefficients, scale, unit in zip(scaling_coefficients, input_channel_scales, self.input_channel_units)
+        ]
+        self.response_unit = self.input_channel_units[0]
+        self.response_conversion = self.input_channel_conversions[0]
+        self.response_offset = self.input_channel_offsets[0]
 
     def get_metadata(self) -> DeepDict:
         metadata = super().get_metadata()
@@ -130,11 +146,11 @@ class WaveSurferIntracellularInterface(BaseDataInterface):
                 )
                 nwbfile.add_acquisition(response)
 
-                stimulus = None
-                if stimulus_class is not None and len(self.stimulus_bindings) > 0:
-                    stimulus = stimulus_class(
-                        name=f"{series_name}_stimulus",
-                        description=self.get_stimulus_description(command_unit=command_unit),
+                stimulus_template = None
+                if self.has_stimulus_template():
+                    stimulus_template = stimulus_class(
+                        name=f"{series_name}_stimulus_template",
+                        description=self.get_stimulus_template_description(command_unit=command_unit),
                         data=self.get_stimulus_waveform(
                             sweep_position=sweep_position, num_samples=data.size, command_unit=command_unit
                         ),
@@ -146,16 +162,47 @@ class WaveSurferIntracellularInterface(BaseDataInterface):
                         rate=self.sampling_rate,
                         sweep_number=np.uint32(sweep_number),
                     )
+                    nwbfile.add_stimulus_template(stimulus_template)
+
+                stimulus = None
+                if self.has_recorded_command():
+                    channel_index = self.source_data["recorded_command_channel_index"]
+                    stimulus = stimulus_class(
+                        name=f"{series_name}_stimulus",
+                        description=self.get_recorded_stimulus_description(),
+                        data=file[sweep_name]["analogScans"][channel_index],
+                        electrode=electrode,
+                        gain=np.nan,
+                        conversion=self.input_channel_conversions[channel_index],
+                        offset=self.input_channel_offsets[channel_index] + self.get_stimulus_offset(),
+                        starting_time=starting_time,
+                        rate=self.sampling_rate,
+                        sweep_number=np.uint32(sweep_number),
+                    )
                     nwbfile.add_stimulus(stimulus)
 
                 recording_index = nwbfile.add_intracellular_recording(
-                    electrode=electrode, response=response, stimulus=stimulus
+                    electrode=electrode, response=response, stimulus=stimulus, stimulus_template=stimulus_template
                 )
                 simultaneous_recording_indices.append(
                     nwbfile.add_icephys_simultaneous_recording(recordings=[recording_index])
                 )
         self.sequential_recording_index = nwbfile.add_icephys_sequential_recording(
             stimulus_type=self.protocol_name, simultaneous_recordings=simultaneous_recording_indices
+        )
+
+    def has_stimulus_template(self) -> bool:
+        """Whether the run drove a command, so a stimulus template is built from the stimulus library."""
+        return MODE_TO_SERIES_CLASSES[self.mode][1] is not None and len(self.stimulus_bindings) > 0
+
+    def has_recorded_command(self) -> bool:
+        """Whether the command recorded back on an analog input is written as the stimulus."""
+        channel_index = self.source_data["recorded_command_channel_index"]
+        command_unit = MODE_TO_SERIES_CLASSES[self.mode][2]
+        return (
+            channel_index is not None
+            and command_unit is not None
+            and self.input_channel_units[channel_index] == command_unit
         )
 
     def get_stimulus_waveform(self, sweep_position: int, num_samples: int, command_unit: str) -> np.ndarray:
@@ -201,7 +248,7 @@ class WaveSurferIntracellularInterface(BaseDataInterface):
             return 0.0
         return holding_potential * UNIT_TO_SI_CONVERSION["mV"]
 
-    def get_stimulus_description(self, command_unit: str) -> str:
+    def get_stimulus_template_description(self, command_unit: str) -> str:
         bound_names = [binding["name"] for binding in self.stimulus_bindings if binding["channel_unit"] == command_unit]
         if len(bound_names) == 0:
             description = (
@@ -213,12 +260,26 @@ class WaveSurferIntracellularInterface(BaseDataInterface):
                 f"Command built from the WaveSurfer stimulus library of protocol '{self.protocol_name}' "
                 f"(stimuli: {', '.join(bound_names)})."
             )
-        if self.get_stimulus_offset() != 0.0:
-            description += (
-                f" The data are relative to the holding potential of "
-                f"{self.source_data['voltage_clamp_holding_potential']} mV set on the amplifier, which is the offset."
-            )
-        return description
+            if not self.has_recorded_command():
+                description += " The delivered command was not recorded for this run."
+        return description + self.get_holding_potential_description()
+
+    def get_recorded_stimulus_description(self) -> str:
+        channel_name = self.input_channel_names[self.source_data["recorded_command_channel_index"]]
+        description = (
+            f"Command output of the DAQ recorded back on its analog input '{channel_name}' during protocol "
+            f"'{self.protocol_name}'."
+        )
+        return description + self.get_holding_potential_description()
+
+    def get_holding_potential_description(self) -> str:
+        if self.get_stimulus_offset() == 0.0:
+            return ""
+        return (
+            f" The data are relative to the holding potential of "
+            f"{self.source_data['voltage_clamp_holding_potential']} mV set on the amplifier, which is added to the "
+            f"offset."
+        )
 
 
 def read_strings(dataset: h5py.Dataset) -> list:

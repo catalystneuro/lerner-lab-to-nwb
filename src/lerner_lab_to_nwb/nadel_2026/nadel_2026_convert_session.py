@@ -11,6 +11,7 @@ from lerner_lab_to_nwb.nadel_2026 import Nadel2026NWBConverter, WaveSurferIntrac
 
 SESSION_TIMEZONE = ZoneInfo("America/Chicago")
 VOLTAGE_CLAMP_HOLDING_POTENTIAL = -70.0  # mV, set on the amplifier for every voltage clamp run
+RECORDED_COMMAND_CHANNEL_INDEX = 1  # analog input that records the DAQ's command output
 CELL_COLUMNS = {
     "cell_folder": "Name of the cell's folder in the lab's raw data, which carries bead status and MZ's cell number.",
     "experimenter": "Initials of the person who recorded the cell (JN or MZ).",
@@ -71,6 +72,7 @@ def session_to_nwb(
         )
     }
 
+    date, animal_id = mouse_folder.split(" ")
     editable_metadata = load_dict_from_file(Path(__file__).parent / "nadel_2026_metadata.yaml")
     interfaces = {}
     electrodes_metadata = {}
@@ -89,11 +91,16 @@ def session_to_nwb(
                 cell_misfiled_runs.found_in_cell_folder, cell_misfiled_runs.filename
             )
         ]
+        # In JN's 2023 recordings the second analog input recorded a copy of the membrane potential, not the command
+        recorded_command_channel_index = (
+            None if experimenter == "JN" and date.startswith("2023") else RECORDED_COMMAND_CHANNEL_INDEX
+        )
         for file_path in sorted(file_paths):
             interfaces[f"{cell.cell_folder}/{file_path.stem}"] = WaveSurferIntracellularInterface(
                 file_path=file_path,
                 electrode_name=electrode_name,
                 voltage_clamp_holding_potential=VOLTAGE_CLAMP_HOLDING_POTENTIAL,
+                recorded_command_channel_index=recorded_command_channel_index,
             )
         slice_number = re.fullmatch(r"m\d+ s(\d+)c\d+", cell.cell_id).group(1)
         electrodes_metadata[electrode_name] = dict(
@@ -116,7 +123,6 @@ def session_to_nwb(
         tzinfo=SESSION_TIMEZONE
     )
 
-    date, animal_id = mouse_folder.split(" ")
     subjects = pd.read_csv(data_dir_path / "tables" / "subjects_from_makeMice.csv", dtype=str)
     subject = subjects[subjects.animal_id == animal_id].iloc[0]
     target = subject.projection_target

@@ -4,7 +4,13 @@ from pathlib import Path
 import h5py
 import numpy as np
 import pytest
-from pynwb.icephys import CurrentClampSeries, IZeroClampSeries, VoltageClampSeries
+from pynwb.icephys import (
+    CurrentClampSeries,
+    CurrentClampStimulusSeries,
+    IZeroClampSeries,
+    VoltageClampSeries,
+    VoltageClampStimulusSeries,
+)
 from pynwb.testing.mock.file import mock_NWBFile
 
 from lerner_lab_to_nwb.nadel_2026 import Nadel2026NWBConverter, WaveSurferIntracellularInterface
@@ -39,6 +45,8 @@ def write_wavesurfer_file(
         header["AbsoluteProtocolFileName"] = strings([f"R:\\protocols\\{protocol_name}.cfg"])
         header["ClockAtRunStart"] = np.array(clock_at_run_start, dtype=float).reshape(-1, 1)
         header["Acquisition/SampleRate"] = np.array([[SAMPLING_RATE]])
+        loopback_channel_name = {"pA": "Current Injection", "mV": "Voltage Cmd"}[output_channel_unit]
+        header["Acquisition/AnalogChannelNames"] = strings(["Electrode 1", loopback_channel_name])
         header["Acquisition/AnalogChannelUnits"] = strings([response_units, output_channel_unit])
         header["Acquisition/AnalogChannelScales"] = np.array([[0.01], [0.0025]])
         header["Acquisition/AnalogScalingCoefficients"] = np.array([[0.1, 0.0003, 0.0, 0.0], [0.1, 0.0003, 0.0, 0.0]])
@@ -162,7 +170,7 @@ def izero_file_path(tmp_path) -> Path:
     write_wavesurfer_file(
         file_path,
         mode="i_equals_zero",
-        clock_at_run_start=[2025, 10, 15, 14, 39, 19.0],
+        clock_at_run_start=[2025, 2, 13, 16, 50, 0.0],
         response_units="mV",
         output_channel_name="Command Current 1",
         output_channel_unit="pA",
@@ -215,7 +223,7 @@ class TestWaveSurferIntracellularInterface:
         assert response.rate == SAMPLING_RATE
         np.testing.assert_array_equal(response.data, np.ones(20, dtype="int16"))
 
-    def test_current_clamp_stimulus(self, current_clamp_file_path, metadata):
+    def test_current_clamp_stimulus_template(self, current_clamp_file_path, metadata):
         interface = WaveSurferIntracellularInterface(
             file_path=current_clamp_file_path, electrode_name="electrode_m203_s3c2"
         )
@@ -223,12 +231,48 @@ class TestWaveSurferIntracellularInterface:
         interface.add_to_nwbfile(nwbfile=nwbfile, metadata=metadata)
 
         # Third sweep of the run: 20 * (3 - 1) = 40 pA from 0.5 s to 1.0 s, samples 5 to 9 at 10 Hz
-        stimulus = nwbfile.stimulus["m203_0571-0573_sweep_0573_stimulus"]
+        stimulus_template = nwbfile.stimulus_template["m203_0571-0573_sweep_0573_stimulus_template"]
+        assert isinstance(stimulus_template, CurrentClampStimulusSeries)
         expected = np.zeros(20, dtype="float32")
         expected[5:10] = 40.0
-        np.testing.assert_array_equal(stimulus.data, expected)
-        assert stimulus.conversion == 1e-12
-        assert stimulus.offset == 0.0
+        np.testing.assert_array_equal(stimulus_template.data, expected)
+        assert stimulus_template.conversion == 1e-12
+        assert stimulus_template.offset == 0.0
+
+    def test_current_clamp_recorded_command(self, current_clamp_file_path, metadata):
+        interface = WaveSurferIntracellularInterface(
+            file_path=current_clamp_file_path, electrode_name="electrode_m203_s3c2", recorded_command_channel_index=1
+        )
+        interface.set_aligned_starting_time(10.0)
+        nwbfile = mock_NWBFile()
+        interface.add_to_nwbfile(nwbfile=nwbfile, metadata=metadata)
+
+        stimulus = nwbfile.stimulus["m203_0571-0573_sweep_0573_stimulus"]
+        assert isinstance(stimulus, CurrentClampStimulusSeries)
+        np.testing.assert_array_equal(stimulus.data, np.full(20, 2, dtype="int16"))
+        # amperes = (0.1 + 0.0003 * counts) / (0.0025 V/pA) * 1e-12 A/pA
+        assert stimulus.conversion == pytest.approx(1.2e-13)
+        assert stimulus.offset == pytest.approx(4e-11)
+        assert stimulus.starting_time == pytest.approx(15.1)
+        assert stimulus.rate == SAMPLING_RATE
+        assert stimulus.sweep_number == 573
+        assert stimulus.electrode is nwbfile.icephys_electrodes["electrode_m203_s3c2"]
+        assert np.isnan(stimulus.gain)
+        assert "'Current Injection'" in stimulus.description
+        template_description = nwbfile.stimulus_template["m203_0571-0573_sweep_0573_stimulus_template"].description
+        assert "not recorded" not in template_description
+
+    def test_no_recorded_command_without_channel_index(self, current_clamp_file_path, metadata):
+        interface = WaveSurferIntracellularInterface(
+            file_path=current_clamp_file_path, electrode_name="electrode_m203_s3c2"
+        )
+        nwbfile = mock_NWBFile()
+        interface.add_to_nwbfile(nwbfile=nwbfile, metadata=metadata)
+
+        assert len(nwbfile.stimulus) == 0
+        assert len(nwbfile.stimulus_template) == 3
+        template_description = nwbfile.stimulus_template["m203_0571-0573_sweep_0571_stimulus_template"].description
+        assert template_description.endswith("The delivered command was not recorded for this run.")
 
     def test_voltage_clamp_stimulus(self, voltage_clamp_file_path, metadata):
         interface = WaveSurferIntracellularInterface(
@@ -241,13 +285,31 @@ class TestWaveSurferIntracellularInterface:
 
         assert isinstance(nwbfile.acquisition["m203_0610_sweep_0610_response"], VoltageClampSeries)
         # +30 mV from 0.5 to 1.0 s, then -50 mV from 1.0 to 1.5 s, relative to the -70 mV holding potential
-        stimulus = nwbfile.stimulus["m203_0610_sweep_0610_stimulus"]
+        stimulus_template = nwbfile.stimulus_template["m203_0610_sweep_0610_stimulus_template"]
+        assert isinstance(stimulus_template, VoltageClampStimulusSeries)
         expected = np.zeros(20, dtype="float32")
         expected[5:10] = 30.0
         expected[10:15] = -50.0
-        np.testing.assert_array_equal(stimulus.data, expected)
-        assert stimulus.conversion == 1e-3
-        assert stimulus.offset == pytest.approx(-0.07)
+        np.testing.assert_array_equal(stimulus_template.data, expected)
+        assert stimulus_template.conversion == 1e-3
+        assert stimulus_template.offset == pytest.approx(-0.07)
+
+    def test_voltage_clamp_recorded_command(self, voltage_clamp_file_path, metadata):
+        interface = WaveSurferIntracellularInterface(
+            file_path=voltage_clamp_file_path,
+            electrode_name="electrode_m203_s3c2",
+            voltage_clamp_holding_potential=-70.0,
+            recorded_command_channel_index=1,
+        )
+        nwbfile = mock_NWBFile()
+        interface.add_to_nwbfile(nwbfile=nwbfile, metadata=metadata)
+
+        stimulus = nwbfile.stimulus["m203_0610_sweep_0610_stimulus"]
+        assert isinstance(stimulus, VoltageClampStimulusSeries)
+        np.testing.assert_array_equal(stimulus.data, np.zeros(20, dtype="int16"))
+        # volts = (0.1 + 0.0003 * counts) / (0.0025 V/mV) * 1e-3 V/mV - 0.07 V holding potential
+        assert stimulus.conversion == pytest.approx(1.2e-4)
+        assert stimulus.offset == pytest.approx(-0.03)
 
     def test_command_that_does_not_match_the_clamp_mode(self, test_pulse_in_current_clamp_file_path, metadata):
         interface = WaveSurferIntracellularInterface(
@@ -256,17 +318,51 @@ class TestWaveSurferIntracellularInterface:
         nwbfile = mock_NWBFile()
         interface.add_to_nwbfile(nwbfile=nwbfile, metadata=metadata)
 
-        stimulus = nwbfile.stimulus["m114_0433_sweep_0433_stimulus"]
-        np.testing.assert_array_equal(stimulus.data, np.zeros(20, dtype="float32"))
-        assert stimulus.description.startswith("No command was delivered")
+        stimulus_template = nwbfile.stimulus_template["m114_0433_sweep_0433_stimulus_template"]
+        np.testing.assert_array_equal(stimulus_template.data, np.zeros(20, dtype="float32"))
+        assert stimulus_template.description.startswith("No command was delivered")
+
+    def test_no_recorded_command_when_units_do_not_match_the_clamp_mode(
+        self, test_pulse_in_current_clamp_file_path, metadata
+    ):
+        # The command loopback is in mV, but a current clamp run expects a command in pA
+        interface = WaveSurferIntracellularInterface(
+            file_path=test_pulse_in_current_clamp_file_path,
+            electrode_name="electrode_m203_s3c2",
+            recorded_command_channel_index=1,
+        )
+        nwbfile = mock_NWBFile()
+        interface.add_to_nwbfile(nwbfile=nwbfile, metadata=metadata)
+
+        assert len(nwbfile.stimulus) == 0
+        assert list(nwbfile.stimulus_template) == ["m114_0433_sweep_0433_stimulus_template"]
 
     def test_izero_has_no_stimulus(self, izero_file_path, metadata):
-        interface = WaveSurferIntracellularInterface(file_path=izero_file_path, electrode_name="electrode_m203_s3c2")
+        interface = WaveSurferIntracellularInterface(
+            file_path=izero_file_path, electrode_name="electrode_m203_s3c2", recorded_command_channel_index=1
+        )
         nwbfile = mock_NWBFile()
         interface.add_to_nwbfile(nwbfile=nwbfile, metadata=metadata)
 
         assert isinstance(nwbfile.acquisition["m401_0360_sweep_0360_response"], IZeroClampSeries)
         assert len(nwbfile.stimulus) == 0
+        assert len(nwbfile.stimulus_template) == 0
+
+    def test_recording_links_stimulus_and_template(self, current_clamp_file_path, metadata):
+        interface = WaveSurferIntracellularInterface(
+            file_path=current_clamp_file_path, electrode_name="electrode_m203_s3c2", recorded_command_channel_index=1
+        )
+        nwbfile = mock_NWBFile()
+        interface.add_to_nwbfile(nwbfile=nwbfile, metadata=metadata)
+
+        stimuli = nwbfile.intracellular_recordings.category_tables["stimuli"]
+        assert stimuli["stimulus"][1].timeseries is nwbfile.stimulus["m203_0571-0573_sweep_0572_stimulus"]
+        assert (
+            stimuli["stimulus_template"][1].timeseries
+            is nwbfile.stimulus_template["m203_0571-0573_sweep_0572_stimulus_template"]
+        )
+        assert (stimuli["stimulus"][1].idx_start, stimuli["stimulus"][1].count) == (0, 20)
+        assert (stimuli["stimulus_template"][1].idx_start, stimuli["stimulus_template"][1].count) == (0, 20)
 
     def test_icephys_tables(self, current_clamp_file_path, metadata):
         interface = WaveSurferIntracellularInterface(
@@ -319,6 +415,27 @@ class TestNadel2026NWBConverter:
         assert list(sequential_recordings["source_file"].data) == ["m203_0571-0573.h5", "m203_0610.h5"]
         assert len(nwbfile.get_icephys_repetitions()) == 2
         assert list(nwbfile.intracellular_recordings.category_tables["electrodes"]["experimenter"].data) == ["JN"] * 4
+
+    def test_izero_run_before_runs_with_a_template(self, izero_file_path, current_clamp_file_path, metadata):
+        # The I=0 run starts first, so the first row of the day has no stimulus template
+        converter = Nadel2026NWBConverter(
+            data_interfaces=dict(
+                izero=WaveSurferIntracellularInterface(file_path=izero_file_path, electrode_name="electrode_m203_s3c2"),
+                current_clamp=WaveSurferIntracellularInterface(
+                    file_path=current_clamp_file_path, electrode_name="electrode_m203_s3c2"
+                ),
+            )
+        )
+        metadata["NWBFile"] = dict(session_start_time=datetime(2025, 2, 13, 16, 50, 0))
+        converter.temporally_align_data_interfaces(metadata=metadata)
+        nwbfile = mock_NWBFile()
+        converter.add_to_nwbfile(nwbfile=nwbfile, metadata=metadata)
+
+        stimulus_templates = nwbfile.intracellular_recordings.category_tables["stimuli"]["stimulus_template"]
+        assert stimulus_templates[0].timeseries is None
+        assert (
+            stimulus_templates[1].timeseries is nwbfile.stimulus_template["m203_0571-0573_sweep_0571_stimulus_template"]
+        )
 
     def test_repeated_sweep_numbers(self, current_clamp_file_path, reset_counter_file_path, metadata):
         converter = Nadel2026NWBConverter(

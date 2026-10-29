@@ -4,6 +4,7 @@ from pathlib import Path
 from neuroconv import ConverterPipe
 from neuroconv.utils import DeepDict, load_dict_from_file
 from pynwb import NWBFile
+from pynwb.base import TimeSeriesReferenceVectorData
 
 from .external_resources import add_external_resources
 
@@ -29,6 +30,13 @@ class Nadel2026NWBConverter(ConverterPipe):
 
     def add_to_nwbfile(self, nwbfile: NWBFile, metadata: dict, conversion_options: dict | None = None):
         interfaces = sorted(self.data_interface_objects.values(), key=lambda interface: interface.run_start_time)
+        # The optional stimulus_template column can only be added while the table is empty, and the first run of a day
+        # may have no template (an I=0 recording).
+        nwbfile.get_intracellular_recordings().category_tables["stimuli"].add_column(
+            name="stimulus_template",
+            description="Command built from the WaveSurfer stimulus library for the recording (rows).",
+            col_cls=TimeSeriesReferenceVectorData,
+        )
         for interface in interfaces:
             interface.add_to_nwbfile(nwbfile=nwbfile, metadata=metadata)
 
