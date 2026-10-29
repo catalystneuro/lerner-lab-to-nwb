@@ -92,8 +92,28 @@ dependency. Whether it generalizes enough to port to NeuroConv is to be assessed
 - `nadel_2026_misfiled_runs.csv` reassigns `m009_0001-0003.h5` and `m009_0004.h5`, which sit in MZ's `m009 s3c1`
   folder but are the first test pulse and spontaneous run of Jacob's `m009 s1c1` (README item 3). The 12 copies of
   other `m009 s1c1` runs in that folder are not read, since MZ's cell is not in the paper.
-- Not converted: `bad/` folders, `pics/`, the per-cell slice images, and the free-text and numeric log sheet fields
-  (pipette and access resistance, holding current, notes), which are sparse and inconsistently formatted.
+- Not converted: `bad/` folders, `pics/`, the per-cell slice images, and the free-text notes in the log sheets (lab
+  question 20).
+
+## Log sheet metadata
+
+The three Excel log sheets in `metadata/log_sheets/` are read directly by `nadel_2026_extract_log_sheets.py`, which
+writes `nadel_2026_log_cells.csv`, `nadel_2026_log_test_pulses.csv`, and `nadel_2026_log_sessions.csv` (curator
+decision 9). Each row records its source sheet and rows, and every typo fix or blanked entry is listed in the script
+and in the `extraction_note` column. Cells are matched to their log block by the sweep numbers of their files, since
+many blocks are mislabeled or unlabeled; MZ's cells are read from his own sheet under his numbering.
+
+- On the electrode: `resistance` (pipette resistance) where the log has it, as text such as "4.1 MOhm".
+  `initial_access_resistance` would hold access at break-in, but that column is empty for every paper cell.
+- Per-cell columns: `time_of_recording`, `pipette_offset`, `fast_capacitance_compensation`,
+  `holding_current_to_minus_70_mV`, `resting_potential`, `bath_drugs`. Holding current and resting potential are text,
+  since some entries hold two readings. The log states no units; descriptions give units only where Jacob's README
+  does. A column is left out of a file when no cell that day has a value.
+- Per run: `access_resistance` (MOhm) on the sequential recordings table for the 373 test-pulse runs with a logged
+  value.
+- Per day: the NWBFile `notes` field holds the internal, surgery, slicing outcome, and days since surgery.
+- Coverage is better than Jacob's scraped CSVs (for example time of recording 193 vs 173 cells, pipette offset 84 vs
+  70), but several fields stay sparse because the sheets are.
 
 ## Synchronization
 

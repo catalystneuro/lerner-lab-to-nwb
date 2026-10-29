@@ -84,6 +84,14 @@ Current behavior: notes are not converted.
 
 Current behavior: every cell is described as retrobead-positive.
 
+22\. Log sheet entries we had to interpret. We read the three log sheets directly to put the per-cell values in the files (`nadel_2026_extract_log_sheets.py` lists every case). Can you check these?
+- Read as typos: Cp fast "14/106" as 14.106 (`m022 s3c2`), holding current "-100\\" as -100 (`m103 s3c4`), time "2L46" as 2:46 and test-pulse access "(19,5)" as 19.5 (`m410 s2c1`), "35!!" as 35, and four access values with an unclosed parenthesis.
+- Left blank: Rt 4.5 in MZ's sheet for `m323 s3c2`, which looks like a pipette resistance in the wrong column (the Rt column is otherwise empty for every paper cell); Er 34.05 for `m403 s2c3`, which is in the range of pipette offsets; P Neutr -150 for `m202 s1c4`, which is in the range of holding currents; resting "60" for `m113 s4c2` (sign unclear); access "(15ish?)" for MZ's s2c1.
+- Test pulses logged with sweep numbers no file holds: 12 were matched to the cell's one overlapping test-pulse file (for example "577-579" to `m011_0576-0578.h5`) and 13 by order. Three are not matched: `m021 s1c2`'s first test pulse is `m021_0116-0118.h5`, which sits in the `m021 s1c1` folder; `m203 s1c1`'s "1-3" has no file in the hand-off; `m114 s2c2` has three candidate files.
+- Day fields: the Internal field for m021 reads "021", and the Surgery field for m106 reads "s", so both are left blank. The Date fields on the m104 to m107 tabs (05/29/2024), m204 (2/13), and m403 (10/1/25) do not match the recording days.
+
+Current behavior: as described; the values are in `nadel_2026_log_cells.csv`, `nadel_2026_log_test_pulses.csv`, and `nadel_2026_log_sessions.csv`.
+
 ## Closed
 
 4\. Was the VC spontaneous run in `m405 s1c1` deliberate, like MZ's?
