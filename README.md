@@ -113,7 +113,8 @@ change the `max_workers` argument to `dataset_to_nwb()`.
 `src/lerner_lab_to_nwb/nadel_2026` converts the whole-cell recordings from Nadel et al. 2026
 (bioRxiv, doi:10.64898/2026.07.29.741478), recorded with WaveSurfer, to one NWB file per recording day.
 `WaveSurferIntracellularInterface` reads one WaveSurfer `.h5` file (one run of one protocol on one cell), and
-`Nadel2026NWBConverter` combines the runs of a day. Notes on the data and the conversion decisions are in
+`Nadel2026NWBConverter` combines the runs of a day. Only the 198 cells in the preprint's figures are converted
+(`nadel_2026_paper_cells.csv`). Notes on the data and the conversion decisions are in
 `nadel_2026_notes.md`, open questions for the lab are in `nadel_2026_lab_questions.md`, and open decisions about the conversion are in
 `nadel_2026_curator_questions.md`.
 
@@ -122,7 +123,7 @@ To convert the three example days, run
 python src/lerner_lab_to_nwb/nadel_2026/nadel_2026_convert_session.py
 ```
 
-To convert all 41 days, run
+To convert all 34 days with cells in the preprint, run
 ```bash
 python src/lerner_lab_to_nwb/nadel_2026/nadel_2026_convert_dataset.py
 ```

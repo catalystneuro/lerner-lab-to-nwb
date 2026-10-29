@@ -6,37 +6,40 @@ Open decisions say what the code does now under "Current behavior". Closed decis
 
 ## Open
 
-2. Which cells should be converted?
-   - all 191 good cell folders in the main tree, or only the 160 paper cells
-   - the timecourse tree (P40 vs P220, 62 cells), which Jacob's README lists as not in the paper
-   - the June 2026 PAG mouse (2006-151, 3 cells)
-   - 610-005 (use=False), the 12 bead-negative 2023 cells, and the 10 cells dropped in QC
-   - MZ's unfiled s1c3 recording in `607-009/pics`
-   - the `bad/` folders
-   Current behavior: every good cell folder in both trees (253 cells), with columns marking paper inclusion, bead status, and cluster, and nothing from `bad/` or `pics/`.
+3\. Should the analysis outputs go in the NWB files? Candidates are the per-cell features in the Zenodo bundle (`ALL_INTRINSIC_EPHYS/analysis`), the SNL cluster labels (`metadata/clusters.csv`), and the paper inclusion list (`metadata/used cells.csv`).
 
-3. Should the analysis outputs go in the NWB files? Candidates are the per-cell features in the Zenodo bundle (`ALL_INTRINSIC_EPHYS/analysis`), the SNL cluster labels (`metadata/clusters.csv`), and the paper inclusion list (`metadata/used cells.csv`).
-   Current behavior: cluster label and paper inclusion are per-cell metadata, the feature tables stay on Zenodo, and the Zenodo record is linked in `related_publications`.
+Current behavior: the cluster label is per-cell metadata, the feature tables stay on Zenodo, and the Zenodo record is linked in `related_publications`. Every converted cell is in the paper (decision 2), so no paper inclusion column is needed.
 
-4. The per-cell slice images (`pics/*.tif`, 4.8 GB) were left out of the hand-off. Should we ask Jacob for them and include them? They would go in each NWB file as images of the recorded cell.
-   Current behavior: not included.
+4\. The per-cell slice images (`pics/*.tif`, 4.8 GB) were left out of the hand-off. Should we ask Jacob for them and include them? They would go in each NWB file as images of the recorded cell.
 
-5. The rest of the preprint (RI60 photometry, avoidance, Kir2.1, NpHR) is in the Zenodo bundle but not in this hand-off. Is it out of scope for this conversion?
-   Current behavior: not converted.
+Current behavior: not included.
 
-6. Jacob suggested one NWB file per mouse/day with one electrode per cell. That puts up to 13 cells in one file. The alternative is one file per cell, which makes per-cell download and analysis simpler.
-   Current behavior: one file per mouse/day, one electrode per cell.
+5\. The rest of the preprint (RI60 photometry, avoidance, Kir2.1, NpHR) is in the Zenodo bundle but not in this hand-off. Is it out of scope for this conversion?
 
-7. How should the stimulus be represented? Jacob suggested building it from the stimulus library in each file header and keeping the recorded command loopback as an extra trace where it is valid (May 2024 onward, excluding the four ES folders and the two test pulses run in CC).
-   Current behavior: the stimulus is built from the library for every sweep, and the loopback is not written. Compared over all files, the loopback matches the library stimulus within ADC noise wherever it is valid, so it would duplicate the stimulus.
+Current behavior: not converted.
 
-8. The stray `AJ_Ch1_VC_test pulse.cfg` file in `855-L/m402 s1c1ES` (20 kHz, 30 s, someone else's protocol): include it or drop it?
-   Current behavior: included as a voltage clamp response with no stimulus, since its stimulus map binds nothing to the output channel.
+6\. Jacob suggested one NWB file per mouse/day with one electrode per cell. That puts up to 12 cells in one file. The alternative is one file per cell, which makes per-cell download and analysis simpler.
 
-9. The log sheets have per-cell pipette resistance, access resistance, holding current, resting potential, and free-text notes, but the fields are sparse and inconsistently formatted. Should any of them go in the files? The most useful would be pipette resistance and initial access resistance, which NWB has fields for. Converting them would mean cleaning the scraped values, possibly with Jacob's help.
-   Current behavior: not converted.
+Current behavior: one file per mouse/day, one electrode per cell.
+
+7\. How should the stimulus be represented? Jacob suggested building it from the stimulus library in each file header and keeping the recorded command loopback as an extra trace where it is valid (May 2024 onward, excluding the two test pulses run in CC).
+
+Current behavior: the stimulus is built from the library for every sweep, and the loopback is not written. Compared over all files, the loopback matches the library stimulus within ADC noise wherever it is valid, so it would duplicate the stimulus.
+
+9\. The log sheets have per-cell pipette resistance, access resistance, holding current, resting potential, and free-text notes, but the fields are sparse and inconsistently formatted. Should any of them go in the files? The most useful would be pipette resistance and initial access resistance, which NWB has fields for. Converting them would mean cleaning the scraped values, possibly with Jacob's help.
+
+Current behavior: not converted.
 
 ## Closed
 
-1. Is this dataset going to be published on DANDI?
-   Decision (Paul, 2026-10-28): no. The conversion is a local reference dataset for the slice ephys pipeline (Aim 3 of the scope of work), not uploaded to the DANDI sandbox or archive.
+1\. Is this dataset going to be published on DANDI?
+
+Decision (Paul, 2026-10-28): no. The conversion is a local reference dataset for the slice ephys pipeline (Aim 3 of the scope of work), not uploaded to the DANDI sandbox or archive.
+
+2\. Which cells should be converted?
+
+Decision (Paul, 2026-10-29): only the cells in the preprint's figures, taken from the figures and not from `used cells.csv`, since that list does not match them. That is the 160 cells in `used cells.csv`, the 3 cells of the June 2026 PAG mouse (Fig. 2E and 2H), and the 35 P40 cells Jacob recorded (Fig. 2N), 198 cells listed with the evidence for each in `nadel_2026_paper_cells.csv`. Left out: 610-005, the bead-negative 2023 cells, the cells dropped in QC, the P220 cohort, ES's four P40 cells, `bad/`, and `pics/`. Which cells are in Fig. 2D (BNST) is lab question 18.
+
+8\. The stray `AJ_Ch1_VC_test pulse.cfg` file in `855-L/m402 s1c1ES`: include it or drop it?
+
+Closed (2026-10-29): no longer needed. It belongs to one of ES's cells, which are not in the paper (decision 2).
