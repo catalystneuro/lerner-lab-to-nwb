@@ -76,7 +76,13 @@ The P40 and 2006-151 parts repeat the Oct 21 email.
 
 19\. The log lists the end test pulse of `m114 s2c2` as sweeps 436-438, but no file holds those sweeps. Is it `m114_0433-0435.h5` (recorded in CC) or `m114_0432-0434.h5` (VC)?
 
-20\. The Date field on six log tabs differs from the folder date: "05/29/2024" on 671-0, 674-L, 675-R, and 674-0 (recorded May 30 to June 4), "2/13" on 752-0 (recorded Feb 20, 2025), and "10/1/25" on 854-L (recorded Oct 17, 2025). The conversion uses the folder dates. Are those right?
+20\. The Date field on these log tabs differs from the date in the folder name. The conversion uses the folder dates. Are those right?
+- 20A. 671-0: Date field "05/29/2024", folder 20240530.
+- 20B. 674-L: Date field "05/29/2024", folder 20240531.
+- 20C. 675-R: Date field "05/29/2024", folder 20240603.
+- 20D. 674-0: Date field "05/29/2024", folder 20240604.
+- 20E. 752-0: Date field "2/13", folder 20250220.
+- 20F. 854-L: Date field "10/1/25", folder 20251017.
 
 ## Closed
 
