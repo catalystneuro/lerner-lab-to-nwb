@@ -150,12 +150,6 @@ def session_to_nwb(
                 f"(500 ms, 0 to 200 pA), hyperpolarizing steps for sag (500 ms, 0 to -150 pA), short steps for "
                 f"rheobase (50 ms, 5 pA increments), and a voltage clamp Ih protocol, most run three times."
             ),
-            experimenter=sorted(
-                {
-                    editable_metadata["experimenter_initials_to_name"][cell_metadata["experimenter"]]
-                    for cell_metadata in cells_metadata.values()
-                }
-            ),
             surgery=editable_metadata["projection_target_to_surgery"][target],
         ),
         Subject=dict(
@@ -177,7 +171,7 @@ def session_to_nwb(
         session_metadata["Subject"]["age"] = f"P{subject.age_days}D"
     metadata = dict_deep_update(metadata, editable_metadata)
     metadata = dict_deep_update(metadata, session_metadata)
-    for lookup_name in ("stress_group_to_description", "experimenter_initials_to_name", "projection_target_to_surgery"):
+    for lookup_name in ("stress_group_to_description", "projection_target_to_surgery"):
         metadata.pop(lookup_name)
     metadata["Icephys"].pop("IntracellularElectrode")
 
