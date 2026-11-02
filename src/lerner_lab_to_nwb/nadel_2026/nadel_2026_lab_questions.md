@@ -57,7 +57,20 @@ The P40 and 2006-151 parts repeat the Oct 21 email.
 
 16\. MZ's log has access "(15ish?)" for the first test pulse of `m006 s4c1 +`. Is 15 MΩ close enough to record?
 
-17\. For 13 test pulses, the logged sweeps are in no file of the cell, so they were matched by position among the cell's test pulses (listed in `nadel_2026_log_test_pulses.csv`). Is that right?
+17\. These end test pulses are logged with sweep numbers that no file of the cell holds. Each cell has two test pulses in the log and two test pulse files, so each was matched to the cell's second file. Are these right?
+- 17A. `m006 s2c2 +`: logged 1240-1242, matched to `m006_1235-1237.h5`.
+- 17B. `m021 s1c3 +`: logged 501-503, matched to `m021_0518-0520.h5`.
+- 17C. `m021 s2c2 +`: logged 647-649, matched to `m021_0643-0645.h5`.
+- 17D. `m103 s2c1`: logged 247-249, matched to `m103_0264-0266.h5`.
+- 17E. `m105 s2c3`: logged 470-472, matched to `m105_0449-0451.h5`.
+- 17F. `m105 s3c2`: logged 594-596, matched to `m105_0583-0585.h5`.
+- 17G. `m107 s5c1`: logged 927-929, matched to `m107_0937-0939.h5`.
+- 17H. `m201 s2c2`: logged 423-425, matched to `m201_0433-0435.h5`.
+- 17I. `m205 s2c3`: logged 243-245, matched to `m205_0247-0249.h5`.
+- 17J. `m208 s1c3`: logged 164-166, matched to `m208_0160-0162.h5`.
+- 17K. `m113 s3c1`: logged 552-554, matched to `m113_0582-0584.h5`.
+- 17L. `m114 s2c5`: logged 819-821, matched to `m114_0834-0836.h5`.
+- 17M. `m404 s1c4`: logged 1133-115, matched to `m404_s1c4_0113-0115.h5`.
 
 18\. The log lists the first test pulse of `m203 s1c1` as sweeps 1-3, but no file in the hand-off holds those sweeps. Is there a file for it?
 
