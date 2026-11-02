@@ -135,9 +135,9 @@ at its run start plus its `timestamp`.
 `nadel_2026_external_resources.yaml`, written into each file as HERD references:
 
 - species `Mus musculus`: NCBITaxon:10090
+- strain `C57BL/6J`: RRID:IMSR_JAX:000664 (Jackson Laboratory strain 000664, from the preprint's key resources table)
 - institution `Northwestern University`: ROR:000e0be47 (Evanston, United States)
 - electrode location `Central amygdalar nucleus`: MBA:536, and UBERON:0002883 (its cross-references include
   Allen 536)
 
-Not annotated: strain (the preprint does not give the JAX stock number for the WT mice) and experimenters (no ORCIDs in
-the preprint).
+Not annotated: experimenters (no ORCIDs in the preprint).
