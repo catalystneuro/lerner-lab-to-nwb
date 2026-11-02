@@ -6,3 +6,5 @@ brain_regions:
   Central amygdalar nucleus:
     - {id: "MBA:536", uri: "https://purl.brain-bican.org/ontology/mbao/MBA_536"}
     - {id: "UBERON:0002883", uri: "http://purl.obolibrary.org/obo/UBERON_0002883"}
+strain:
+  C57BL/6J: {id: "RRID:IMSR_JAX:000664", uri: "https://www.jax.org/strain/000664"}
