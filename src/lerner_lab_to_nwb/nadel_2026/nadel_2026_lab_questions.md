@@ -19,7 +19,7 @@ The P40 and 2006-151 parts repeat the Oct 21 email.
 
 ### Recording settings
 
-4\. The log has columns for bridge balance (BB) and pipette capacitance neutralization (P Neutr), but BB is empty for every cell and P Neutr has one entry (11B). The two MultiClamp snapshots are named with dates before the first recording day and have capacitance neutralization off. Were bridge balance and capacitance neutralization on during these recordings, and what was the low-pass filter setting?
+4\. The log has columns for bridge balance (BB) and pipette capacitance neutralization (P Neutr), but BB is empty for every cell and P Neutr has one entry (question 14). The two MultiClamp snapshots are named with dates before the first recording day and have capacitance neutralization off. Were bridge balance and capacitance neutralization on during these recordings, and what was the low-pass filter setting?
 
 5\. The preprint gives one internal recipe, a modified potassium gluconate internal, but the log's Internal field reads "Kgluc for CC" on 13 recording days and "Mod Kgluc" or "Modified Kgluc" on 16. Are these different solutions, and if so, what is the recipe of the unmodified one?
 
@@ -39,13 +39,27 @@ The P40 and 2006-151 parts repeat the Oct 21 email.
 
 10\. The preprint says recordings targeted bead-positive cells, but the log's Retrob+ column is blank for 79 of the 198 cells, and `m103 s3c5` is marked "y?". Were all of these cells bead-positive?
 
-11\. Log entries that needed interpretation (every case is listed in `nadel_2026_extract_log_sheets.py`):
-- 11A. Some values look like typos and were read as follows: Cp fast "14/106" as 14.106 (`m022 s3c2 +`), holding current "-100\\" as -100 (`m103 s3c4`), and time "2L46" as 2:46 and access "(19,5)" as 19.5 (`m410 s2c1`). Are these right?
-- 11B. Some values do not fit their column, so they were left blank: Rt 4.5 (`m323 s3c2 +`, in the pipette resistance range), Er 34.05 (`m403 s2c3`, in the pipette offset range), P Neutr -150 (`m202 s1c4`, in the holding current range), resting "60" (`m113 s4c2`), and access "(15ish?)" (`m006 s4c1 +`). What are the right values or columns?
-- 11C. For 13 test pulses, the logged sweeps are in no file of the cell, so they were matched by position among the cell's test pulses (listed in `nadel_2026_log_test_pulses.csv`). Is that right?
-- 11D. The log lists the first test pulse of `m203 s1c1` as sweeps 1-3, but no file in the hand-off holds those sweeps. Is there a file for it?
-- 11E. The log lists the end test pulse of `m114 s2c2` as sweeps 436-438, but no file holds those sweeps. Is it `m114_0433-0435.h5` (recorded in CC) or `m114_0432-0434.h5` (VC)?
-- 11F. The Date field on six log tabs differs from the folder date: "05/29/2024" on 671-0, 674-L, 675-R, and 674-0 (recorded May 30 to June 4), "2/13" on 752-0 (recorded Feb 20, 2025), and "10/1/25" on 854-L (recorded Oct 17, 2025). The conversion uses the folder dates. Are those right?
+### Log sheet entries
+
+11\. Some log values look like typos and were read as follows: Cp fast "14/106" as 14.106 (`m022 s3c2 +`), holding current "-100\\" as -100 (`m103 s3c4`), and time "2L46" as 2:46 and access "(19,5)" as 19.5 (`m410 s2c1`). Are these right?
+
+12\. In MZ's log for 20230918, the Er column is empty for every cell, and the Rt values (4.5, 5.5, and 4.5 MΩ) are low for access resistance. Could you double-check that these are access resistances and not pipette resistances?
+
+13\. The log has Er 34.05 for `m403 s2c3`. The other pipette resistances in the log are 3.8 to 5.8 MΩ, and 34.05 is in the range of the P off values (19 to 43). Could you double-check whether it is a pipette offset?
+
+14\. The log's only P Neutr entry is -150, for `m202 s1c4`, which is in the range of the holding currents. Could you double-check whether it is a holding current?
+
+15\. The log has a resting potential of "60" for `m113 s4c2`. Could you double-check whether it is -60 mV?
+
+16\. MZ's log has access "(15ish?)" for the first test pulse of `m006 s4c1 +`. Is 15 MΩ close enough to record?
+
+17\. For 13 test pulses, the logged sweeps are in no file of the cell, so they were matched by position among the cell's test pulses (listed in `nadel_2026_log_test_pulses.csv`). Is that right?
+
+18\. The log lists the first test pulse of `m203 s1c1` as sweeps 1-3, but no file in the hand-off holds those sweeps. Is there a file for it?
+
+19\. The log lists the end test pulse of `m114 s2c2` as sweeps 436-438, but no file holds those sweeps. Is it `m114_0433-0435.h5` (recorded in CC) or `m114_0432-0434.h5` (VC)?
+
+20\. The Date field on six log tabs differs from the folder date: "05/29/2024" on 671-0, 674-L, 675-R, and 674-0 (recorded May 30 to June 4), "2/13" on 752-0 (recorded Feb 20, 2025), and "10/1/25" on 854-L (recorded Oct 17, 2025). The conversion uses the folder dates. Are those right?
 
 ## Closed
 
