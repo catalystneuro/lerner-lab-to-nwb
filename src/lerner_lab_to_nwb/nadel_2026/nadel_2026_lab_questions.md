@@ -41,7 +41,11 @@ The P40 and 2006-151 parts repeat the Oct 21 email.
 
 ### Log sheet entries
 
-11\. Some log values look like typos and were read as follows: Cp fast "14/106" as 14.106 (`m022 s3c2 +`), holding current "-100\\" as -100 (`m103 s3c4`), and time "2L46" as 2:46 and access "(19,5)" as 19.5 (`m410 s2c1`). Are these right?
+11\. Some log values look like typos and were read as follows. Are these right?
+- 11A. Cp fast "14/106" as 14.106 (`m022 s3c2 +`).
+- 11B. Holding current "-100\\" as -100 (`m103 s3c4`).
+- 11C. Time "2L46" as 2:46 (`m410 s2c1`).
+- 11D. Access "(19,5)" as 19.5 (`m410 s2c1`).
 
 12\. In MZ's log for 20230918, the Er column is empty for every cell, and the Rt values (4.5, 5.5, and 4.5 MΩ) are low for access resistance. Could you double-check that these are access resistances and not pipette resistances?
 
