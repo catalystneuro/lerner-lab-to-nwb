@@ -77,9 +77,8 @@ dependency. Whether it generalizes enough to port to NeuroConv is to be assessed
   recorded on the second analog input is written as the delivered stimulus (`/stimulus/presentation`, raw int16 with
   that channel's scaling) wherever it exists (curator decision 7). Where it is valid it matches the library waveform
   within ADC noise.
-- Jacob's Sept 2023 runs have no recorded command. README item 1 says their second analog input does not track the
-  stimulus; in the spontaneous runs, which have no stimulus, it follows the membrane potential, while in MZ's files
-  from the same days, with the same user settings file, it does not (lab question 9). Those runs have a template only, and the duplicate voltage channel is not written. Runs whose
+- Jacob's Sept 2023 runs have no recorded command: README item 1 says their second analog input does not track the
+  stimulus. Those runs have a template only, and the duplicate voltage channel is not written. Runs whose
   second input has units that do not match the clamp mode, and the I=0 run, also have no recorded command.
 - Voltage clamp stimuli are stored relative to the holding potential, with `offset` = -70 mV (set on the amplifier and
   not stored in the file).
@@ -93,7 +92,7 @@ dependency. Whether it generalizes enough to port to NeuroConv is to be assessed
   folder but are the first test pulse and spontaneous run of Jacob's `m009 s1c1` (README item 3). The 12 copies of
   other `m009 s1c1` runs in that folder are not read, since MZ's cell is not in the paper.
 - Not converted: `bad/` folders, `pics/`, the per-cell slice images, and the free-text notes in the log sheets (lab
-  question 10).
+  question 9).
 
 ## Log sheet metadata
 

@@ -40,15 +40,15 @@ Decision (Paul, 2026-10-29): one file per mouse/day, with one electrode per cell
 
 7\. How should the stimulus be represented? Jacob suggested building it from the stimulus library in each file header and keeping the recorded command loopback as an extra trace where it is valid.
 
-Decision (Paul, 2026-10-29): include both. The waveform built from the stimulus library is the stimulus template for every run, and the recorded loopback is the delivered stimulus for every run that has one. Jacob's Sept 2023 runs have no loopback, because their second analog input does not record the command (README item 1, lab question 9), so those runs have a template only.
+Decision (Paul, 2026-10-29): include both. The waveform built from the stimulus library is the stimulus template for every run, and the recorded loopback is the delivered stimulus for every run that has one. Jacob's Sept 2023 runs have no loopback, because their second analog input does not record the command (README item 1), so those runs have a template only.
 
 9\. Should the log sheet fields go in the files?
 
-Decision (Paul, 2026-10-29): yes, for every cell and day that has them, extracted from the three Excel log sheets directly instead of Jacob's scraped CSVs, to recover more of the entries and handle the inconsistent formatting. Entries that hold two readings are kept as text, exactly as written, and ambiguous entries are left blank instead of guessed. The free-text notes wait on lab question 10.
+Decision (Paul, 2026-10-29): yes, for every cell and day that has them, extracted from the three Excel log sheets directly instead of Jacob's scraped CSVs, to recover more of the entries and handle the inconsistent formatting. Entries that hold two readings are kept as text, exactly as written, and ambiguous entries are left blank instead of guessed. The free-text notes wait on lab question 9.
 
 10\. Retrobead status for cells recorded from 2024 on.
 
-Decision (Paul, 2026-10-29): every converted cell is retrobead-positive. The preprint says recordings targeted bead-positive cells, every converted cell is in the paper, and no paper cell is marked bead-negative in a folder name or the log sheets. The `retrobead_positive` column is dropped, and the electrode description says the cell is retrobead-positive. Jacob is asked to confirm in lab question 11.
+Decision (Paul, 2026-10-29): every converted cell is retrobead-positive. The preprint says recordings targeted bead-positive cells, every converted cell is in the paper, and no paper cell is marked bead-negative in a folder name or the log sheets. The `retrobead_positive` column is dropped, and the electrode description says the cell is retrobead-positive. Jacob is asked to confirm in lab question 10.
 
 12\. Stress group and projection target are stored only as text, in the subject and session descriptions. Should they also be stored in a structured form?
 
