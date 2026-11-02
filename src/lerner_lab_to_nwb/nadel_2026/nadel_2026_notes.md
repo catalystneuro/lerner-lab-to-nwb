@@ -23,8 +23,9 @@ Open questions for the lab are in `nadel_2026_lab_questions.md`, and open decisi
 Only the cells in the preprint's figures, 198 in all, listed in `nadel_2026_paper_cells.csv` with the evidence for
 each (curator decision 2). `used cells.csv` lists 160 of them. The figures' cell counts add the 3 cells of the June
 2026 PAG mouse 2006-151 (Fig. 2E and 2H) and the 35 P40 cells Jacob recorded (Fig. 2N). The lab's analysis table in the
-Zenodo bundle reproduces Figs. 2D to 2F exactly but differs from this list by four cells; until Jacob confirms which
-list is right (lab question 1), the conversion keeps the list above.
+Zenodo bundle matches the cell counts and F-I values of Figs. 2D to 2F but differs from `used cells.csv` by seven cells
+(five added, two missing); until Jacob confirms which list is right (lab question 1), the conversion keeps the list
+above.
 The P220 cohort, ES's four P40 cells, 610-005, the bead-negative 2023 cells, and the cells dropped in QC are not
 converted.
 
@@ -76,10 +77,9 @@ dependency. Whether it generalizes enough to port to NeuroConv is to be assessed
   recorded on the second analog input is written as the delivered stimulus (`/stimulus/presentation`, raw int16 with
   that channel's scaling) wherever it exists (curator decision 7). Where it is valid it matches the library waveform
   within ADC noise.
-- Jacob's Sept 2023 runs have no recorded command. Their second analog input is labeled as the command loopback but
-  records the membrane potential a second time (slope 0.92 to 1.00 and r 0.96 to 1.00 against the primary channel),
-  most likely a cabling difference, since MZ's files from the same days have identical headers and a true loopback
-  (lab question 17). Those runs have a template only, and the duplicate voltage channel is not written. Runs whose
+- Jacob's Sept 2023 runs have no recorded command. README item 1 says their second analog input does not track the
+  stimulus; in the spontaneous runs, which have no stimulus, it follows the membrane potential, while in MZ's files
+  from the same days, with the same user settings file, it does not (lab question 9). Those runs have a template only, and the duplicate voltage channel is not written. Runs whose
   second input has units that do not match the clamp mode, and the I=0 run, also have no recorded command.
 - Voltage clamp stimuli are stored relative to the holding potential, with `offset` = -70 mV (set on the amplifier and
   not stored in the file).
@@ -93,7 +93,7 @@ dependency. Whether it generalizes enough to port to NeuroConv is to be assessed
   folder but are the first test pulse and spontaneous run of Jacob's `m009 s1c1` (README item 3). The 12 copies of
   other `m009 s1c1` runs in that folder are not read, since MZ's cell is not in the paper.
 - Not converted: `bad/` folders, `pics/`, the per-cell slice images, and the free-text notes in the log sheets (lab
-  question 18).
+  question 10).
 
 ## Log sheet metadata
 
@@ -125,10 +125,10 @@ at its run start plus its `timestamp`.
 
 - Session-level text (slices, pharmacology, internal, devices, surgery) is from the preprint methods.
 - Subject sex, stress group, and projection target come from `subjects_from_makeMice.csv`. Age is set only for the
-  P40 mice (from makeMice); the P70 mice have no age or date of birth yet (lab question 9), which NWB Inspector
+  P40 mice (from makeMice); the P70 mice have no age or date of birth yet (lab question 6), which NWB Inspector
   reports as critical for those 30 files.
-- Experimenters are the people who recorded the cells in that file: JN = Jacob A. Nadel and MZ = Manhua Zhu
-  (initials matched to the preprint author list, lab question 16).
+- Experimenters are the preprint's authors, in author order, for every file. The per-cell `experimenter` column keeps
+  the initials of the person who recorded the cell (JN or MZ), as in the folder names.
 
 ## Ontology annotation
 
