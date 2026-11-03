@@ -1,0 +1,4 @@
+species:
+  Mus musculus: {id: "NCBITaxon:10090", uri: "http://purl.obolibrary.org/obo/NCBITaxon_10090"}
+institution:
+  Northwestern University: {id: "ROR:000e0be47", uri: "https://ror.org/000e0be47"}
