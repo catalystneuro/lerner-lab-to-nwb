@@ -46,8 +46,7 @@ One NWB file per recording day (one mouse), `sub-<animal id>_ses-<date>.nwb`, 34
   sweep keeps `starting_time` and `rate`; one continuous series per run would need per-sample timestamps because of the
   gaps between sweeps, which would be about four times the size of the int16 data.
 - Icephys tables: one intracellular recording and one simultaneous recording per sweep, one sequential recording per
-  run (`stimulus_type` is the protocol file name, `source_file` the WaveSurfer file), and one repetition per cell and
-  protocol (the runs of a protocol on one cell, usually three).
+  run (`stimulus_type` is the protocol file name, `source_file` the WaveSurfer file).
 - Per-cell columns on the `electrodes` category of the intracellular recordings table: `cell_folder`,
   `experimenter`, `snl_cluster`, `stress_group`, `projection_target` (curator decision 12; the latter two repeat what the
   subject and session descriptions say). Every converted cell is retrobead-positive (curator decision 10), which the

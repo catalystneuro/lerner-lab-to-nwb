@@ -13,8 +13,7 @@ from .external_resources import add_external_resources
 class Nadel2026NWBConverter(ConverterPipe):
     """Combine the WaveSurfer runs of one recording day into one NWB file.
 
-    Each data interface is one run of one protocol on one cell. Runs are placed on one timeline by their start times,
-    and the runs of a cell that repeat a protocol are grouped into one icephys repetition.
+    Each data interface is one run of one protocol on one cell. Runs are placed on one timeline by their start times.
     """
 
     def get_metadata(self) -> DeepDict:
@@ -56,12 +55,6 @@ class Nadel2026NWBConverter(ConverterPipe):
             ),
             data=[access_resistances.get(interface.source_data["file_path"].name, np.nan) for interface in interfaces],
         )
-        sequential_recording_indices = {}
-        for interface in interfaces:
-            key = (interface.source_data["electrode_name"], interface.protocol_name)
-            sequential_recording_indices.setdefault(key, []).append(interface.sequential_recording_index)
-        for indices in sequential_recording_indices.values():
-            nwbfile.add_icephys_repetition(sequential_recordings=indices)
 
         cells_metadata = metadata["Icephys"]["Cells"]
         intracellular_recordings = nwbfile.get_intracellular_recordings()

@@ -75,7 +75,6 @@ class WaveSurferIntracellularInterface(BaseDataInterface):
             recorded_command_channel_index=recorded_command_channel_index,
             verbose=verbose,
         )
-        self.sequential_recording_index = None
         self._starting_time = 0.0
 
         with h5py.File(file_path, "r") as file:
@@ -187,7 +186,7 @@ class WaveSurferIntracellularInterface(BaseDataInterface):
                 simultaneous_recording_indices.append(
                     nwbfile.add_icephys_simultaneous_recording(recordings=[recording_index])
                 )
-        self.sequential_recording_index = nwbfile.add_icephys_sequential_recording(
+        nwbfile.add_icephys_sequential_recording(
             stimulus_type=self.protocol_name, simultaneous_recordings=simultaneous_recording_indices
         )
 

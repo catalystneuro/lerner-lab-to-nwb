@@ -401,7 +401,6 @@ class TestWaveSurferIntracellularInterface:
         assert len(nwbfile.icephys_simultaneous_recordings) == 3
         sequential_recordings = nwbfile.get_icephys_sequential_recordings()
         assert sequential_recordings["stimulus_type"].data == ["PA_Ch1_CC excitability 20 pA steps to 200 pA"]
-        assert interface.sequential_recording_index == 0
 
     def test_electrode_resistances(self, current_clamp_file_path, metadata):
         interface = WaveSurferIntracellularInterface(
@@ -450,7 +449,7 @@ class TestNadel2026NWBConverter:
         assert nwbfile.acquisition["m203_0610_sweep_0610_response"].starting_time == pytest.approx(111.0)
         sequential_recordings = nwbfile.get_icephys_sequential_recordings()
         assert list(sequential_recordings["source_file"].data) == ["m203_0571-0573.h5", "m203_0610.h5"]
-        assert len(nwbfile.get_icephys_repetitions()) == 2
+        assert nwbfile.icephys_repetitions is None
         assert list(nwbfile.intracellular_recordings.category_tables["electrodes"]["experimenter"].data) == ["JN"] * 4
 
     def test_izero_run_before_runs_with_a_template(self, izero_file_path, current_clamp_file_path, metadata):
