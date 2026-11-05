@@ -16,6 +16,14 @@ NWBFile:
     populations with specific formative experiences.
   institution: Northwestern University
   lab: Lerner
+  experimenter:
+    - Nadel, Jacob A.
+    - Swanson, Evan S.
+    - Zhu, Manhua
+    - Demir, Baran
+    - Kwon, Michelle H.
+    - Patel, Sachin
+    - Lerner, Talia N.
   keywords:
     - central amygdala
     - adolescent stress
@@ -64,10 +72,6 @@ stress_group_to_description:
     Adolescent chronic unpredictable stress, with three stressors a day (morning, afternoon, and overnight) from P28
     to P40, adapted from Yohn and Blendy.
   naive: Unstressed littermate control, handled only for ear tagging.
-
-experimenter_initials_to_name:
-  JN: Nadel, Jacob A.
-  MZ: Zhu, Manhua
 
 projection_target_to_surgery:
   SNL:
