@@ -103,7 +103,7 @@ dependency. Whether it generalizes enough to port to NeuroConv is to be assessed
 
 ## Reproduction of the preprint figures
 
-`notebooks/nadel_2026_figure_2_reproduction.ipynb` recomputes every data panel of Fig. 2 and Fig. S4 from the NWB
+`notebooks/nadel_2026_figure_2_reproduction.ipynb` recomputes the data panels of Fig. 2 (except 2K) and Fig. S4 from the NWB
 files, to compare with the preprint's panels. Every curve panel (2D to 2I, 2N, and S4A to S4I) matches the values in
 the preprint's statistics tables. The lab's measurement rules that this required, found by
 matching the lab's per-cell tables in the Zenodo bundle:
@@ -118,9 +118,9 @@ matching the lab's per-cell tables in the Zenodo bundle:
   panels keep every cell.
 - A rheobase run that never fires counts as its largest step plus 5 pA, and the runs of a cell are averaged.
 
-Two bar panels are not reproduced. In 2M the lab averaged only some rheobase runs for seven cells and used the F-I
-steps for eight cells that have the 5 pA protocol, with no rule the files show. In 2K the charge of the test pulse
-transient gives about half the lab's capacitance values, and the lab's method is not described.
+2M is not reproduced: the lab averaged only some rheobase runs for seven cells and used the F-I steps for eight cells
+that have the 5 pA protocol, with no rule the files show. 2K is not drawn, since the preprint does not describe how
+capacitance was calculated from the test pulse.
 
 ## Log sheet metadata
 
