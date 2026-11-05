@@ -104,8 +104,8 @@ dependency. Whether it generalizes enough to port to NeuroConv is to be assessed
 ## Reproduction of the preprint figures
 
 `notebooks/nadel_2026_figure_2_reproduction.ipynb` recomputes every data panel of Fig. 2 and Fig. S4 from the NWB
-files and plots them against the values in the preprint's statistics tables (`nadel_2026_paper_values.csv`). Every
-curve panel (2D to 2I, 2N, and S4A to S4I) matches the table. The lab's measurement rules that this required, found by
+files, to compare with the preprint's panels. Every curve panel (2D to 2I, 2N, and S4A to S4I) matches the values in
+the preprint's statistics tables. The lab's measurement rules that this required, found by
 matching the lab's per-cell tables in the Zenodo bundle:
 
 - Firing rate counts upward crossings of 0 mV at least 5 ms apart over the whole 2 s sweep and divides by the 0.5 s
