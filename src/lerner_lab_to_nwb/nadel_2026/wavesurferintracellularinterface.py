@@ -47,6 +47,7 @@ class WaveSurferIntracellularInterface(BaseDataInterface):
         electrode_name: str,
         voltage_clamp_holding_potential: Optional[float] = None,
         recorded_command_channel_index: Optional[int] = None,
+        bias_current: Optional[float] = None,
         verbose: bool = False,
     ):
         """Initialize the interface.
@@ -65,6 +66,9 @@ class WaveSurferIntracellularInterface(BaseDataInterface):
             Index of the analog input that recorded the command output of the DAQ. Its data are written as the
             stimulus of each sweep when the channel's units match the command units of the clamp mode. If None, no
             recorded command is written.
+        bias_current : float, optional
+            DC current in pA that the amplifier injected throughout a current clamp run, written as the bias_current
+            of each response series. If None, no bias current is written.
         verbose : bool, optional
             Whether to print verbose output, by default False
         """
@@ -73,6 +77,7 @@ class WaveSurferIntracellularInterface(BaseDataInterface):
             electrode_name=electrode_name,
             voltage_clamp_holding_potential=voltage_clamp_holding_potential,
             recorded_command_channel_index=recorded_command_channel_index,
+            bias_current=bias_current,
             verbose=verbose,
         )
         self._starting_time = 0.0
@@ -122,6 +127,9 @@ class WaveSurferIntracellularInterface(BaseDataInterface):
             nwbfile=nwbfile, metadata=metadata, electrode_name=self.source_data["electrode_name"]
         )
         response_class, stimulus_class, command_unit = MODE_TO_SERIES_CLASSES[self.mode]
+        response_options = {}
+        if self.source_data["bias_current"] is not None:
+            response_options["bias_current"] = self.source_data["bias_current"] * UNIT_TO_SI_CONVERSION["pA"]
         simultaneous_recording_indices = []
         with h5py.File(self.source_data["file_path"], "r") as file:
             for sweep_position, sweep_name in enumerate(self.sweep_names, start=1):
@@ -142,6 +150,7 @@ class WaveSurferIntracellularInterface(BaseDataInterface):
                     starting_time=starting_time,
                     rate=self.sampling_rate,
                     sweep_number=np.uint32(sweep_number),
+                    **response_options,
                 )
                 nwbfile.add_acquisition(response)
 

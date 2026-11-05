@@ -1,8 +1,10 @@
 from datetime import datetime
 from pathlib import Path
+from types import SimpleNamespace
 
 import h5py
 import numpy as np
+import pandas as pd
 import pytest
 from pynwb.icephys import (
     CurrentClampSeries,
@@ -14,7 +16,11 @@ from pynwb.icephys import (
 from pynwb.testing.mock.file import mock_NWBFile
 
 from lerner_lab_to_nwb.nadel_2026 import Nadel2026NWBConverter, WaveSurferIntracellularInterface
-from lerner_lab_to_nwb.nadel_2026.nadel_2026_extract_log_sheets import parse_sweep_entry, read_cell_blocks
+from lerner_lab_to_nwb.nadel_2026.nadel_2026_extract_log_sheets import (
+    get_held_run_rows,
+    parse_sweep_entry,
+    read_cell_blocks,
+)
 from lerner_lab_to_nwb.nadel_2026.nadel_2026_log_sheets import (
     get_log_cell_columns,
     get_log_cell_metadata,
@@ -220,6 +226,7 @@ def metadata() -> dict:
                 time_of_recording="Time the cell was recorded.",
             ),
             TestPulseAccessResistances={"m203_0610.h5": 12.5},
+            HeldRuns=["m203_0571-0573.h5"],
         )
     )
 
@@ -248,6 +255,25 @@ class TestWaveSurferIntracellularInterface:
         assert response.starting_time == pytest.approx(12.9)
         assert response.rate == SAMPLING_RATE
         np.testing.assert_array_equal(response.data, np.ones(20, dtype="int16"))
+
+    def test_bias_current(self, current_clamp_file_path, metadata):
+        interface = WaveSurferIntracellularInterface(
+            file_path=current_clamp_file_path, electrode_name="electrode_m203_s3c2", bias_current=42.0
+        )
+        nwbfile = mock_NWBFile()
+        interface.add_to_nwbfile(nwbfile=nwbfile, metadata=metadata)
+
+        assert nwbfile.acquisition["m203_0571-0573_sweep_0571_response"].bias_current == pytest.approx(4.2e-11)
+        assert nwbfile.acquisition["m203_0571-0573_sweep_0573_response"].bias_current == pytest.approx(4.2e-11)
+
+    def test_no_bias_current_by_default(self, current_clamp_file_path, metadata):
+        interface = WaveSurferIntracellularInterface(
+            file_path=current_clamp_file_path, electrode_name="electrode_m203_s3c2"
+        )
+        nwbfile = mock_NWBFile()
+        interface.add_to_nwbfile(nwbfile=nwbfile, metadata=metadata)
+
+        assert nwbfile.acquisition["m203_0571-0573_sweep_0571_response"].bias_current is None
 
     def test_current_clamp_stimulus_template(self, current_clamp_file_path, metadata):
         interface = WaveSurferIntracellularInterface(
@@ -510,6 +536,7 @@ class TestNadel2026NWBConverter:
 
         sequential_recordings = nwbfile.get_icephys_sequential_recordings()
         np.testing.assert_array_equal(sequential_recordings["access_resistance"].data, [np.nan, 12.5])
+        assert list(sequential_recordings["held_near_minus_60_mV"].data) == [True, False]
         electrodes = nwbfile.intracellular_recordings.category_tables["electrodes"]
         np.testing.assert_array_equal(electrodes["pipette_offset"].data, [np.nan] * 4)
         assert list(electrodes["time_of_recording"].data) == [""] * 4
@@ -564,6 +591,54 @@ class TestLogSheets:
         assert second_block["drugs"] == "NBQX"
         assert second_block["values"] == {"P off": "20.46"}
         assert [run["entry"] for run in second_block["runs"]] == [(116, 118, "10.5")]
+
+    def test_held_run_rows(self):
+        header = {"B": "L or R", "F": "Er", "N": "Resting"}
+        rows = {
+            37: {"B": "@ (hh:mm)", "C": "3:01"},
+            38: {"B": "DRUGS:", "C": "NBQX"},
+            39: header,
+            40: {"A": "sXcX", "N": "-74"},
+            46: {"A": "3 - CC excitability 20 pA to 200 pA", "B": "232-242"},
+            49: {"A": "2 - CC spont firing holding at -60 mV", "B": "339", "C": "42 pA"},
+            50: {
+                "A": "3 - CC excitability 20 pA to 200 pA holding at -60 mV",
+                "B": "340-350",
+                "C": "351",
+                "D": "51 pA",
+                "E": "47 pA",
+            },
+            52: {
+                "A": "5 - CC rheobase 5 pA to 100 pA holding at -60 mV",
+                "B": "385-405",
+                "C": "406-426",
+                "D": "35 pA",
+            },
+        }
+        (block,) = read_cell_blocks(rows)
+        block["source_sheet"] = "20230920 m011"
+        cell_files = pd.DataFrame(
+            dict(
+                filename=["m011_0232-0242.h5", "m011_0339.h5", "m011_0340-0350.h5", "m011_0351-0361.h5"]
+                + ["m011_0385-0405.h5", "m011_0406-0426.h5"],
+                sweep_first=[232, 339, 340, 351, 385, 406],
+                sweep_last=[242, 339, 350, 361, 405, 426],
+            )
+        )
+        cell = SimpleNamespace(mouse_folder="20230920 608-011", cell_folder="m011 s2c1 +")
+        held_run_rows = pd.DataFrame(get_held_run_rows(block=block, cell_files=cell_files, cell=cell))
+
+        assert list(held_run_rows.filename) == [
+            "m011_0339.h5",
+            "m011_0340-0350.h5",
+            "m011_0351-0361.h5",
+            "m011_0385-0405.h5",
+            "m011_0406-0426.h5",
+        ]
+        # One current per run is assigned in order; a row with fewer currents than runs leaves them blank
+        assert list(held_run_rows.holding_current_pA) == ["42", "51", "47", "", ""]
+        assert held_run_rows.extraction_note[2] == "logged as sweep 351, the first sweep of the file"
+        assert held_run_rows.extraction_note[3] == "holding currents ['35 pA'] do not match the 2 runs of the row"
 
     def test_log_cell_metadata(self):
         cells = get_log_cell_metadata(mouse_folder="20230914 607-022")

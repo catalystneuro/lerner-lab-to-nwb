@@ -55,6 +55,16 @@ class Nadel2026NWBConverter(ConverterPipe):
             ),
             data=[access_resistances.get(interface.source_data["file_path"].name, np.nan) for interface in interfaces],
         )
+        held_runs = set(metadata["Icephys"]["HeldRuns"])
+        sequential_recordings.add_column(
+            name="held_near_minus_60_mV",
+            description=(
+                "Whether the cell was held near -60 mV with DC current during this current clamp run, as noted in the "
+                "lab log sheet. The logged holding current, where there is one, is the bias_current of the run's "
+                "response series."
+            ),
+            data=[interface.source_data["file_path"].name in held_runs for interface in interfaces],
+        )
 
         cells_metadata = metadata["Icephys"]["Cells"]
         intracellular_recordings = nwbfile.get_intracellular_recordings()

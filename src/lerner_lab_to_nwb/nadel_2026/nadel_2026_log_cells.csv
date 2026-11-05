@@ -13,6 +13,7 @@ mouse_folder,cell_folder,source_file,source_sheet,source_rows,time_of_recording,
 20230918 611-323,m323 s1c3 +,Ephys Log Sheet - aCUS CeA Beads (started 09-10-23).xlsx,20230918 m323,83-105,,,24.14,12.031,,,,-50,-55 mV,NBQX DAP5 GBZ,
 20230918 611-323,m323 s2c1 +,Ephys Log Sheet - aCUS CeA Beads (started 09-10-23).xlsx,20230918 m323,106-128,5:09,4.8,21.29,12.031,,,,-42,-48,NBQX DAP5 GBZ,
 20230918 611-323,m323 s3c2 + (mz_s1c2),MZ Ephys Log - JN CeA beads (started 2023 09 12).xlsx,20230918 m024,38-60,3:18,,19.68,16.298,,,,+37,-77,NBQX DAP5 GBZ,"MZ's log, his cell m024 s1c2; access_resistance_at_break_in_megaohm: '4.5' left blank (in the pipette resistance range and below the 20 MOhm access of the first test pulse; may belong under Er)"
+20230920 608-011,m011 s2c1 +,Ephys Log Sheet - aCUS CeA Beads (started 09-10-23).xlsx,20230920 m011,37-59,3:01,4.7,36.94,,,,,9,-74,NBQX DAP5 GBZ,log block has 'sXcX'; matched to the cell by its sweep ranges
 20230920 608-011,m011 s3c1 +,Ephys Log Sheet - aCUS CeA Beads (started 09-10-23).xlsx,20230920 m011,83-104,5:15,4.5,32.79,12.031,,,,-90,-30,NBQX DAP5 GBZ,log block has 'sXcX'; matched to the cell by its sweep ranges
 20230921 608-021,m021 s1c1 +,Ephys Log Sheet - aCUS CeA Beads (started 09-10-23).xlsx,20230921 m021,14-36,12:35,4.6,29.61,14.870,,,,-35,"-55, -50",NBQX DAP5 GBZ,
 20230921 608-021,m021 s1c2 +,Ephys Log Sheet - aCUS CeA Beads (started 09-10-23).xlsx,20230921 m021,37-59,12:56,4.5,29.09,,,,,32,-75,NBQX DAP5 GBZ,
@@ -73,6 +74,7 @@ mouse_folder,cell_folder,source_file,source_sheet,source_rows,time_of_recording,
 20240604 674-0,m107 s2c2,Ephys Log Sheet - aCUS CeA Beads (started 09-10-23).xlsx,20240604 m107,90-108,3:14,,,,,,,-10,-65,NBQX DAP5 GBZ,
 20240604 674-0,m107 s4c1,Ephys Log Sheet - aCUS CeA Beads (started 09-10-23).xlsx,20240604 m107,147-165,5:25,4.3,,,,,,0,-60,NBQX DAP5 GBZ,
 20240604 674-0,m107 s5c1,Ephys Log Sheet - aCUS CeA Beads (started 09-10-23).xlsx,20240604 m107,166-184,5:39,4.1,40.88,,,,,-49,-60/-65,NBQX DAP5 GBZ,
+20240605 670-L,m108 s1c3,Ephys Log Sheet - aCUS CeA Beads (started 09-10-23).xlsx,20240605 m108,52-70,2:22,,,,,,,-30,-55,NBQX DAP5 GBZ,
 20240605 670-L,m108 s2c1,Ephys Log Sheet - aCUS CeA Beads (started 09-10-23).xlsx,20240605 m108,71-89,2:41,4.5,,,,,,-70,-50,NBQX DAP5 GBZ,
 20240605 670-L,m108 s2c2,Ephys Log Sheet - aCUS CeA Beads (started 09-10-23).xlsx,20240605 m108,90-108,3:08,,,,,,,-20,,NBQX DAP5 GBZ,
 20240605 670-L,m108 s3c1,Ephys Log Sheet - aCUS CeA Beads (started 09-10-23).xlsx,20240605 m108,109-127,4:08,,,,,,,-55,,NBQX DAP5 GBZ,

@@ -17,3 +17,4 @@ ipykernel
 nbconvert
 # neuroconv 0.10.2 calls zarr.codec_registry, which zarr 3 removed
 zarr<3
+# notebooks/nadel_2026_figure_2_reproduction.ipynb also needs ipfx==2.1.2, installed with --no-deps because it pins pynwb==3.1.2

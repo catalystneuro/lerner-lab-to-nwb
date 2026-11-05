@@ -18,6 +18,8 @@ Decision (Paul, 2026-10-28): no. The conversion is a local reference dataset for
 
 Decision (Paul, 2026-10-29): only the cells in the preprint's figures, taken from the figures and not from `used cells.csv`, since that list does not match them. That is the 160 cells in `used cells.csv`, the 3 cells of the June 2026 PAG mouse (Fig. 2E and 2H), and the 35 P40 cells Jacob recorded (Fig. 2N), 198 cells listed with the evidence for each in `nadel_2026_paper_cells.csv`. Left out: 610-005, the bead-negative 2023 cells, the cells dropped in QC, the P220 cohort, ES's four P40 cells, `bad/`, and `pics/`. Whether this list matches the figures is lab question 1; the list stays as is until Jacob confirms.
 
+Revised (Paul, 2026-11-05): until Jacob answers, the conversion follows whatever reproduces the most figure panels. The figures' cells are the cells of the lab's per-cell analysis tables in the Zenodo bundle, which add `m108 s1c3` and `m011 s2c1 +` and leave out `m105 s1c1` and `m114 s2c2` of `used cells.csv`. All 200 are converted, and the per-cell column `in_preprint_figures` is False for the two the figures leave out.
+
 8\. The stray `AJ_Ch1_VC_test pulse.cfg` file in `855-L/m402 s1c1ES`: include it or drop it?
 
 Closed (2026-10-29): no longer needed. It belongs to one of ES's cells, which are not in the paper (decision 2).
@@ -53,3 +55,7 @@ Decision (Paul, 2026-10-29): every converted cell is retrobead-positive. The pre
 12\. Stress group and projection target are stored only as text, in the subject and session descriptions. Should they also be stored in a structured form?
 
 Decision (Paul, 2026-10-29): yes, as per-cell columns `stress_group` and `projection_target`, alongside the existing text. NWB's `Subject` has no field for an experimental group; this was raised in https://github.com/NeurodataWithoutBorders/nwb-schema/issues/715.
+
+13\. Should the runs held near -60 mV with DC current be converted? The README says to exclude them, but the lab's per-cell values average them with the runs at rest.
+
+Decision (Paul, 2026-11-05): convert them and mark them, since that reproduces the most figure panels; lab question 2 asks which is intended. Each run has `held_near_minus_60_mV` on the sequential recordings table, and the logged holding current is the `bias_current` of its response series.

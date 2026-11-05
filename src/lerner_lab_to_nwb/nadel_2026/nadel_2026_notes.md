@@ -20,12 +20,14 @@ Open questions for the lab are in `nadel_2026_lab_questions.md`, and open decisi
 
 ## Cells converted
 
-Only the cells in the preprint's figures, 198 in all, listed in `nadel_2026_paper_cells.csv` with the evidence for
-each (curator decision 2). `used cells.csv` lists 160 of them. The figures' cell counts add the 3 cells of the June
-2026 PAG mouse 2006-151 (Fig. 2E and 2H) and the 35 P40 cells Jacob recorded (Fig. 2N). The lab's analysis table in the
-Zenodo bundle matches the cell counts and F-I values of Figs. 2D to 2F but differs from `used cells.csv` by seven cells
-(five added, two missing); until Jacob confirms which list is right (lab question 1), the conversion keeps the list
-above.
+The 198 cells in the preprint's figures, plus the 2 cells of `used cells.csv` that the figures leave out, 200 in all,
+listed in `nadel_2026_paper_cells.csv` with the evidence for each (curator decision 2). The figures' cells are the cells
+of the lab's per-cell analysis tables in the Zenodo bundle, which match the preprint's cell counts and F-I values in
+every group of Figs. 2D to 2F: the 158 cells they share with `used cells.csv`, `m108 s1c3` (BNST, unstressed) and
+`m011 s2c1 +` (SNL, unstressed), the 3 cells of the June 2026 PAG mouse 2006-151 (Fig. 2E and 2H), and the 35 P40
+cells Jacob recorded (Fig. 2N). `m105 s1c1` (BNST, stressed) and `m114 s2c2` (SNL, unstressed) are in `used cells.csv`
+but not in the analysis tables; they are converted with `in_preprint_figures` False. Which list is right is lab
+question 1.
 The P220 cohort, ES's four P40 cells, 610-005, the bead-negative 2023 cells, and the cells dropped in QC are not
 converted.
 
@@ -46,10 +48,11 @@ One NWB file per recording day (one mouse), `sub-<animal id>_ses-<date>.nwb`, 34
   sweep keeps `starting_time` and `rate`; one continuous series per run would need per-sample timestamps because of the
   gaps between sweeps, which would be about four times the size of the int16 data.
 - Icephys tables: one intracellular recording and one simultaneous recording per sweep, one sequential recording per
-  run (`stimulus_type` is the protocol file name, `source_file` the WaveSurfer file).
+  run (`stimulus_type` is the protocol file name, `source_file` the WaveSurfer file, `held_near_minus_60_mV` whether
+  the cell was held near -60 mV with DC current during the run).
 - Per-cell columns on the `electrodes` category of the intracellular recordings table: `cell_folder`,
   `experimenter`, `snl_cluster`, `stress_group`, `projection_target` (curator decision 12; the latter two repeat what the
-  subject and session descriptions say). Every converted cell is retrobead-positive (curator decision 10), which the
+  subject and session descriptions say), and `in_preprint_figures`. Every converted cell is retrobead-positive (curator decision 10), which the
   electrode description states.
 
 ## Interface mapping
@@ -85,22 +88,45 @@ dependency. Whether it generalizes enough to port to NeuroConv is to be assessed
   `m006 s4c1` is a `VoltageClampSeries`, and the I=0 run in `m401 s2c3` is an `IZeroClampSeries` with no stimulus. The
   VC test pulse run in CC in `m114 s2c2` drives an output channel whose units do not match the clamp mode, so it gets
   an all-zero stimulus whose description says no command was delivered.
-- Excluded runs are listed with reasons in `nadel_2026_excluded_runs.csv`: the Sept 2023 runs held near -60 mV
-  (README "Holding"; matched from the log's sweep ranges), 86 files from 10 SNL cells (6 stressed, 4 unstressed).
-  Lab question 2 is the one to follow up first: the `sweep` values in the Zenodo `baseline Firing Rate.csv` suggest
-  these runs went into Fig. 2F. The holding current adds to every F-I step and the starting potential changes, so a
-  held run gives a different F-I curve from an at-rest run of the same cell. If Jacob confirms they were used, the runs
-  go back in, labeled with their holding condition, so the files can reproduce the figure.
+- Runs held near -60 mV with DC current are converted and marked (`held_near_minus_60_mV`), 107 files from 13 SNL
+  cells, listed in `nadel_2026_log_held_runs.csv` from the log's "holding at -60 mV" rows and notes (README "Holding").
+  The logged holding current, where the log gives one per run, is the `bias_current` of each response series. The
+  lab's per-cell values average these runs with the runs at rest (for `m021 s1c2`, the F-I `sweep` value 200.5 in
+  `baseline Firing Rate.csv` is the mean of sweeps 120, 131, 142 at rest and 259, 270, 281 held), so keeping them
+  reproduces the figures. The README asks for them to be excluded; whether they belong in the analysis is lab
+  question 2.
 - `nadel_2026_misfiled_runs.csv` reassigns `m009_0001-0003.h5` and `m009_0004.h5`, which sit in MZ's `m009 s3c1`
   folder but are the first test pulse and spontaneous run of Jacob's `m009 s1c1` (README item 3). The 12 copies of
   other `m009 s1c1` runs in that folder are not read, since MZ's cell is not in the paper.
 - Not converted: `bad/` folders, `pics/`, the per-cell slice images, and the free-text notes in the log sheets (lab
   question 9).
 
+## Reproduction of the preprint figures
+
+`notebooks/nadel_2026_figure_2_reproduction.ipynb` recomputes every data panel of Fig. 2 and Fig. S4 from the NWB
+files and plots them against the values in the preprint's statistics tables (`nadel_2026_paper_values.csv`). Every
+curve panel (2D to 2I, 2N, and S4A to S4I) matches the table. The lab's measurement rules that this required, found by
+matching the lab's per-cell tables in the Zenodo bundle:
+
+- Firing rate counts upward crossings of 0 mV at least 5 ms apart over the whole 2 s sweep and divides by the 0.5 s
+  step, so spikes after the step count toward the rate.
+- Latency, mean ISI, and adaptation index come from ipfx 2.1.2 with no filter and spikes detected over the whole sweep.
+  A cell's latency at a current is the mean over its runs, including runs whose first spike precedes the step
+  (negative latency), and is left out when that mean is negative.
+- Runs held near -60 mV are averaged with the runs at rest, and only cells with `in_preprint_figures` True are used.
+- The bar panels (2J to 2M) remove outliers within each group with ROUT (Q = 0.1%), as the preprint describes; the curve
+  panels keep every cell.
+- A rheobase run that never fires counts as its largest step plus 5 pA, and the runs of a cell are averaged.
+
+Two bar panels are not reproduced. In 2M the lab averaged only some rheobase runs for seven cells and used the F-I
+steps for eight cells that have the 5 pA protocol, with no rule the files show. In 2K the charge of the test pulse
+transient gives about half the lab's capacitance values, and the lab's method is not described.
+
 ## Log sheet metadata
 
 The three Excel log sheets in `metadata/log_sheets/` are read directly by `nadel_2026_extract_log_sheets.py`, which
-writes `nadel_2026_log_cells.csv`, `nadel_2026_log_test_pulses.csv`, and `nadel_2026_log_sessions.csv` (curator
+writes `nadel_2026_log_cells.csv`, `nadel_2026_log_test_pulses.csv`, `nadel_2026_log_held_runs.csv`, and
+`nadel_2026_log_sessions.csv` (curator
 decision 9). Each row records its source sheet and rows, and every typo fix or blanked entry is listed in the script
 and in the `extraction_note` column. Cells are matched to their log block by the sweep numbers of their files, since
 many blocks are mislabeled or unlabeled; MZ's cells are read from his own sheet under his numbering.

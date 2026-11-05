@@ -4,6 +4,7 @@ Run once against the hand-off folder; the tables it writes are committed next to
 
 - nadel_2026_log_cells.csv: per-cell amplifier settings and measurements (one row per paper cell)
 - nadel_2026_log_test_pulses.csv: access resistance noted after each VC test pulse run
+- nadel_2026_log_held_runs.csv: runs logged as held near -60 mV with DC current, with the logged holding current
 - nadel_2026_log_sessions.csv: day-level fields of each converted recording day
 
 Each tab of a log sheet is one recording day: a day header block, then one block per cell. A cell block starts with a
@@ -84,6 +85,28 @@ SESSION_REMARK_REMOVALS = {
     ("20240606 670-RL", "slicing_outcome"): "sliced @ 250, not so good",
 }
 REMARK_REMOVAL_NOTE = "kept '{kept}' (removed a trailing remark with no experimental content)"
+# Held runs that are not sweep ranges on a 'holding at -60 mV' row, keyed by (mouse_folder, cell_folder, filename):
+# (log protocol row, holding current in pA or "", log cell, note).
+HELD_RUNS_OFF_ROW = {
+    ("20230913 607-009", "m009 s1c1 +", "m009_1027-1037.h5"): (
+        "3 - CC excitability 20 pA to 200 pA",
+        "80",
+        "D23",
+        "the log notes 'third sweep done w/ +80 pA holding current (to -60 mV)' next to the row",
+    ),
+    ("20230913 607-009", "m009 s1c1 +", "m009_1112-1152.h5"): (
+        "5 - CC rheobase 5 pA to 100 pA",
+        "80",
+        "D25",
+        "the log notes 'third sweep done w/ +80 pA holding current (to -60 mV)' next to the row",
+    ),
+    ("20230920 608-011", "m011 s3c1 +", "m011_0552-0572.h5"): (
+        "5 - CC rheobase 5 pA to 100 pA holding at -60 mV",
+        "",
+        "D98",
+        "written as 'DON'T USE' in place of the sweep range and the holding current",
+    ),
+}
 
 # The parenthetical may be closed with '_' or not at all ('238-240 (11.9_', '234-236 (10').
 SWEEP_ENTRY_PATTERN = re.compile(r"^(\d+)(?:\s*-\s*(\d+))?\s*(?:\(([^)_]*)(?:\)|_|$))?\s*(.*)$")
@@ -147,11 +170,13 @@ def read_cell_blocks(rows: dict[int, dict[str, str]]) -> list[dict]:
         time_row = rows.get(first_row, {})
         drugs_row = rows.get(header_row_number - 1, {})
         runs = []
+        currents = {}
         for row_number in range(header_row_number + 2, last_row + 1):
             row = rows.get(row_number, {})
             protocol = row.get("A", "")
             if not re.match(r"^\d+ - ", protocol):
                 continue
+            currents[row_number] = [text for column, text in row.items() if column != "A" and "pA" in text]
             for column, text in row.items():
                 if column == "A":
                     continue
@@ -171,6 +196,7 @@ def read_cell_blocks(rows: dict[int, dict[str, str]]) -> list[dict]:
                     column: value for column, value in value_row.items() if column not in header and column != "A"
                 },
                 runs=runs,
+                currents=currents,
             )
         )
     return blocks
@@ -236,7 +262,7 @@ def extract_log_sheets(data_dir_path: Path, output_dir_path: Path) -> None:
         on=["mouse_folder", "cell_folder"],
     )
 
-    cell_rows, test_pulse_rows = [], []
+    cell_rows, test_pulse_rows, held_run_rows = [], [], []
     for cell in paper_cells.itertuples():
         mouse_code, cell_label = cell.cell_id.split(" ")
         notes = []
@@ -303,6 +329,7 @@ def extract_log_sheets(data_dir_path: Path, output_dir_path: Path) -> None:
         cell_rows.append(row)
 
         test_pulse_rows.extend(get_test_pulse_rows(block=block, cell_files=cell_files, day_files=day_files, cell=cell))
+        held_run_rows.extend(get_held_run_rows(block=block, cell_files=cell_files, cell=cell))
 
     cell_columns = [
         "mouse_folder",
@@ -317,6 +344,7 @@ def extract_log_sheets(data_dir_path: Path, output_dir_path: Path) -> None:
     ]
     pd.DataFrame(cell_rows)[cell_columns].to_csv(output_dir_path / "nadel_2026_log_cells.csv", index=False)
     pd.DataFrame(test_pulse_rows).to_csv(output_dir_path / "nadel_2026_log_test_pulses.csv", index=False)
+    pd.DataFrame(held_run_rows).to_csv(output_dir_path / "nadel_2026_log_held_runs.csv", index=False)
 
     session_rows = []
     for mouse_folder, day_cells in paper_cells.groupby("mouse_folder", sort=False):
@@ -328,6 +356,65 @@ def extract_log_sheets(data_dir_path: Path, output_dir_path: Path) -> None:
             get_session_row(mouse_folder=mouse_folder, source_file=source_file, source_sheet=source_sheet, rows=rows)
         )
     pd.DataFrame(session_rows).to_csv(output_dir_path / "nadel_2026_log_sessions.csv", index=False)
+
+
+def get_held_run_rows(block: dict, cell_files: pd.DataFrame, cell) -> list[dict]:
+    """Return one row per logged run recorded while the cell was held near -60 mV with DC current.
+
+    These are the runs on the log's 'holding at -60 mV' protocol rows. Each is matched to the cell's file with the same
+    first and last sweep. The holding currents written after the sweep ranges of a row are assigned to its runs in
+    order when there is one per run, and left blank otherwise.
+    """
+    held_run_rows = []
+    for row_number, row_currents in block["currents"].items():
+        row_runs = [run for run in block["runs"] if run["row"] == row_number]
+        if not row_runs or "holding at -60 mV" not in row_runs[0]["protocol"]:
+            continue
+        currents_match_runs = len(row_currents) == len(row_runs)
+        for index, run in enumerate(row_runs):
+            first, last, _ = run["entry"]
+            if last is None:
+                file = cell_files[cell_files.sweep_first == first]
+            else:
+                file = cell_files[(cell_files.sweep_first == first) & (cell_files.sweep_last == last)]
+            notes = []
+            if last is None and len(file) == 1 and file.sweep_last.iloc[0] != first:
+                notes.append(f"logged as sweep {first}, the first sweep of the file")
+            if len(file) != 1:
+                notes.append(f"logged as '{run['text']}', which matches no single file of the cell")
+            holding_current = ""
+            if currents_match_runs:
+                holding_current = row_currents[index].replace("pA", "").strip()
+            elif row_currents:
+                notes.append(f"holding currents {row_currents} do not match the {len(row_runs)} runs of the row")
+            held_run_rows.append(
+                dict(
+                    mouse_folder=cell.mouse_folder,
+                    cell_folder=cell.cell_folder,
+                    filename=file.filename.iloc[0] if len(file) == 1 else "",
+                    protocol=run["protocol"],
+                    holding_current_pA=holding_current,
+                    source_sheet=block["source_sheet"],
+                    source_cell=f"{run['column']}{run['row']}",
+                    extraction_note="; ".join(notes),
+                )
+            )
+    for (mouse_folder, cell_folder, filename), (protocol, holding_current, source_cell, note) in HELD_RUNS_OFF_ROW.items():
+        if (mouse_folder, cell_folder) != (cell.mouse_folder, cell.cell_folder):
+            continue
+        held_run_rows.append(
+            dict(
+                mouse_folder=mouse_folder,
+                cell_folder=cell_folder,
+                filename=filename,
+                protocol=protocol,
+                holding_current_pA=holding_current,
+                source_sheet=block["source_sheet"],
+                source_cell=source_cell,
+                extraction_note=note,
+            )
+        )
+    return held_run_rows
 
 
 def get_test_pulse_rows(block: dict, cell_files: pd.DataFrame, day_files: pd.DataFrame, cell) -> list[dict]:

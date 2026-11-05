@@ -4,6 +4,7 @@ from pathlib import Path
 from typing import Literal, Union
 from zoneinfo import ZoneInfo
 
+import numpy as np
 import pandas as pd
 from neuroconv.utils import dict_deep_update, load_dict_from_file
 
@@ -27,6 +28,8 @@ CELL_COLUMNS = {
     "for an unstressed littermate control, from the lab's makeMice table.",
     "projection_target": "Region where retrobeads were injected (SNL, BNST, PAG, or TS), so the retrobead-positive "
     "cell projects there, from the lab's makeMice table.",
+    "in_preprint_figures": "Whether the cell is in the preprint's figures. False for cells in the lab's used cells.csv "
+    "that the lab's per-cell analysis tables (Zenodo) leave out of the figures.",
 }
 
 
@@ -65,19 +68,19 @@ def session_to_nwb(
     paper_cells = pd.read_csv(Path(__file__).parent / "nadel_2026_paper_cells.csv")
     paper_cells = paper_cells[(paper_cells.tree == tree) & (paper_cells.mouse_folder == mouse_folder)]
     cells = pd.read_csv(data_dir_path / "tables" / "cells_master.csv")
-    cells = cells.merge(paper_cells[["mouse_folder", "cell_folder"]], on=["mouse_folder", "cell_folder"])
+    cells = cells.merge(
+        paper_cells[["mouse_folder", "cell_folder", "in_preprint_figures"]], on=["mouse_folder", "cell_folder"]
+    )
     if stub_test:
         cells = cells.iloc[:1]
-    excluded_runs = pd.read_csv(Path(__file__).parent / "nadel_2026_excluded_runs.csv")
-    excluded_runs = excluded_runs[(excluded_runs.tree == tree) & (excluded_runs.mouse_folder == mouse_folder)]
+    held_runs = pd.read_csv(Path(__file__).parent / "nadel_2026_log_held_runs.csv")
+    held_runs = held_runs[held_runs.mouse_folder == mouse_folder]
+    held_run_currents = dict(zip(held_runs.filename, held_runs.holding_current_pA))
     misfiled_runs = pd.read_csv(Path(__file__).parent / "nadel_2026_misfiled_runs.csv")
     misfiled_runs = misfiled_runs[(misfiled_runs.tree == tree) & (misfiled_runs.mouse_folder == mouse_folder)]
-    excluded_paths = {
-        data_dir_path / tree / mouse_folder / cell_folder / filename
-        for cell_folder, filename in zip(
-            pd.concat([excluded_runs.cell_folder, misfiled_runs.found_in_cell_folder]),
-            pd.concat([excluded_runs.filename, misfiled_runs.filename]),
-        )
+    misfiled_paths = {
+        data_dir_path / tree / mouse_folder / found_in_cell_folder / filename
+        for found_in_cell_folder, filename in zip(misfiled_runs.found_in_cell_folder, misfiled_runs.filename)
     }
 
     date, animal_id = mouse_folder.split(" ")
@@ -94,7 +97,7 @@ def session_to_nwb(
         file_paths = [
             file_path
             for file_path in (data_dir_path / tree / mouse_folder / cell.cell_folder).glob("*.h5")
-            if file_path not in excluded_paths
+            if file_path not in misfiled_paths
         ] + [
             data_dir_path / tree / mouse_folder / found_in_cell_folder / filename
             for found_in_cell_folder, filename in zip(
@@ -106,11 +109,13 @@ def session_to_nwb(
             None if experimenter == "JN" and date.startswith("2023") else RECORDED_COMMAND_CHANNEL_INDEX
         )
         for file_path in sorted(file_paths):
+            holding_current = held_run_currents.get(file_path.name, np.nan)
             interfaces[f"{cell.cell_folder}/{file_path.stem}"] = WaveSurferIntracellularInterface(
                 file_path=file_path,
                 electrode_name=electrode_name,
                 voltage_clamp_holding_potential=VOLTAGE_CLAMP_HOLDING_POTENTIAL,
                 recorded_command_channel_index=recorded_command_channel_index,
+                bias_current=None if np.isnan(holding_current) else float(holding_current),
             )
         slice_number = re.fullmatch(r"m\d+ s(\d+)c\d+", cell.cell_id).group(1)
         electrodes_metadata[electrode_name] = dict(
@@ -125,6 +130,7 @@ def session_to_nwb(
             cell_folder=cell.cell_folder,
             experimenter=experimenter,
             snl_cluster=0 if pd.isna(cell.snl_cluster) else int(cell.snl_cluster),
+            in_preprint_figures=bool(cell.in_preprint_figures),
             **log_cells[cell.cell_folder]["columns"],
         )
 
@@ -162,6 +168,7 @@ def session_to_nwb(
             Cells=cells_metadata,
             CellColumns={**CELL_COLUMNS, **get_log_cell_columns(log_cells)},
             TestPulseAccessResistances=get_test_pulse_access_resistances(mouse_folder=mouse_folder),
+            HeldRuns=list(held_runs.filename),
         ),
     )
     log_session_notes = get_log_session_notes(mouse_folder=mouse_folder)
