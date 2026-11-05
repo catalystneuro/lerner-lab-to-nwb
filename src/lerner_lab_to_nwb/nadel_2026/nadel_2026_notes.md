@@ -86,7 +86,11 @@ dependency. Whether it generalizes enough to port to NeuroConv is to be assessed
   VC test pulse run in CC in `m114 s2c2` drives an output channel whose units do not match the clamp mode, so it gets
   an all-zero stimulus whose description says no command was delivered.
 - Excluded runs are listed with reasons in `nadel_2026_excluded_runs.csv`: the Sept 2023 runs held near -60 mV
-  (README "Holding"; matched from the log's sweep ranges, see lab question 2), 86 files from 10 cells.
+  (README "Holding"; matched from the log's sweep ranges), 86 files from 10 SNL cells (6 stressed, 4 unstressed).
+  Lab question 2 is the one to follow up first: the `sweep` values in the Zenodo `baseline Firing Rate.csv` suggest
+  these runs went into Fig. 2F. The holding current adds to every F-I step and the starting potential changes, so a
+  held run gives a different F-I curve from an at-rest run of the same cell. If Jacob confirms they were used, the runs
+  go back in, labeled with their holding condition, so the files can reproduce the figure.
 - `nadel_2026_misfiled_runs.csv` reassigns `m009_0001-0003.h5` and `m009_0004.h5`, which sit in MZ's `m009 s3c1`
   folder but are the first test pulse and spontaneous run of Jacob's `m009 s1c1` (README item 3). The 12 copies of
   other `m009 s1c1` runs in that folder are not read, since MZ's cell is not in the paper.
