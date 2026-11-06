@@ -50,15 +50,18 @@ Subject:
   strain: C57BL/6J
   genotype: wild type
 
+Devices:
+  axon_multiclamp:
+    name: MultiClamp700B
+    description: MultiClamp 700B patch clamp amplifier.
+    manufacturer: Molecular Devices
+  digitizer:
+    name: PCIe6323
+    description:
+      National Instruments X series PCIe-6323 digitizer with a BNC-2090A breakout, controlled by WaveSurfer 0.945.
+    manufacturer: National Instruments
+
 Icephys:
-  Devices:
-    - name: MultiClamp700B
-      description: MultiClamp 700B patch clamp amplifier.
-      manufacturer: Molecular Devices
-    - name: PCIe6323
-      description:
-        National Instruments X series PCIe-6323 digitizer with a BNC-2090A breakout, controlled by WaveSurfer 0.945.
-      manufacturer: National Instruments
   IntracellularElectrode:
     description:
       Borosilicate glass patch pipette (Warner Instruments G150TF-4, 3-7 MOhm, pulled on a Narishige PC-100) filled
