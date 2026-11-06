@@ -37,16 +37,15 @@ steps (50 ms, 5 pA), and the VC Ih protocol.
 
 ## File organization
 
-One NWB file per recording day (one mouse), `sub-<animal id>_ses-<date>.nwb`, 34 files in all (480 MB).
+One NWB file per recording day (one mouse), `sub-<animal id>_ses-<date>.nwb`, 34 files in all (614 MB).
 
 - One `IntracellularElectrode` per cell, named `electrode_<cell id>`, with `cell_id`, `slice`, and `location`.
-- Each sweep is its own `CurrentClampSeries`, `VoltageClampSeries`, or `IZeroClampSeries` in acquisition
-  (`<file stem>_sweep_<sweep number>_response`, for example `m203_0571-0581_sweep_0575_response`) with a matching
-  stimulus template (`..._stimulus_template`) and, where the command was recorded, a stimulus (`..._stimulus`). Names include the file stem because sweep numbers repeat within a day: besides the
-  cases in the README, the counter was set back in `758-L/m114 s2c2` (`m114_0422-0432.h5` and `m114_0432-0434.h5` both
-  hold sweep 432). Writing one series per
-  sweep keeps `starting_time` and `rate`; one continuous series per run would need per-sample timestamps because of the
-  gaps between sweeps, which would be about four times the size of the int16 data.
+- Each run (one WaveSurfer file) is one continuous `CurrentClampSeries`, `VoltageClampSeries`, or `IZeroClampSeries`
+  in acquisition, named by NeuroConv from the file stem (for example `CurrentClampSeriesM20305710581Electrode1`), with
+  a stimulus template in `/stimulus/templates` and, where the command was recorded, a stimulus in
+  `/stimulus/presentation`. Each sweep is a row of the intracellular recordings table that points at its samples of
+  these series, and the `sequence` column holds the file stem. The gaps between sweeps make the timestamps irregular,
+  so the series store per-sample timestamps.
 - Icephys tables: one intracellular recording and one simultaneous recording per sweep, one sequential recording per
   run (`stimulus_type` is the protocol file name, `source_file` the WaveSurfer file, `held_near_minus_60_mV` whether
   the cell was held near -60 mV with DC current during the run).
@@ -59,11 +58,13 @@ One NWB file per recording day (one mouse), `sub-<animal id>_ses-<date>.nwb`, 34
 
 | Stream | Interface | Source | Status |
 |---|---|---|---|
-| Whole-cell recordings | `WaveSurferIntracellularInterface` (custom, this folder) | one `.h5` file per instance | Verified |
+| Whole-cell recordings | `WaveSurferIntracellularInterface` and `WaveSurferIntracellularConverter` (NeuroConv) | one `.h5` file per instance | Verified |
 | Subject and cell metadata | `nadel_2026_convert_session.py` | `tables/*.csv`, `nadel_2026_metadata.yaml` | Verified |
 
-NeuroConv 0.10.2 has no WaveSurfer interface. The custom interface reads the files with h5py and needs no other
-dependency. Whether it generalizes enough to port to NeuroConv is to be assessed separately.
+The WaveSurfer interface was written for this conversion and moved to NeuroConv. Until it is released, the
+requirements pin the NeuroConv branch or commit that has it. `Nadel2026NWBConverter` subclasses the WaveSurfer
+converter and adds the log sheet columns, the digitizer, and the external resources. Each run's series point at the
+cell's electrode through `electrode_metadata_key` in the metadata.
 
 ## Data decisions
 
@@ -72,9 +73,12 @@ dependency. Whether it generalizes enough to port to NeuroConv is to be assessed
   terms change the result by less than one ADC count over the full int16 range, so `conversion` and `offset` use the
   linear terms. Checked against `read_wavesurfer_example.py`: largest difference 3e-5 mV in current clamp and 0.025 pA
   in voltage clamp. Scales are read per file, since the current monitor gain changes between runs.
-- Stimulus series are built from the stimulus library stored in each file header (selected map, stimuli bound to
-  the run's analog output channel, amplitude expressions evaluated with i = sweep position in the run). Only
-  `SquarePulse` and `TwoSquarePulses` occur in this dataset; other types raise.
+- Stimulus templates are built by NeuroConv from the stimulus library in each file header, following the WaveSurfer
+  0.945 source: the selected map, the first stimulus bound to the electrode's command channel, amplitude expressions
+  evaluated with i = sweep position in the run, on WaveSurfer's time grid at the stimulation rate. The VC test pulse
+  runs stimulate at 20 kHz, so their templates have twice the samples of their responses. The VC Ih protocol binds a
+  second -0.005 mV pulse to the same channel, which WaveSurfer does not play; the conversion before NeuroConv added it.
+  A run that stopped early has a template for the full sweep and a shorter response.
 - The library waveform is written as each sweep's stimulus template (`/stimulus/templates`). The command loopback
   recorded on the second analog input is written as the delivered stimulus (`/stimulus/presentation`, raw int16 with
   that channel's scaling) wherever it exists (curator decision 7). Where it is valid it matches the library waveform
@@ -82,12 +86,12 @@ dependency. Whether it generalizes enough to port to NeuroConv is to be assessed
 - Jacob's Sept 2023 runs have no recorded command: README item 1 says their second analog input does not track the
   stimulus. Those runs have a template only, and the duplicate voltage channel is not written. Runs whose
   second input has units that do not match the clamp mode, and the I=0 run, also have no recorded command.
-- Voltage clamp stimuli are stored relative to the holding potential, with `offset` = -70 mV (set on the amplifier and
-  not stored in the file).
+- Voltage clamp stimuli are stored relative to the holding potential of -70 mV, which is set on the amplifier and not
+  stored in the file. Their descriptions state it.
 - The clamp mode in the header decides the series type (README item 5): the spontaneous run MZ recorded in VC in
-  `m006 s4c1` is a `VoltageClampSeries`, and the I=0 run in `m401 s2c3` is an `IZeroClampSeries` with no stimulus. The
-  VC test pulse run in CC in `m114 s2c2` drives an output channel whose units do not match the clamp mode, so it gets
-  an all-zero stimulus whose description says no command was delivered.
+  `m006 s4c1` is a `VoltageClampSeries`, and the I=0 run in `m401 s2c3` is an `IZeroClampSeries` with no stimulus. In the
+  VC test pulse run in CC in `m114 s2c2` (`m114_0433-0435.h5`), WaveSurfer labels the command channel in pA, so its
+  template is a -5 pA pulse. Its second input records a voltage command, so it has no recorded stimulus.
 - Runs held near -60 mV with DC current are converted and marked (`held_near_minus_60_mV`), 107 files from 13 SNL
   cells, listed in `nadel_2026_log_held_runs.csv` from the log's "holding at -60 mV" rows and notes (README "Holding").
   The logged holding current, where the log gives one per run, is the `bias_current` of each response series. The

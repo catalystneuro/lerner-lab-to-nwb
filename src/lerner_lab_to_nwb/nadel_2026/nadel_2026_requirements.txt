@@ -1,4 +1,5 @@
-neuroconv
+# The WaveSurfer interface is on this NeuroConv branch until it is merged and released
+neuroconv @ git+https://github.com/catalystneuro/neuroconv@add_wavesurfer
 pynwb
 hdmf
 nwbinspector

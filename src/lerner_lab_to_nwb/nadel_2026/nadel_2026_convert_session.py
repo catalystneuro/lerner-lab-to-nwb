@@ -6,9 +6,10 @@ from zoneinfo import ZoneInfo
 
 import numpy as np
 import pandas as pd
+from neuroconv.datainterfaces import WaveSurferIntracellularInterface
 from neuroconv.utils import dict_deep_update, load_dict_from_file
 
-from lerner_lab_to_nwb.nadel_2026 import Nadel2026NWBConverter, WaveSurferIntracellularInterface
+from lerner_lab_to_nwb.nadel_2026 import Nadel2026NWBConverter
 from lerner_lab_to_nwb.nadel_2026.nadel_2026_log_sheets import (
     get_log_cell_columns,
     get_log_cell_metadata,
@@ -19,6 +20,12 @@ from lerner_lab_to_nwb.nadel_2026.nadel_2026_log_sheets import (
 SESSION_TIMEZONE = ZoneInfo("America/Chicago")
 VOLTAGE_CLAMP_HOLDING_POTENTIAL = -70.0  # mV, set on the amplifier for every voltage clamp run
 RECORDED_COMMAND_CHANNEL_INDEX = 1  # analog input that records the DAQ's command output
+# Names the second analog input takes when it records the command of the run's clamp mode. In a current clamp run of
+# the VC test pulse protocol it is "Voltage Cmd", which does not record the command the cell received.
+RECORDED_COMMAND_CHANNEL_NAMES = {
+    "current_clamp": ("Current Injection",),
+    "voltage_clamp": ("Voltage Cmd", "Holding Voltage"),
+}
 CELL_COLUMNS = {
     "cell_folder": "Name of the cell's folder in the lab's raw data, which carries bead status and MZ's cell number.",
     "experimenter": "Initials of the person who recorded the cell (JN or MZ).",
@@ -86,6 +93,9 @@ def session_to_nwb(
     date, animal_id = mouse_folder.split(" ")
     editable_metadata = load_dict_from_file(Path(__file__).parent / "nadel_2026_metadata.yaml")
     interfaces = {}
+    run_electrode_names = {}
+    run_modes = {}
+    run_holding_currents = {}
     electrodes_metadata = {}
     cells_metadata = {}
     log_cells = get_log_cell_metadata(mouse_folder=mouse_folder)
@@ -105,21 +115,31 @@ def session_to_nwb(
             )
         ]
         # In JN's 2023 recordings the second analog input recorded a copy of the membrane potential, not the command
-        recorded_command_channel_index = (
-            None if experimenter == "JN" and date.startswith("2023") else RECORDED_COMMAND_CHANNEL_INDEX
-        )
+        has_recorded_command = not (experimenter == "JN" and date.startswith("2023"))
         for file_path in sorted(file_paths):
-            holding_current = held_run_currents.get(file_path.name, np.nan)
+            mode = WaveSurferIntracellularInterface.get_clamp_mode(file_path=file_path)
+            stimulus_channel_name = None
+            if has_recorded_command and mode != "izero":
+                channel_name = WaveSurferIntracellularInterface.get_channel_names(file_path=file_path)[
+                    RECORDED_COMMAND_CHANNEL_INDEX
+                ]
+                if channel_name in RECORDED_COMMAND_CHANNEL_NAMES[mode]:
+                    stimulus_channel_name = channel_name
             interfaces[f"{cell.cell_folder}/{file_path.stem}"] = WaveSurferIntracellularInterface(
                 file_path=file_path,
-                electrode_name=electrode_name,
-                voltage_clamp_holding_potential=VOLTAGE_CLAMP_HOLDING_POTENTIAL,
-                recorded_command_channel_index=recorded_command_channel_index,
-                bias_current=None if np.isnan(holding_current) else float(holding_current),
+                stimulus_channel_name=stimulus_channel_name,
+                reconstruct_stimulus=mode != "izero",
+                metadata_key=file_path.stem,
             )
+            run_electrode_names[file_path.stem] = electrode_name
+            run_modes[file_path.stem] = mode
+            holding_current = held_run_currents.get(file_path.name, np.nan)
+            if not np.isnan(holding_current):
+                run_holding_currents[file_path.stem] = float(holding_current)
         slice_number = re.fullmatch(r"m\d+ s(\d+)c\d+", cell.cell_id).group(1)
         electrodes_metadata[electrode_name] = dict(
-            device_name="MultiClamp700B",
+            name=electrode_name,
+            device_metadata_key="axon_multiclamp",
             description=editable_metadata["Icephys"]["IntracellularElectrode"]["description"],
             location=editable_metadata["Icephys"]["IntracellularElectrode"]["location"],
             cell_id=cell.cell_id,
@@ -134,6 +154,10 @@ def session_to_nwb(
             **log_cells[cell.cell_folder]["columns"],
         )
 
+    # Runs in the order they were recorded, so the sequential recordings follow the day
+    interfaces = dict(
+        sorted(interfaces.items(), key=lambda item: item[1].get_metadata()["NWBFile"]["session_start_time"])
+    )
     converter = Nadel2026NWBConverter(data_interfaces=interfaces)
     metadata = converter.get_metadata()
     metadata["NWBFile"]["session_start_time"] = metadata["NWBFile"]["session_start_time"].replace(
@@ -181,6 +205,20 @@ def session_to_nwb(
     for lookup_name in ("stress_group_to_description", "projection_target_to_surgery"):
         metadata.pop(lookup_name)
     metadata["Icephys"].pop("IntracellularElectrode")
+    # One electrode per cell, shared by the cell's runs, in place of the electrode each run would get by default
+    metadata["Icephys"]["IntracellularElectrodes"] = electrodes_metadata
+    holding_potential_note = (
+        f" The command is relative to the holding potential of {VOLTAGE_CLAMP_HOLDING_POTENTIAL:g} mV set on the "
+        "amplifier."
+    )
+    for run_label, series_metadata in metadata["Icephys"]["PatchClampSeries"].items():
+        series_metadata["electrode_metadata_key"] = run_electrode_names[run_label]
+        if run_label in run_holding_currents:
+            series_metadata["bias_current"] = run_holding_currents[run_label] * 1e-12
+    for registry in ("PatchClampStimulusSeries", "PatchClampStimulusTemplateSeries"):
+        for run_label, series_metadata in metadata["Icephys"].get(registry, {}).items():
+            if run_modes[run_label] == "voltage_clamp":
+                series_metadata["description"] += holding_potential_note
 
     nwbfile_path = output_dir_path / f"sub-{animal_id}_ses-{date}.nwb"
     converter.run_conversion(nwbfile_path=nwbfile_path, metadata=metadata, overwrite=overwrite)

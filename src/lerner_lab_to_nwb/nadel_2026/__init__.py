@@ -1,2 +1,1 @@
-from .wavesurferintracellularinterface import WaveSurferIntracellularInterface
 from .nadel_2026nwbconverter import Nadel2026NWBConverter
