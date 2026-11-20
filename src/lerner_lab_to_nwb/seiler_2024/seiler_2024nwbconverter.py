@@ -10,6 +10,7 @@ from lerner_lab_to_nwb.seiler_2024 import (
     Seiler2024ExcelMetadataInterface,
     Seiler2024CSVBehaviorInterface,
     Seiler2024WesternBlotInterface,
+    Seiler2024TTLBehaviorInterface,
 )
 from .medpcdatainterface import MedPCInterface
 from .medpc_helpers import read_medpc_file
@@ -31,6 +32,7 @@ class Seiler2024NWBConverter(NWBConverter):
         Metadata=Seiler2024ExcelMetadataInterface,
         MedPC=MedPCInterface,
         Behavior=Seiler2024CSVBehaviorInterface,
+        TTLBehavior=Seiler2024TTLBehaviorInterface,
     )
 
     def temporally_align_data_interfaces(self, metadata: dict, conversion_options: dict):
@@ -85,6 +87,9 @@ class Seiler2024NWBConverter(NWBConverter):
             session_dict = {}
             for csv_name, dict_name in csv_name_to_dict_name.items():
                 session_dict[dict_name] = np.trim_zeros(session_df[csv_name].dropna().values, trim="b")
+        elif "TTLBehavior" in self.data_interface_objects.keys():
+            msn = metadata["TTLBehavior"]["MSN"]
+            session_dict = None  # no behavior record: every TTL in the recording is kept
 
         # Read Fiber Photometry Data
         t2 = conversion_options["FiberPhotometry"].get("t2", None)
@@ -141,9 +146,18 @@ class Seiler2024NWBConverter(NWBConverter):
         else:
             raise ValueError(f"MSN ({msn}) does not indicate appropriate TTLs for alignment.")
 
+        from_ttls = session_dict is None
+        if from_ttls:
+            session_dict = {}
         for ttl_name, behavior_name in ttl_names_to_behavior_names.items():
             if ttl_name == "Sock" and "ShockProbe" not in metadata["NWBFile"]["session_id"]:
                 continue  # If the session is not a shock probe session the tdt file will not have the appropriate TTL
+            if from_ttls:  # With no behavior record, every TTL the recording has is kept
+                if any(block_has_ttl(tdt_block, ttl_name) for tdt_block in tdt_blocks):
+                    session_dict[behavior_name] = self.get_session_ttl_timestamps(
+                        ttl_name, tdt_blocks, len_behavior=None
+                    )
+                continue
             if len(session_dict[behavior_name]) == 0:
                 continue  # If behavior is not present the tdt file will not have the appropriate TTL
             len_behavior = len(session_dict[behavior_name])
@@ -152,6 +166,8 @@ class Seiler2024NWBConverter(NWBConverter):
             behavioral_interface = "MedPC"
         elif "Behavior" in self.data_interface_objects.keys():
             behavioral_interface = "Behavior"
+        elif "TTLBehavior" in self.data_interface_objects.keys():
+            behavioral_interface = "TTLBehavior"
         self.data_interface_objects[behavioral_interface].set_aligned_timestamps(session_dict)
         self.data_interface_objects[behavioral_interface].source_data["aligned_timestamp_names"] = list(
             session_dict.keys()
@@ -253,6 +269,13 @@ class Seiler2024WesternBlotNWBConverter(NWBConverter):
     data_interface_classes = dict(
         WesternBlot=Seiler2024WesternBlotInterface,
     )
+
+
+def block_has_ttl(tdt_block, ttl_name: str) -> bool:
+    """Return True if the TDT block holds the TTL. 'PrtN' stands for both port entry TTLs, PrtN and PrtR."""
+    if ttl_name == "PrtN":
+        return "PrtN" in tdt_block.epocs.keys() or "PrtR" in tdt_block.epocs.keys()
+    return ttl_name in tdt_block.epocs.keys()
 
 
 def all_close_contains(*, query_array: np.ndarray, target_array: np.ndarray, tolerance: float) -> bool:

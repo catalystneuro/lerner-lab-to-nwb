@@ -17,7 +17,7 @@ def session_to_nwb(
     *,
     data_dir_path: Union[str, Path],
     output_dir_path: Union[str, Path],
-    behavior_file_path: Union[str, Path],
+    behavior_file_path: Optional[Union[str, Path]],
     subject_id: str,
     session_conditions: dict,
     start_variable: str,
@@ -32,6 +32,7 @@ def session_to_nwb(
     has_demodulated_commanded_voltages: bool = True,
     flip_ttls_lr: bool = False,
     has_port_entry_durations: bool = True,
+    ttl_msn: Optional[str] = None,
     stub_test: bool = False,
     verbose: bool = True,
 ):
@@ -43,8 +44,10 @@ def session_to_nwb(
         Path to the directory containing the raw data.
     output_dir_path : Union[str, Path]
         Path to the directory to save the NWB file.
-    behavior_file_path : Union[str, Path]
+    behavior_file_path : Optional[Union[str, Path]]
         Path to the MedPC file. Or path to the csv file if the behavior data is in a csv file.
+        Or None if the session has no behavior file, in which case the behavior comes from the TTLs of the fiber
+        photometry data and ttl_msn must be given.
     subject_id : str
         The subject ID.
     session_conditions : dict
@@ -71,6 +74,8 @@ def session_to_nwb(
         Note that, sometimes the demodulated commanded voltages are in the same array as the demodulated photometry data (Fi1r).
     has_port_entry_durations : bool, optional
         Whether the behavior data has port entry durations, by default True
+    ttl_msn : Optional[str], optional
+        The MSN of the MedPC program that sent the TTLs of a session without a behavior file, by default None
     stub_test : bool, optional
         Whether to run a stub test, by default False
     verbose : bool, optional
@@ -89,9 +94,18 @@ def session_to_nwb(
     source_data = {}
     conversion_options = {}
 
-    # Add Behavior from csv or MedPC
-    from_csv = behavior_file_path.suffix == ".csv"
-    if from_csv:
+    # Add Behavior from csv or MedPC, or from the fiber photometry TTLs if there is no behavior file
+    from_ttls = behavior_file_path is None
+    from_csv = not from_ttls and behavior_file_path.suffix == ".csv"
+    if from_ttls:
+        assert (
+            fiber_photometry_folder_path is not None and ttl_msn is not None
+        ), "A session without a behavior file needs fiber_photometry_folder_path and ttl_msn."
+        source_data.update(
+            dict(TTLBehavior={"folder_path": str(fiber_photometry_folder_path), "msn": ttl_msn, "verbose": verbose})
+        )
+        conversion_options.update(dict(TTLBehavior={}))
+    elif from_csv:
         source_data.update(
             dict(
                 Behavior={
@@ -179,24 +193,36 @@ def session_to_nwb(
     editable_metadata = load_dict_from_file(editable_metadata_path)
     metadata = dict_deep_update(metadata, editable_metadata)
 
-    behavioral_metadata_key = "Behavior" if from_csv else "MedPC"
+    if from_ttls:
+        behavioral_metadata_key = "TTLBehavior"
+    else:
+        behavioral_metadata_key = "Behavior" if from_csv else "MedPC"
     start_date = datetime.strptime(metadata[behavioral_metadata_key]["start_date"], "%m/%d/%y").date()
     start_time = datetime.strptime(metadata[behavioral_metadata_key]["start_time"], "%H:%M:%S").time()
     session_start_time = datetime.combine(start_date, start_time)
-    if optogenetic_treatment is None:
+    msn = metadata[behavioral_metadata_key]["MSN"]
+    if from_ttls and msn.startswith("Footshock"):  # marks the session so that its footshock TTLs are kept
+        session_id = (
+            f"{experiment_type}_{experimental_group}_ShockProbe_{session_start_time.isoformat().replace(':', '-')}"
+        )
+    elif optogenetic_treatment is None:
         session_id = f"{experiment_type}_{experimental_group}_{session_start_time.isoformat().replace(':', '-')}"
     else:
         session_id = f"{experiment_type}-{experimental_group}-{optogenetic_treatment}-{session_start_time.isoformat().replace(':', '-')}"
     metadata["NWBFile"]["session_id"] = session_id
     metadata["NWBFile"]["session_start_time"] = session_start_time.replace(tzinfo=SESSION_TIMEZONE)
-    msn = metadata[behavioral_metadata_key]["MSN"]
     session_description = metadata["MedPC"]["msn_to_session_description"][msn]
     if fiber_photometry_folder_path is None:
         session_description = session_description.replace(" with concurrent fiber photometry", "")
+    if from_ttls:
+        session_description += (
+            ". The behavioral events come from the TTLs that the fiber photometry system recorded, because no MedPC "
+            "record of this session exists."
+        )
     metadata["NWBFile"]["session_description"] = session_description
     nwbfile_path = output_dir_path / f"sub-{subject_id}_ses-{session_id}.nwb"
 
-    if not from_csv:
+    if not from_csv and not from_ttls:
         msn = metadata["MedPC"]["MSN"]
         box = metadata["MedPC"]["box"]
         metadata["MedPC"]["module_description"] += f"\nMSN = {msn} \nBox = {box}"
@@ -729,23 +755,16 @@ if __name__ == "__main__":
         stub_test=stub_test,
     )
 
-    # Fiber Photometry session: Probe Test Habit Training TTL
+    # Fiber Photometry footshock probe without a MedPC record: the behavior comes from the TTLs
     experiment_type = "FP"
     experimental_group = "PR"
     subject_id = "89.247"
-    start_datetime = datetime(2019, 3, 8, 10, 59, 10)
+    start_datetime = datetime(2019, 3, 8, 9, 53, 22)
     session_conditions = {
         "Start Date": start_datetime.strftime("%m/%d/%y"),
         "Start Time": start_datetime.strftime("%H:%M:%S"),
     }
     start_variable = "Start Date"
-    behavior_file_path = (
-        data_dir_path
-        / f"{experiment_type} Experiments"
-        / "Behavior"
-        / "MEDPC_RawFilesbyDate"
-        / f"{start_datetime.date().isoformat()} 89.247probe"
-    )
     fiber_photometry_folder_path = (
         data_dir_path
         / f"{experiment_type} Experiments"
@@ -757,7 +776,8 @@ if __name__ == "__main__":
     session_to_nwb(
         data_dir_path=data_dir_path,
         output_dir_path=output_dir_path,
-        behavior_file_path=behavior_file_path,
+        behavior_file_path=None,
+        ttl_msn="Footshock Degradation Left",
         fiber_photometry_folder_path=fiber_photometry_folder_path,
         has_demodulated_commanded_voltages=False,
         subject_id=subject_id,
