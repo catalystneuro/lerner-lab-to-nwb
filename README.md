@@ -115,7 +115,7 @@ change the `max_workers` argument to `dataset_to_nwb()`.
 NeuroConv's `WaveSurferIntracellularInterface` reads one WaveSurfer `.h5` file (one run of one protocol on one cell),
 and `Nadel2026NWBConverter` combines the runs of a day. The 198 cells in the preprint's figures are converted, along with 2 cells of the lab's
 `used cells.csv` that the figures leave out, marked by `in_preprint_figures` (`nadel_2026_paper_cells.csv`). Notes on the data and the conversion decisions are in
-`nadel_2026_notes.md`, open questions for the lab are in `nadel_2026_lab_questions.md`, and open decisions about the conversion are in
+`nadel_2026_notes.md`, open questions for the lab are in the lab questions Google Doc shared with the Lerner lab, and open decisions about the conversion are in
 `nadel_2026_curator_questions.md`.
 
 Set up its environment from `src/lerner_lab_to_nwb/nadel_2026/nadel_2026_requirements.txt` with Python 3.12: install

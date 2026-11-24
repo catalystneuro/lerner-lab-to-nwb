@@ -1,6 +1,6 @@
 # aCUS intrinsic ephys: decisions for the data curator
 
-Decisions about the scope and design of the conversion of `/Volumes/T7/CatalystNeuro/Lerner/aCUS_ephys_raw_for_NWB`. These are for the CatalystNeuro curator to make. Questions about the data itself, which the lab can answer, are in `nadel_2026_lab_questions.md`.
+Decisions about the scope and design of the conversion of `/Volumes/T7/CatalystNeuro/Lerner/aCUS_ephys_raw_for_NWB`. These are for the CatalystNeuro curator to make. Questions about the data itself, which the lab can answer, are in the lab questions Google Doc shared with the Lerner lab.
 
 Open decisions say what the code does now under "Current behavior". Closed decisions record the decision, who made it, and when. Numbers stay with a decision when it moves from open to closed.
 
