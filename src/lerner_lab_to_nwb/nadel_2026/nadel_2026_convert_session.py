@@ -20,8 +20,9 @@ from lerner_lab_to_nwb.nadel_2026.nadel_2026_log_sheets import (
 SESSION_TIMEZONE = ZoneInfo("America/Chicago")
 VOLTAGE_CLAMP_HOLDING_POTENTIAL = -70.0  # mV, set on the amplifier for every voltage clamp run
 RECORDED_COMMAND_CHANNEL_INDEX = 1  # analog input that records the DAQ's command output
-# Names the second analog input takes when it records the command of the run's clamp mode. In a current clamp run of
-# the VC test pulse protocol it is "Voltage Cmd", which does not record the command the cell received.
+# Names the second analog input takes when it records the command of the run's clamp mode. In the current clamp run of
+# the VC test pulse protocol (m114_0433-0435.h5) it keeps the protocol's name "Voltage Cmd" and unit mV while its
+# values match the current command, so that run has no recorded stimulus.
 RECORDED_COMMAND_CHANNEL_NAMES = {
     "current_clamp": ("Current Injection",),
     "voltage_clamp": ("Voltage Cmd", "Holding Voltage"),

@@ -5,8 +5,8 @@ from Nadel et al., "Adolescent stress recruits a latent amygdala-dopamine circui
 reward-seeking" (bioRxiv, doi:10.64898/2026.07.29.741478). This is the reference dataset for the lab's slice
 electrophysiology pipeline (Aim 3 of the 2026 scope of work). It is converted locally and not uploaded to DANDI.
 
-Open questions for the lab are in `nadel_2026_lab_questions.md`, and open decisions about the conversion are in
-`nadel_2026_curator_questions.md`.
+Open questions for the lab are in the lab questions Google Doc shared with the Lerner lab, numbered as "lab question N"
+below. Open decisions about the conversion are in `nadel_2026_curator_questions.md`.
 
 ## Source data
 
@@ -88,10 +88,29 @@ its cell's id as `cell_id`, so the runs of a cell share one electrode.
   second input has units that do not match the clamp mode, and the I=0 run, also have no recorded command.
 - Voltage clamp stimuli are stored relative to the holding potential of -70 mV, which is set on the amplifier and not
   stored in the file. Their descriptions state it.
+- Three converted runs were recorded in a different clamp mode than their protocol file was saved in, listed in
+  `nadel_2026_clamp_mode_mismatches.csv`. Each `.cfg` in `metadata/wavesurfer_protocols/` saves an electrode mode, and
+  the header's `Ephys/ElectrodeManager/Electrodes/element1/Mode` is the mode the amplifier reported at run start. All
+  2523 converted runs use one of these protocols, and the other 2520 match. At run start WaveSurfer sets the units and
+  scales of the electrode's own channels (the first analog input and the analog output) from the amplifier's mode.
+  The second analog input is not tied to the electrode and keeps the protocol's units and scale, and every channel
+  keeps the protocol's name.
 - The clamp mode in the header decides the series type (README item 5): the spontaneous run MZ recorded in VC in
-  `m006 s4c1` is a `VoltageClampSeries`, and the I=0 run in `m401 s2c3` is an `IZeroClampSeries` with no stimulus. In the
-  VC test pulse run in CC in `m114 s2c2` (`m114_0433-0435.h5`), WaveSurfer labels the command channel in pA, so its
-  template is a -5 pA pulse. Its second input records a voltage command, so it has no recorded stimulus.
+  `m006 s4c1` (`m006_2023-09-12_0238.h5`, logged as "238 (VC)") is a `VoltageClampSeries`, and the I=0 run in
+  `m401 s2c3` (`m401_0360.h5`) is an `IZeroClampSeries` with no stimulus. Neither is in the figure values: the notebook
+  uses only the current clamp spontaneous runs, and the `sweep` value of `m006 s4c1` in `baseline RMP.csv` (126) is its
+  earlier CC run. Whether to keep these runs is lab question 24.
+- `m114_0433-0435.h5`, a run of the VC test pulse protocol in `m114 s2c2`, was recorded in CC. WaveSurfer set the
+  first input, still named `Electrode 1 Current`, to mV at 0.01 V/mV and the output to pA at 400 pA/V, so the
+  template is a -5 pA pulse. The second input, `Voltage Cmd`, kept the protocol's mV at 0.05 V/mV. During the pulse
+  (0.1 to 0.2 s) it reads -0.24 "mV", which is -0.0118 V at the DAQ, close to the -0.0125 V of a -5 pA command at
+  400 pA/V, so it records the current command under the protocol's voltage label. The run is a `CurrentClampSeries`
+  with no recorded stimulus, since the conversion takes the recorded command in CC only from `Current Injection`, and
+  NeuroConv refuses a stimulus channel in mV in current clamp. In sweep 3 the response jumps at 0.1426 s, one sample
+  at 1023 mV and then near 0.7 mV, and stays there to the end of the sweep. `m114_0432-0434.h5`, recorded in VC 15 s
+  after this run started, runs the test pulse again with the sweep counter set back to 432, so its sweep numbers
+  overlap this run's and those of the F-I run `m114_0422-0432.h5`. The log's end test pulse, sweeps 436-438 at
+  15 MΩ, is in no test pulse file (lab question 19). The cell is not in the figures.
 - Runs held near -60 mV with DC current are converted and marked (`held_near_minus_60_mV`), 107 files from 13 SNL
   cells, listed in `nadel_2026_log_held_runs.csv` from the log's "holding at -60 mV" rows and notes (README "Holding").
   The logged holding current, where the log gives one per run, is the `bias_current` of each response series. The
