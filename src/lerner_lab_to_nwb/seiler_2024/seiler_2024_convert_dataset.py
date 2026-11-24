@@ -10,6 +10,7 @@ including sessions with concurrent fiber photometry and behavior as well as sess
 First, the function iterates through all of the fiber photometry folders, extracting the photometry_folder_path and the subject_id from the folder name.
 Then, it finds the all the behavior sessions for a given subject_id using get_fp_header_variables().
 Then, it matches each fiber photometry session with one of the behavior sessions using the start_date.
+The folders in TTL_ONLY_PHOTOMETRY_FOLDER_TO_RUN have no MedPC record, so they are converted from their TTLs alone.
 Once, all the fiber photometry sessions have been added,
 this function iterates through all of the behavior files to add the behavior sessions without fiber photometry (omitting any duplicates).
 
@@ -112,6 +113,14 @@ UNLISTED_RUN_TO_SUBJECT_ID = {  # (file relative to data_dir_path, start date, s
 MISTYPED_SUBJECT_FIELD_TO_SUBJECT_ID = {
     "98.258": "98.257",
     "101.26": "101.260",
+}
+
+# Photometry recordings with no MedPC record, converted from their TTLs alone, with the start date and time of the TDT
+# block and the MSN of the program that sent the TTLs
+TTL_ONLY_PHOTOMETRY_FOLDER_TO_RUN = {
+    # 89.247's footshock probe on 03/08/19 (17 Sock TTLs). The only MedPC run of 89.247 that day is the probe test that
+    # started at 10:59:10, after the recording ended (https://github.com/catalystneuro/lerner-lab-to-nwb/issues/106)
+    "Photo_89_247-190308-095258": ("03/08/19", "09:53:22", "Footshock Degradation Left"),
 }
 
 
@@ -233,6 +242,8 @@ def get_no_port_entry_duration_sessions(
         behavior_file_path = session_to_nwb_kwargs["behavior_file_path"]
         session_key = get_session_key_from_kwargs(session_to_nwb_kwargs)
 
+        if behavior_file_path is None:  # sessions converted from their TTLs alone have no port entry durations
+            continue
         if behavior_file_path.suffix == ".csv":
             csv_name_to_dict_name = {
                 "DurationOfPE": "duration_of_port_entry",
@@ -543,6 +554,29 @@ def fp_to_nwb(
                 )
                 photometry_start_date = fiber_photometry_folder_path.name.split("-")[1]
                 photometry_start_date = datetime.strptime(photometry_start_date, "%y%m%d").strftime("%m/%d/%y")
+                if fiber_photometry_folder_path.name in TTL_ONLY_PHOTOMETRY_FOLDER_TO_RUN:
+                    start_date, start_time, msn = TTL_ONLY_PHOTOMETRY_FOLDER_TO_RUN[fiber_photometry_folder_path.name]
+                    session_to_nwb_args = dict(
+                        data_dir_path=data_dir_path,
+                        output_dir_path=output_dir_path,
+                        behavior_file_path=None,
+                        ttl_msn=msn,
+                        fiber_photometry_folder_path=fiber_photometry_folder_path,
+                        subject_id=photometry_subject_id,
+                        session_conditions={"Start Date": start_date, "Start Time": start_time},
+                        start_variable=start_variable,
+                        experiment_type=experiment_type,
+                        experimental_group=experimental_group,
+                        stub_test=stub_test,
+                        verbose=verbose,
+                    )
+                    if fiber_photometry_folder_path.name in fi1r_only_sessions:
+                        session_to_nwb_args["has_demodulated_commanded_voltages"] = False
+                    session_key = get_session_key_from_kwargs(session_to_nwb_args)
+                    if session_key not in unique_session_keys:
+                        session_to_nwb_args_per_session.append(session_to_nwb_args)
+                        unique_session_keys.add(session_key)
+                    continue  # not paired with a MedPC run, so the runs of that day are converted as behavior only
 
                 subject_dir = behavior_path / experimental_group / photometry_subject_id
                 header_variables = get_fp_header_variables(
