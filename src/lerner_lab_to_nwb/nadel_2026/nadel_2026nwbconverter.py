@@ -21,14 +21,14 @@ class Nadel2026NWBConverter(WaveSurferIntracellularConverter):
         super().add_to_nwbfile(nwbfile=nwbfile, metadata=metadata, conversion_options=conversion_options)
         nwbfile.create_device(**metadata["Devices"]["digitizer"])
 
-        # Each sequential recording is one run, built in the order its `sequence` label (the file stem) first
+        # Each sequential recording is one run, built in the order its `protocol_run` label (the file stem) first
         # appears in the intracellular recordings table.
         file_names = {
             Path(interface.source_data["file_path"]).stem: Path(interface.source_data["file_path"]).name
             for interface in self.data_interface_objects.values()
         }
         intracellular_recordings = nwbfile.get_intracellular_recordings()
-        run_labels = list(dict.fromkeys(intracellular_recordings["sequence"].data))
+        run_labels = list(dict.fromkeys(intracellular_recordings["protocol_run"].data))
         run_file_names = [file_names[run_label] for run_label in run_labels]
         sequential_recordings = nwbfile.get_icephys_sequential_recordings()
         sequential_recordings.add_column(

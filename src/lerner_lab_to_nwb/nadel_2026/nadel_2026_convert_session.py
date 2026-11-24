@@ -93,7 +93,6 @@ def session_to_nwb(
     date, animal_id = mouse_folder.split(" ")
     editable_metadata = load_dict_from_file(Path(__file__).parent / "nadel_2026_metadata.yaml")
     interfaces = {}
-    run_electrode_names = {}
     run_modes = {}
     run_holding_currents = {}
     electrodes_metadata = {}
@@ -127,17 +126,17 @@ def session_to_nwb(
                     stimulus_channel_name = channel_name
             interfaces[f"{cell.cell_folder}/{file_path.stem}"] = WaveSurferIntracellularInterface(
                 file_path=file_path,
+                cell_id=cell.cell_id,
                 stimulus_channel_name=stimulus_channel_name,
                 reconstruct_stimulus=mode != "izero",
                 metadata_key=file_path.stem,
             )
-            run_electrode_names[file_path.stem] = electrode_name
             run_modes[file_path.stem] = mode
             holding_current = held_run_currents.get(file_path.name, np.nan)
             if not np.isnan(holding_current):
                 run_holding_currents[file_path.stem] = float(holding_current)
         slice_number = re.fullmatch(r"m\d+ s(\d+)c\d+", cell.cell_id).group(1)
-        electrodes_metadata[electrode_name] = dict(
+        electrodes_metadata[cell.cell_id] = dict(
             name=electrode_name,
             device_metadata_key="axon_multiclamp",
             description=editable_metadata["Icephys"]["IntracellularElectrode"]["description"],
@@ -205,14 +204,11 @@ def session_to_nwb(
     for lookup_name in ("stress_group_to_description", "projection_target_to_surgery"):
         metadata.pop(lookup_name)
     metadata["Icephys"].pop("IntracellularElectrode")
-    # One electrode per cell, shared by the cell's runs, in place of the electrode each run would get by default
-    metadata["Icephys"]["IntracellularElectrodes"] = electrodes_metadata
     holding_potential_note = (
         f" The command is relative to the holding potential of {VOLTAGE_CLAMP_HOLDING_POTENTIAL:g} mV set on the "
         "amplifier."
     )
     for run_label, series_metadata in metadata["Icephys"]["PatchClampSeries"].items():
-        series_metadata["electrode_metadata_key"] = run_electrode_names[run_label]
         if run_label in run_holding_currents:
             series_metadata["bias_current"] = run_holding_currents[run_label] * 1e-12
     for registry in ("PatchClampStimulusSeries", "PatchClampStimulusTemplateSeries"):

@@ -137,10 +137,16 @@ def converter(current_clamp_file_path, voltage_clamp_file_path) -> Nadel2026NWBC
     return Nadel2026NWBConverter(
         data_interfaces={
             "cell/m203_0571-0573": WaveSurferIntracellularInterface(
-                file_path=current_clamp_file_path, reconstruct_stimulus=True, metadata_key="m203_0571-0573"
+                file_path=current_clamp_file_path,
+                cell_id="m203 s3c2",
+                reconstruct_stimulus=True,
+                metadata_key="m203_0571-0573",
             ),
             "cell/m203_0610": WaveSurferIntracellularInterface(
-                file_path=voltage_clamp_file_path, reconstruct_stimulus=True, metadata_key="m203_0610"
+                file_path=voltage_clamp_file_path,
+                cell_id="m203 s3c2",
+                reconstruct_stimulus=True,
+                metadata_key="m203_0610",
             ),
         }
     )
@@ -148,21 +154,15 @@ def converter(current_clamp_file_path, voltage_clamp_file_path) -> Nadel2026NWBC
 
 @pytest.fixture
 def metadata(converter) -> dict:
-    """The converter's metadata with both runs on one cell and the lab's log sheet entries."""
+    """The converter's metadata for two runs on one cell, with the lab's log sheet entries."""
     metadata = converter.get_metadata()
     metadata["Devices"]["digitizer"] = dict(name="PCIe6323", description="National Instruments PCIe-6323 digitizer.")
-    metadata["Icephys"]["IntracellularElectrodes"] = dict(
-        electrode_m203_s3c2=dict(
-            name="electrode_m203_s3c2",
-            device_metadata_key="axon_multiclamp",
-            description="Patch pipette.",
-            cell_id="m203 s3c2",
-            resistance="4.1 MOhm",
-            initial_access_resistance="15.5 MOhm",
-        )
+    metadata["Icephys"]["IntracellularElectrodes"]["m203 s3c2"].update(
+        name="electrode_m203_s3c2",
+        description="Patch pipette.",
+        resistance="4.1 MOhm",
+        initial_access_resistance="15.5 MOhm",
     )
-    for series_metadata in metadata["Icephys"]["PatchClampSeries"].values():
-        series_metadata["electrode_metadata_key"] = "electrode_m203_s3c2"
     metadata["Icephys"].update(
         Cells=dict(
             electrode_m203_s3c2=dict(

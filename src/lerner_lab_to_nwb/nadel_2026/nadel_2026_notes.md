@@ -63,8 +63,8 @@ One NWB file per recording day (one mouse), `sub-<animal id>_ses-<date>.nwb`, 34
 
 The WaveSurfer interface was written for this conversion and moved to NeuroConv. Until it is released, the
 requirements pin the NeuroConv branch or commit that has it. `Nadel2026NWBConverter` subclasses the WaveSurfer
-converter and adds the log sheet columns, the digitizer, and the external resources. Each run's series point at the
-cell's electrode through `electrode_metadata_key` in the metadata.
+converter and adds the log sheet columns, the digitizer, and the external resources. Each run's interface is given
+its cell's id as `cell_id`, so the runs of a cell share one electrode.
 
 ## Data decisions
 
